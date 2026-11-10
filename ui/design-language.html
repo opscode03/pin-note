@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>设计语言 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .spec-head { display: flex; align-items: baseline; gap: 14px; padding: 26px 32px 4px; }
+  .spec-head h1 { font-size: var(--text-2xl); font-weight: 700; }
+  .spec-head span { font-size: var(--text-xs); color: var(--color-text-2); }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; padding: 16px 32px 40px; }
+  .span2 { grid-column: span 2; }
+  @media (max-width: 780px) { .span2 { grid-column: span 1; } }
+  .big-sw { width: 84px; height: 84px; border-radius: var(--radius-md); }
+  .sw-lbl { text-align: center; margin-top: 8px; }
+  .sw-lbl b { display: block; font-size: 11px; }
+  .sw-lbl span { font-size: 11px; color: var(--color-text-2); font-family: var(--font-mono); }
+  .gray-row { display: flex; gap: 7px; }
+  .gray-row .swatch { width: 44px; height: 88px; }
+  .note-sw { width: 128px; height: 76px; border-radius: var(--radius-md); padding: 10px 12px; }
+  .note-sw b { display: block; font-size: 11px; font-weight: 600; }
+  .note-sw span { font-size: 11px; font-family: var(--font-mono); }
+  .type-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .type-row span { font-size: 11px; color: var(--color-text-2); flex: none; margin-left: 16px; }
+  .tile-demo { width: 96px; height: 96px; background: var(--color-surface); }
+  .tile-lbl { text-align: center; font-size: 11px; color: var(--color-text-2); margin-top: 10px; }
+  .icon-cell { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .icon-cell svg { width: 22px; height: 22px; color: var(--color-text-2); }
+  .icon-cell span { font-size: 11px; color: var(--color-text-2); }
+  .btn-lbl { text-align: center; font-size: 11px; color: var(--color-text-2); margin-top: 8px; }
+  .st-row { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+  .st-k { width: 52px; font-size: 11px; color: var(--color-text-2); flex: none; }
+  .nav-demo { background: var(--color-surface-2); border: 1px solid var(--color-line); border-radius: var(--radius-sm); padding: 6px; width: 216px; }
+</style>
+</head>
+<body>
+<div class="win">
+
+  <header class="titlebar">
+    <span class="logo"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+    <span class="tb-name">贴记 PinNote · 设计语言规范</span>
+    <a class="tb-search" href="search.html">
+      <svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索任务与便签…
+      <span style="display:flex;gap:4px;"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+    </a>
+    <div class="tb-right">
+      <a class="icon-btn" href="dark.html"><svg class="ic"><use href="icons.svg#theme"/></svg></a>
+      <a class="icon-btn" href="settings.html"><svg class="ic"><use href="icons.svg#gear"/></svg></a>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="spec-head">
+      <h1>设计语言规范</h1>
+      <span>Design Language V1.0 · 与 PRD 第 7 章对应 · 适用于全部平台</span>
+    </div>
+
+    <div class="spec-grid">
+
+      <section class="spec-card">
+        <div class="spec-title">主色与语义色</div>
+        <div style="display:flex;gap:20px;">
+          <div><span class="big-sw" style="background:var(--color-primary);"></span><div class="sw-lbl"><b>主色</b><span>#4A7DFF</span></div></div>
+          <div><span class="big-sw" style="background:var(--color-primary-strong);"></span><div class="sw-lbl"><b>主色 · 深</b><span>#3863DB</span></div></div>
+        </div>
+        <div style="display:flex;gap:22px;margin-top:18px;">
+          <div><span class="swatch" style="width:46px;height:46px;background:var(--color-success);display:block;"></span><div class="sw-lbl"><b>成功</b><span>#22C55E</span></div></div>
+          <div><span class="swatch" style="width:46px;height:46px;background:var(--color-warning);display:block;"></span><div class="sw-lbl"><b>警示</b><span>#F09917</span></div></div>
+          <div><span class="swatch" style="width:46px;height:46px;background:var(--color-danger);display:block;"></span><div class="sw-lbl"><b>危险</b><span>#EB5757</span></div></div>
+          <div><span class="swatch" style="width:46px;height:46px;background:var(--color-violet);display:block;"></span><div class="sw-lbl"><b>标签</b><span>#7C5CFF</span></div></div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-title">中性色 · 文本 / 边框 / 背景</div>
+        <div class="gray-row">
+          <div><span class="swatch" style="background:#1F2329;display:block;"></span><div class="sw-lbl"><b></b><span>#1F2329</span></div></div>
+          <div><span class="swatch" style="background:#6C7380;display:block;"></span><div class="sw-lbl"><b></b><span>#6C7380</span></div></div>
+          <div><span class="swatch" style="background:#9EA4B0;display:block;"></span><div class="sw-lbl"><b></b><span>#9EA4B0</span></div></div>
+          <div><span class="swatch" style="background:#C9CDD6;display:block;"></span><div class="sw-lbl"><b></b><span>#C9CDD6</span></div></div>
+          <div><span class="swatch" style="background:#E4E7EC;display:block;"></span><div class="sw-lbl"><b></b><span>#E4E7EC</span></div></div>
+          <div><span class="swatch" style="background:#F5F6F8;display:block;"></span><div class="sw-lbl"><b></b><span>#F5F6F8</span></div></div>
+          <div><span class="swatch" style="background:#FFFFFF;display:block;"></span><div class="sw-lbl"><b></b><span>#FFFFFF</span></div></div>
+        </div>
+        <p style="font-size:11px;color:var(--color-text-2);margin-top:16px;line-height:1.8;">
+          文本三级 #1F2329 · #6C7380 · #9EA4B0<br>边框 #E4E7EC · 内容区 #F5F6F8 · 卡片 #FFFFFF
+        </p>
+      </section>
+
+      <section class="spec-card span2">
+        <div class="spec-title">便签 8 色 · Sticky Palette</div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;">
+          <span class="note-sw sticky" data-color="lemon"><b>柠檬黄</b><span>#FFE994</span></span>
+          <span class="note-sw sticky" data-color="apricot"><b>杏橘</b><span>#FFD8B2</span></span>
+          <span class="note-sw sticky" data-color="cherry"><b>樱花粉</b><span>#FFD1DC</span></span>
+          <span class="note-sw sticky" data-color="mint"><b>薄荷绿</b><span>#C9F0D6</span></span>
+          <span class="note-sw sticky" data-color="sky"><b>天空蓝</b><span>#C6E4FF</span></span>
+          <span class="note-sw sticky" data-color="lavender"><b>薰衣草</b><span>#DDD4FF</span></span>
+          <span class="note-sw sticky" data-color="paper"><b>纸白</b><span>#F2F2F5</span></span>
+          <span class="note-sw sticky" data-color="night"><b>暮夜</b><span>#383942</span></span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-title">字体与字号 · 微软雅黑 UI / Segoe UI</div>
+        <div class="type-row"><span style="font-size:22px;font-weight:700;">今天 · 待办</span><span>22 · 页面标题</span></div>
+        <div class="type-row"><span style="font-size:18px;font-weight:700;">便签库</span><span>18 · 区块标题</span></div>
+        <div class="type-row"><span style="font-size:14px;font-weight:600;">任务标题示例</span><span>14 · 卡片标题</span></div>
+        <div class="type-row"><span style="font-size:13px;">正文文本示例，行高 1.4</span><span>13 · 正文</span></div>
+        <div class="type-row"><span style="font-size:12px;">辅助说明文本</span><span>12 · 辅助</span></div>
+        <div class="type-row"><span style="font-size:11px;">标签 · 时间戳</span><span>11 · 标签</span></div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-title">圆角与阴影</div>
+        <div style="display:flex;gap:22px;">
+          <div><span class="tile-demo" style="border-radius:8px;box-shadow:0 2px 8px rgba(15,23,42,.08);border:1px solid var(--color-line);display:block;"></span><div class="tile-lbl">r8 · 控件 · 近阴影</div></div>
+          <div><span class="tile-demo" style="border-radius:10px;border:1px solid var(--color-line);display:block;"></span><div class="tile-lbl">r10 · 卡片</div></div>
+          <div><span class="tile-demo" style="border-radius:14px;box-shadow:0 12px 32px rgba(15,23,42,.16);border:1px solid var(--color-line);display:block;"></span><div class="tile-lbl">r14 · 窗口 · 远阴影</div></div>
+        </div>
+        <p style="font-size:11px;color:var(--color-text-2);margin-top:16px;line-height:1.8;">
+          阴影 近 0,2,8 / 8% · 远 0,12,32 / 16%<br>间距基准 4px · 桌面贴网格吸附 24px
+        </p>
+      </section>
+
+      <section class="spec-card span2">
+        <div class="spec-title">图标 · Fluent 线性 1.75px · 16 / 20 / 24</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:16px;">
+          <span class="icon-cell"><svg><use href="icons.svg#plus"/></svg><span>plus</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#close"/></svg><span>close</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#check"/></svg><span>check</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#search"/></svg><span>search</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#calendar"/></svg><span>calendar</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#clock"/></svg><span>clock</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#bell"/></svg><span>bell</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#flag"/></svg><span>flag</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#tag"/></svg><span>tag</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#pin"/></svg><span>pin</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#layers"/></svg><span>layers</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#note"/></svg><span>note</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#gear"/></svg><span>gear</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#theme"/></svg><span>theme</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#sync"/></svg><span>sync</span></span>
+          <span class="icon-cell"><svg><use href="icons.svg#trash"/></svg><span>trash</span></span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-title">按钮与操作</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+          <div><a class="btn btn-primary" href="#"><svg class="ic"><use href="icons.svg#plus"/></svg>新建任务</a><div class="btn-lbl">主按钮</div></div>
+          <div><a class="btn btn-secondary" href="#">存为便签</a><div class="btn-lbl">次按钮</div></div>
+          <div><a class="btn btn-danger" href="#"><svg class="ic"><use href="icons.svg#trash"/></svg>删除</a><div class="btn-lbl">危险操作</div></div>
+          <div><a class="btn btn-disabled" href="#">已保存</a><div class="btn-lbl">禁用</div></div>
+          <div><a class="link" style="font-size:13px;display:inline-block;padding:6px 0;" href="#">查看全部 →</a><div class="btn-lbl">文本链接</div></div>
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:22px;align-items:flex-start;">
+          <div><a class="icon-btn" href="#"><svg class="ic"><use href="icons.svg#plus"/></svg></a><div class="btn-lbl">图标按钮</div></div>
+          <div><a class="icon-btn active" href="#"><svg class="ic"><use href="icons.svg#plus"/></svg></a><div class="btn-lbl">激活</div></div>
+          <div><span style="display:flex;gap:4px;"><kbd>Ctrl</kbd><kbd>K</kbd></span><div class="btn-lbl">快捷键提示</div></div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-title">选择与状态</div>
+        <div class="st-row"><span class="st-k">复选框</span>
+          <span class="cb"></span><span class="cb" style="border-color:var(--color-primary);"></span>
+          <span class="cb done"><svg><use href="icons.svg#check"/></svg></span>
+        </div>
+        <div class="st-row"><span class="st-k">Chip 色彩</span>
+          <span class="chip chip-accent"><svg><use href="icons.svg#clock"/></svg>今天 14:00</span>
+          <span class="chip chip-violet">#设计</span>
+          <span class="chip chip-red"><svg><use href="icons.svg#flag"/></svg>高</span>
+          <span class="chip chip-neutral">清单 · 工作</span>
+        </div>
+        <div class="st-row"><span class="st-k">开关</span>
+          <span class="switch on"></span><span class="switch"></span>
+        </div>
+        <div class="st-row"><span class="st-k">进度</span>
+          <span class="pbar lg"><i style="width:50%;"></i></span>
+          <span class="ring" style="--p:37.5;"></span>
+          <span class="nav-badge">8</span>
+        </div>
+        <div class="st-row"><span class="st-k">导航项</span>
+          <span class="nav-demo">
+            <span class="nav-item"><span class="nav-dot" style="background:var(--dot-work);"></span>工作</span>
+            <span class="nav-item active"><span class="nav-dot" style="background:var(--dot-life);"></span>生活</span>
+          </span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

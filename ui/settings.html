@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>设置 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .back-link { display: flex; align-items: center; gap: 7px; margin: 4px 10px 0; padding: 8px 12px; font-size: 12.5px; color: var(--color-text-2); border-radius: var(--radius-sm); }
+  .back-link:hover { color: var(--color-text); }
+  .back-link svg { width: 13px; height: 13px; }
+  .set-title { font-size: var(--text-lg); font-weight: 700; padding: 14px 22px 8px; }
+  .set-card { margin: 0 32px 20px; padding: 22px 24px; max-width: 940px; }
+  .set-card h3 { font-size: var(--text-sm); font-weight: 600; margin-bottom: 16px; }
+  .th-row { display: flex; gap: 26px; }
+  .th-tile { width: 236px; }
+  .th-prev { height: 78px; border: 1px solid var(--color-line); border-radius: var(--radius-sm); display: flex; overflow: hidden; }
+  .th-tile.on .th-prev { border-color: var(--color-primary); border-width: 1.5px; }
+  .th-side { width: 44px; flex: none; }
+  .th-bars { flex: 1; padding: 10px 12px 0; display: flex; flex-direction: column; gap: 7px; }
+  .th-bars i { height: 8px; border-radius: 4px; }
+  .th-tile .radio { margin-right: 8px; }
+  .th-label { display: flex; align-items: center; margin-top: 10px; font-size: 12px; color: var(--color-text-2); }
+  .th-tile.on .th-label { color: var(--color-text); font-weight: 600; }
+  .acc-row { display: flex; align-items: center; gap: 18px; }
+  .acc-dot { width: 34px; height: 34px; border-radius: 50%; position: relative; flex: none; }
+  .acc-dot.on { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+  .acc-add { width: 34px; height: 34px; border-radius: 50%; border: 1.4px dashed var(--color-line-strong); display: flex; align-items: center; justify-content: center; color: var(--color-faint); }
+  .mode-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 14px; }
+  .mode-row .radio { margin-top: 2px; }
+  .mode-row b { font-size: var(--text-sm); font-weight: 600; display: block; }
+  .mode-row span { font-size: 12px; color: var(--color-text-2); display: block; margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="win">
+
+  <header class="titlebar">
+    <span class="logo"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+    <span class="tb-name">贴记 PinNote</span>
+    <a class="tb-search" href="search.html">
+      <svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索任务与便签…
+      <span style="display:flex;gap:4px;"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+    </a>
+    <div class="tb-right">
+      <a class="icon-btn" href="dark.html"><svg class="ic"><use href="icons.svg#theme"/></svg></a>
+      <a class="icon-btn" href="settings.html"><svg class="ic"><use href="icons.svg#gear"/></svg></a>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <nav class="sidebar">
+      <a class="back-link" href="home.html"><svg><use href="icons.svg#chevron-left"/></svg>返回</a>
+      <div class="set-title">设置</div>
+      <a class="nav-item active" href="settings.html"><svg class="ic"><use href="icons.svg#theme"/></svg>外观</a>
+      <a class="nav-item" href="#"><svg class="ic"><use href="icons.svg#gear"/></svg>行为</a>
+      <a class="nav-item" href="#"><svg class="ic"><use href="icons.svg#keyboard"/></svg>热键</a>
+      <a class="nav-item" href="tray.html"><svg class="ic"><use href="icons.svg#bell"/></svg>通知</a>
+      <a class="nav-item" href="#"><svg class="ic"><use href="icons.svg#folder"/></svg>数据</a>
+      <a class="nav-item" href="account.html"><svg class="ic"><use href="icons.svg#person"/></svg>账户</a>
+      <a class="nav-item" href="#"><svg class="ic"><use href="icons.svg#info"/></svg>关于</a>
+      <div class="side-foot">
+        <span class="avatar">晓</span>
+        <div class="who"><b>李晓</b><span>本地模式 · 数据已同步</span></div>
+        <svg class="ic-sm"><use href="icons.svg#sync"/></svg>
+      </div>
+    </nav>
+
+    <main class="content">
+      <div class="page-head">
+        <h1>外观</h1>
+        <span class="sub">主题、强调色、字号与桌面贴默认模式</span>
+      </div>
+
+      <div class="card set-card" style="margin-top:16px;">
+        <h3>主题</h3>
+        <div class="th-row">
+          <a class="th-tile on" href="settings.html">
+            <div class="th-prev" style="background:#fff;">
+              <span class="th-side" style="background:#F5F6F8;"></span>
+              <span class="th-bars"><i style="background:#E4E7EC;width:70%;"></i><i style="background:#E4E7EC;width:50%;"></i><i style="background:#E4E7EC;width:60%;"></i></span>
+            </div>
+            <span class="th-label"><span class="radio on"></span>浅色</span>
+          </a>
+          <a class="th-tile" href="dark.html">
+            <div class="th-prev" style="background:#1E1F27;">
+              <span class="th-side" style="background:#191A20;"></span>
+              <span class="th-bars"><i style="background:#2F313A;width:70%;"></i><i style="background:#2F313A;width:50%;"></i><i style="background:#2F313A;width:60%;"></i></span>
+            </div>
+            <span class="th-label"><span class="radio"></span>深色</span>
+          </a>
+          <a class="th-tile" href="settings.html">
+            <div class="th-prev">
+              <span style="flex:1;background:#fff;display:flex;overflow:hidden;">
+                <span class="th-side" style="background:#F5F6F8;"></span>
+                <span class="th-bars"><i style="background:#E4E7EC;width:68%;"></i><i style="background:#E4E7EC;width:45%;"></i></span>
+              </span>
+              <span style="flex:1;background:#1E1F27;display:flex;overflow:hidden;">
+                <span class="th-side" style="background:#191A20;"></span>
+                <span class="th-bars"><i style="background:#2F313A;width:68%;"></i><i style="background:#2F313A;width:45%;"></i></span>
+              </span>
+            </div>
+            <span class="th-label"><span class="radio"></span>跟随系统</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="card set-card">
+        <h3>强调色</h3>
+        <div class="acc-row">
+          <span class="acc-dot on" style="background:var(--color-primary);"></span>
+          <span class="acc-dot" style="background:var(--color-success);"></span>
+          <span class="acc-dot" style="background:var(--color-teal);"></span>
+          <span class="acc-dot" style="background:var(--color-violet);"></span>
+          <span class="acc-dot" style="background:var(--color-pink);"></span>
+          <span class="acc-dot" style="background:var(--color-warning);"></span>
+          <span class="acc-dot" style="background:var(--color-danger);"></span>
+          <span class="acc-dot" style="background:#383A42;"></span>
+          <a class="acc-add" href="#"><svg class="ic-sm"><use href="icons.svg#plus"/></svg></a>
+        </div>
+      </div>
+
+      <div class="card set-card">
+        <h3>界面字号</h3>
+        <div style="display:flex;align-items:center;gap:28px;">
+          <span class="seg"><span class="seg-item">小</span><span class="seg-item on">中</span><span class="seg-item">大</span></span>
+          <span style="font-size:var(--text-md);color:var(--color-text);">今天 · 设计评审材料准备 <span style="color:var(--color-text-2);">Aa 123</span></span>
+        </div>
+      </div>
+
+      <div class="card set-card">
+        <h3>桌面贴默认模式</h3>
+        <div class="mode-row">
+          <span class="radio on"></span>
+          <div><b>壁纸层（推荐）</b><span>嵌入桌面壁纸层，不遮挡任何窗口，Win+D 不受影响</span></div>
+        </div>
+        <div class="mode-row">
+          <span class="radio"></span>
+          <div><b>置顶显示</b><span>始终位于所有窗口之上，适合当前最重要的一件事</span></div>
+        </div>
+        <a class="link" style="display:inline-block;margin-top:12px;padding:6px 0;font-size:12px;" href="pin-controls.html">两种模式可在桌面贴右键菜单中随时切换 →</a>
+      </div>
+
+    </main>
+  </div>
+</div>
+</body>
+</html>

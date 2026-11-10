@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>便签库 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; padding: 10px 32px 32px; }
+  .ncard { display: flex; flex-direction: column; min-height: 188px; padding: 16px 18px; transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .ncard:hover { transform: translateY(-2px); box-shadow: var(--shadow-far); }
+  .nc-top { display: flex; align-items: center; gap: 8px; }
+  .nc-top .more { margin-left: auto; color: var(--note-ink2); }
+  .ncard .s-check { margin-top: 11px; }
+  .nc-foot { margin-top: auto; display: flex; align-items: center; padding-top: 12px; }
+  .nc-time { margin-left: auto; font-size: 11px; color: var(--note-ink2); }
+  .add-card {
+    border: 1.5px dashed var(--color-line-strong); border-radius: var(--radius-md);
+    min-height: 188px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    color: var(--color-faint); font-size: 12.5px; transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .add-card:hover { border-color: var(--color-primary); color: var(--color-primary-strong); }
+  .seg .icon-btn { width: 28px; height: 26px; }
+</style>
+</head>
+<body>
+<div class="win">
+
+  <header class="titlebar">
+    <span class="logo"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+    <span class="tb-name">贴记 PinNote</span>
+    <a class="tb-search" href="search.html">
+      <svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索任务与便签…
+      <span style="display:flex;gap:4px;"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+    </a>
+    <div class="tb-right">
+      <a class="icon-btn" href="dark.html" title="切换主题"><svg class="ic"><use href="icons.svg#theme"/></svg></a>
+      <a class="icon-btn" href="settings.html" title="设置"><svg class="ic"><use href="icons.svg#gear"/></svg></a>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <nav class="sidebar">
+      <a class="nav-item" href="home.html"><svg class="ic"><use href="icons.svg#calendar"/></svg>今日<span class="nav-badge">5</span></a>
+      <a class="nav-item" href="empty-states.html"><svg class="ic"><use href="icons.svg#clock"/></svg>最近 7 天<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="#"><svg class="ic"><use href="icons.svg#layers"/></svg>全部<span class="nav-badge">38</span></a>
+      <a class="nav-item" href="empty-states.html"><svg class="ic"><use href="icons.svg#check"/></svg>已完成</a>
+      <a class="nav-item active" href="notes.html"><svg class="ic"><use href="icons.svg#pin"/></svg>便签库<span class="nav-badge">8</span></a>
+
+      <div class="nav-section">清单</div>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-inbox)"></span>收件箱<span class="nav-badge">3</span></a>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-work)"></span>工作<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-life)"></span>生活<span class="nav-badge">9</span></a>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-study)"></span>学习<span class="nav-badge">6</span></a>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-read)"></span>阅读<span class="nav-badge">8</span></a>
+
+      <div class="nav-section">标签</div>
+      <a class="nav-item" href="#"><span class="nav-hash" style="color:var(--color-danger-strong)">#</span>重要</a>
+      <a class="nav-item" href="#"><span class="nav-hash" style="color:var(--color-primary-strong)">#</span>设计</a>
+      <a class="nav-item" href="#"><span class="nav-hash" style="color:var(--color-teal-strong)">#</span>复盘</a>
+
+      <a class="nav-item nav-new" href="#"><svg class="ic"><use href="icons.svg#plus"/></svg>新建清单</a>
+
+      <div class="side-foot">
+        <span class="avatar">晓</span>
+        <div class="who"><b>李晓</b><span>本地模式 · 数据已同步</span></div>
+        <svg class="ic-sm"><use href="icons.svg#sync"/></svg>
+      </div>
+    </nav>
+
+    <main class="content">
+      <div class="page-head">
+        <h1>便签库</h1>
+        <span class="sub">8 张便签 · 3 张贴在桌面</span>
+        <div class="spacer">
+          <span class="seg">
+            <a class="icon-btn active" href="notes.html"><svg class="ic-sm"><use href="icons.svg#grid-view"/></svg></a>
+            <a class="icon-btn" href="#"><svg class="ic-sm"><use href="icons.svg#list-view"/></svg></a>
+          </span>
+          <a class="btn btn-primary" href="note-editor.html"><svg class="ic"><use href="icons.svg#plus"/></svg>新建便签</a>
+        </div>
+      </div>
+
+      <div class="notes-grid">
+
+        <a class="ncard sticky" data-color="lemon" href="note-editor.html">
+          <div class="nc-top">
+            <span class="sticky-title" style="font-size:var(--text-md);">周报要点</span>
+            <span class="note-chip" style="margin-left:8px;"><svg><use href="icons.svg#pin"/></svg>桌面</span>
+            <svg class="ic-sm more"><use href="icons.svg#more"/></svg>
+          </div>
+          <div class="s-check done"><span class="cb done sm"><svg><use href="icons.svg#check"/></svg></span><span>竞品动态梳理</span></div>
+          <div class="s-check done"><span class="cb done sm"><svg><use href="icons.svg#check"/></svg></span><span>数据指标核对</span></div>
+          <div class="s-check"><span class="cb sm"></span><span>Q4 目标对齐</span></div>
+          <div class="nc-foot"><span class="note-chip">#工作</span><span class="nc-time">2 小时前</span></div>
+        </a>
+
+        <a class="ncard sticky" data-color="sky" href="note-editor.html">
+          <div class="nc-top">
+            <span class="sticky-title" style="font-size:var(--text-md);">书单</span>
+            <svg class="ic-sm more"><use href="icons.svg#more"/></svg>
+          </div>
+          <div class="s-check"><span class="cb sm"></span><span>《卡片笔记写作法》</span></div>
+          <div class="s-check"><span class="cb sm"></span><span>《认知觉醒》</span></div>
+          <div class="s-check"><span class="cb sm"></span><span>《瞬间之美》</span></div>
+          <div class="nc-foot"><span class="note-chip">#阅读</span><span class="nc-time">3 天前</span></div>
+        </a>
+
+        <a class="ncard sticky" data-color="mint" href="note-editor.html">
+          <div class="nc-top">
+            <span class="sticky-title" style="font-size:var(--text-md);">健身计划</span>
+            <span class="note-chip" style="margin-left:8px;"><svg><use href="icons.svg#pin"/></svg>桌面</span>
+            <svg class="ic-sm more"><use href="icons.svg#more"/></svg>
+          </div>
+          <div class="s-check done"><span class="cb done sm"><svg><use href="icons.svg#check"/></svg></span><span>跑步 3 公里</span></div>
+          <div class="s-check"><span class="cb sm"></span><span>力量训练</span></div>
+          <div class="s-check"><span class="cb sm"></span><span>拉伸 10 分钟</span></div>
+          <div class="nc-foot"><span class="nc-time">昨天</span></div>
+        </a>
+
+        <a class="ncard sticky" data-color="cherry" href="note-editor.html">
+          <div class="nc-top">
+            <span class="sticky-title" style="font-size:var(--text-md);">灵感</span>
+            <svg class="ic-sm more"><use href="icons.svg#more"/></svg>
+          </div>
+          <div class="s-check"><span class="cb sm"></span><span>把提醒做成可选的</span></div>
+          <div class="s-check"><span class="cb sm"></span><span>『贴纸边角』样式？</span></div>
+          <div class="nc-foot"><span class="note-chip">#设计</span><span class="nc-time">11月6日</span></div>
+        </a>
+
+        <a class="ncard sticky" data-color="lavender" href="note-editor.html">
+          <div class="nc-top">
+            <span class="sticky-title" style="font-size:var(--text-md);">Wi-Fi 密码</span>
+            <svg class="ic-sm" style="color:var(--note-ink2);margin-left:6px;"><use href="icons.svg#lock"/></svg>
+            <span class="note-chip" style="margin-left:auto;"><svg><use href="icons.svg#pin"/></svg>桌面</span>
+            <svg class="ic-sm more"><use href="icons.svg#more"/></svg>
+          </div>
+          <div class="s-line" style="margin-top:12px;">客厅：pinnote2026</div>
+          <div class="s-line">客房：hello888</div>
+          <div class="nc-foot"><span class="nc-time">10月28日</span></div>
+        </a>
+
+        <a class="ncard sticky" data-color="paper" href="note-editor.html">
+          <div class="nc-top">
+            <span class="sticky-title" style="font-size:var(--text-md);">购物清单</span>
+            <svg class="ic-sm more"><use href="icons.svg#more"/></svg>
+          </div>
+          <div class="s-check"><span class="cb sm"></span><span>咖啡豆</span></div>
+          <div class="s-check"><span class="cb sm"></span><span>滤纸</span></div>
+          <div class="s-check done"><span class="cb done sm"><svg><use href="icons.svg#check"/></svg></span><span>猫砂</span></div>
+          <div class="nc-foot"><span class="nc-time">11月8日</span></div>
+        </a>
+
+        <a class="add-card" href="note-editor.html">
+          <svg class="ic-xl"><use href="icons.svg#plus"/></svg>
+          新建便签
+        </a>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+</body>
+</html>

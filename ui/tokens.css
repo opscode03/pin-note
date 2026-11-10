@@ -1,0 +1,124 @@
+/* ============================================================
+   贴记 PinNote · Windows 桌面端 · 设计变量（设计语言规范 V1.0）
+   与 PRD 第 7 章 / 设计语言规范板对应；换风格只改这个文件
+   ============================================================ */
+:root {
+  /* ---- 字体 ---- */
+  --font-sans: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: ui-monospace, Cascadia Mono, Consolas, monospace;
+
+  /* ---- 字号阶梯（桌面密度） ---- */
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 22px;
+
+  /* ---- 间距（4 / 8 的倍数） ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* ---- 中性色（按角色） ---- */
+  --color-bg: #F5F6F8;            /* 内容区背景 */
+  --color-surface: #FFFFFF;       /* 卡片、弹层、侧栏上的面板 */
+  --color-surface-2: #FAFBFC;     /* 侧栏 */
+  --color-surface-3: #F4F5F7;     /* 分组底、输入底 */
+  --color-text: #1F2329;          /* 一级文本 */
+  --color-text-2: #5A6270;        /* 二级文本 */
+  --color-faint: #676F7A;         /* 三级文本 / 占位（对白底 ≥ 4.5:1） */
+  --color-line: #E4E7EC;          /* 边框、分割线 */
+  --color-line-strong: #D6DAE2;   /* 描边按钮、输入框描边 */
+  --color-hover: #F2F4F7;         /* 悬停底 */
+
+  /* ---- 主色 ---- */
+  --color-primary: #3867E0;
+  --color-primary-strong: #2C52C8;
+  --color-primary-tint: #E8EEFF;
+  --color-sel-bg: #EBF1FF;        /* 选中行底 */
+  --color-sel-text: #3863DB;      /* 选中行文字 */
+
+  /* ---- 语义色（strong = 文字用，tint = 底色用） ---- */
+  --color-success: #22C55E;  --color-success-strong: #0E7A3C;  --color-success-tint: #E2F8ED;
+  --color-warning: #F09917;  --color-warning-strong: #93590A;  --color-warning-tint: #FDF2E0;
+  --color-danger: #EB5757;   --color-danger-strong: #B32E2E;   --color-danger-tint: #FEEAEA;
+  --color-violet: #7C5CFF;   --color-violet-strong: #5F42D6;   --color-violet-tint: #EFEAFF;
+  --color-teal: #0DAA9E;     --color-teal-strong: #08716A;     --color-teal-tint: #E0F7F5;
+  --color-pink: #DB4A94;     --color-pink-strong: #C83482;     --color-pink-tint: #FCEAF3;
+
+  /* ---- 清单色点 ---- */
+  --dot-inbox: #4A7DFF;
+  --dot-work: #7C5CFF;
+  --dot-life: #22C55E;
+  --dot-study: #F09917;
+  --dot-read: #DB4A94;
+
+  /* ---- 便签 8 色（data-color 引用） ---- */
+  --sticky-lemon-bg: #FFE994;    --sticky-lemon-line: #ECCE60;  --sticky-lemon-ink: #574414;  --sticky-lemon-ink2: #705D28;  --sticky-lemon-fold: #EBD886;
+  --sticky-apricot-bg: #FFD8B2;  --sticky-apricot-line: #EEBE8C; --sticky-apricot-ink: #6E421C; --sticky-apricot-ink2: #84562B; --sticky-apricot-fold: #F2C79C;
+  --sticky-cherry-bg: #FFD1DC;   --sticky-cherry-line: #EEA8BA;  --sticky-cherry-ink: #7A2A44;  --sticky-cherry-ink2: #8E4357;  --sticky-cherry-fold: #F5BCCB;
+  --sticky-mint-bg: #C9F0D6;     --sticky-mint-line: #9AD6B2;   --sticky-mint-ink: #145C38;   --sticky-mint-ink2: #2E7049;   --sticky-mint-fold: #B5E4C6;
+  --sticky-sky-bg: #C6E4FF;      --sticky-sky-line: #9AC4F0;    --sticky-sky-ink: #184E96;    --sticky-sky-ink2: #3264A2;    --sticky-sky-fold: #B2D9F9;
+  --sticky-lavender-bg: #DDD4FF; --sticky-lavender-line: #BAAEF2; --sticky-lavender-ink: #4E36A8; --sticky-lavender-ink2: #5B46AE; --sticky-lavender-fold: #CEC2F7;
+  --sticky-paper-bg: #F2F2F5;    --sticky-paper-line: #D8D9E0;  --sticky-paper-ink: #383A42;   --sticky-paper-ink2: #4E4F56;   --sticky-paper-fold: #E4E4E9;
+  --sticky-night-bg: #383942;    --sticky-night-line: #505260;  --sticky-night-ink: #ECECF2;   --sticky-night-ink2: #CECFD6;   --sticky-night-fold: #2E2F37;
+
+  /* ---- 图钉与胶带 ---- */
+  --tack-red: #DB4C4C;
+  --tape: rgba(255, 255, 255, 0.45);
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 8px;    /* 控件 */
+  --radius-md: 10px;   /* 卡片、便签 */
+  --radius-lg: 14px;   /* 窗口、浮层 */
+  --radius-full: 999px;
+
+  /* ---- 阴影 ---- */
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.08);
+  --shadow-far: 0 12px 32px rgba(15, 23, 42, 0.16);
+  --shadow-lift: 0 20px 48px rgba(8, 14, 28, 0.30);
+
+  /* ---- 动效 ---- */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur: 180ms;
+}
+
+/* ---- 深色模式：<html data-theme="dark">（对应 PRD 7.8） ---- */
+[data-theme="dark"] {
+  --color-bg: #1E1F27;
+  --color-surface: #262832;
+  --color-surface-2: #191A20;
+  --color-surface-3: #2F313C;
+  --color-text: #E9EAEE;
+  --color-text-2: #A2A8B4;
+  --color-faint: #989DA8;
+  --color-line: #2F313A;
+  --color-line-strong: #3B3E4A;
+  --color-hover: #282A34;
+
+  --color-primary: #3867E0;
+  --color-primary-strong: #8AA8FF;
+  --color-primary-tint: #2F3756;
+  --color-sel-bg: #2F354C;
+  --color-sel-text: #9EB7FF;
+
+  --color-success: #6CDCA4;  --color-success-strong: #6CDCA4;  --color-success-tint: #1E3C2E;
+  --color-warning: #F7BE66;  --color-warning-strong: #F7BE66;  --color-warning-tint: #46361C;
+  --color-danger: #FF8A80;   --color-danger-strong: #FF8A80;   --color-danger-tint: #4C2A2C;
+  --color-violet: #BAA6FF;   --color-violet-strong: #BAA6FF;   --color-violet-tint: #362E52;
+  --color-teal: #6CD6CA;     --color-teal-strong: #6CD6CA;     --color-teal-tint: #1A3A37;
+  --color-pink: #FF98C4;     --color-pink-strong: #FF98C4;     --color-pink-tint: #462636;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.30);
+  --shadow-far: 0 12px 32px rgba(0, 0, 0, 0.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0ms; }
+}

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>便签编辑 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .editor-wrap { display: flex; align-items: center; gap: 26px; }
+  .note-win { width: 470px; border-radius: var(--radius-lg); box-shadow: var(--shadow-far); padding: 18px 20px; display: flex; flex-direction: column; }
+  .nw-head { display: flex; align-items: center; gap: 8px; }
+  .nw-head .kind { font-size: var(--text-2xs); color: var(--note-ink2); }
+  .pill { height: 26px; padding: 0 13px; border-radius: 13px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .pill svg { width: 11px; height: 11px; }
+  .pill-primary { background: var(--color-primary); color: #fff; }
+  .pill-outline { border: 1px solid var(--note-line); background: color-mix(in srgb, var(--note-bg) 45%, #fff); color: var(--note-ink); }
+  .nw-head .icon-btn { width: 26px; height: 26px; color: var(--note-ink2); }
+  .nw-head .icon-btn:hover { background: color-mix(in srgb, var(--note-bg) 40%, #fff); color: var(--note-ink); }
+  .toolbar { display: flex; align-items: center; gap: 1px; padding: 7px 2px; border-top: 1px solid var(--note-line); border-bottom: 1px solid var(--note-line); background: color-mix(in srgb, var(--note-bg) 70%, #fff); margin: 14px -20px 6px; }
+  .tb-btn { min-width: 30px; height: 30px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; color: var(--note-ink2); font-size: 13px; font-weight: 700; padding: 0 4px; }
+  .tb-btn svg { width: 15px; height: 15px; }
+  .tb-btn:hover { background: color-mix(in srgb, var(--note-bg) 38%, #fff); color: var(--note-ink); }
+  .tb-btn.on { background: color-mix(in srgb, var(--note-bg) 25%, #fff); color: var(--note-ink); }
+  .tb-sep { width: 1px; height: 16px; background: var(--note-line); margin: 0 6px; }
+  .ed-title { font-size: var(--text-xl); font-weight: 700; margin-top: 12px; }
+  .ed-check { display: flex; align-items: center; gap: 12px; margin-top: 13px; font-size: var(--text-sm); }
+  .ed-check .cb { border-color: color-mix(in srgb, var(--note-ink) 42%, var(--note-bg)); color: var(--note-bg); width: 16px; height: 16px; }
+  .ed-check.done .cb { background: var(--note-ink); border-color: var(--note-ink); }
+  .ed-check.done span { color: var(--note-ink); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--note-ink) 55%, var(--note-bg)); }
+  .ed-hl { display: inline-block; margin-top: 16px; padding: 3px 9px; border-radius: 6px; background: color-mix(in srgb, var(--note-bg) 35%, #fff); font-size: var(--text-sm); }
+  .ed-tag { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; height: 22px; padding: 0 10px 0 11px; border-radius: var(--radius-full); background: color-mix(in srgb, var(--note-bg) 42%, #fff); font-size: var(--text-xs); }
+  .ed-tag svg { width: 8px; height: 8px; color: var(--note-ink2); }
+  .ed-foot { display: flex; align-items: center; gap: 8px; margin-top: 22px; font-size: 11px; color: var(--note-ink2); }
+  .ed-foot svg { width: 12px; height: 12px; }
+  /* 右侧：标注 + 颜色面板 */
+  .side-col { display: flex; flex-direction: column; gap: 12px; }
+  .anno { display: flex; align-items: center; gap: 8px; font-size: var(--text-xs); color: #5A6474; }
+  .anno i { width: 6px; height: 6px; border-radius: 50%; background: var(--color-primary); flex: none; }
+  .color-pop { width: 252px; padding: 18px; }
+  .sw-grid { display: grid; grid-template-columns: repeat(4, 48px); gap: 10px; margin-top: 14px; }
+  .sw { width: 40px; height: 40px; border-radius: 10px; position: relative; }
+  .sw.on { outline: 2px solid var(--color-primary); outline-offset: 2.5px; }
+  .sw.on::after { content: ""; position: absolute; right: -4px; bottom: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--color-primary); }
+  .sw-custom { border: 1.5px dashed var(--color-line-strong); display: flex; align-items: center; justify-content: center; color: var(--color-faint); }
+</style>
+</head>
+<body class="canvas-page">
+
+  <div class="editor-wrap">
+
+    
+    <section class="sticky note-win" data-color="lemon">
+      <div class="nw-head">
+        <span class="kind">便签</span>
+        <a class="pill pill-primary" href="desktop-pins.html"><svg><use href="icons.svg#pin"/></svg>贴到桌面</a>
+        <a class="pill pill-outline" href="pin-controls.html"><svg><use href="icons.svg#layers"/></svg>置顶</a>
+        <span style="margin-left:auto;display:flex;">
+          <a class="icon-btn" href="#"><svg class="ic-sm"><use href="icons.svg#minus"/></svg></a>
+          <a class="icon-btn" href="notes.html"><svg class="ic-sm"><use href="icons.svg#close"/></svg></a>
+        </span>
+      </div>
+
+      <div class="toolbar">
+        <span class="tb-btn">B</span>
+        <span class="tb-btn" style="font-style:italic;">I</span>
+        <span class="tb-btn" style="text-decoration:underline;">U</span>
+        <span class="tb-btn" style="text-decoration:line-through;">S</span>
+        <span class="tb-sep"></span>
+        <span class="tb-btn" style="font-size:11px;">H1</span>
+        <span class="tb-btn" style="font-size:11px;">H2</span>
+        <span class="tb-sep"></span>
+        <span class="tb-btn on"><svg><use href="icons.svg#list-check"/></svg></span>
+        <span class="tb-btn"><svg><use href="icons.svg#list-bullet"/></svg></span>
+        <span class="tb-sep"></span>
+        <span class="tb-btn"><svg><use href="icons.svg#highlight"/></svg></span>
+        <span class="tb-btn"><svg><use href="icons.svg#image"/></svg></span>
+        <span class="tb-sep"></span>
+        <span class="tb-btn"><svg><use href="icons.svg#more"/></svg></span>
+      </div>
+
+      <div class="ed-title">周报要点</div>
+
+      <div class="ed-check done"><span class="cb done"><svg><use href="icons.svg#check"/></svg></span><span>竞品动态梳理</span></div>
+      <div class="ed-check done"><span class="cb done"><svg><use href="icons.svg#check"/></svg></span><span>数据指标核对</span></div>
+      <div class="ed-check"><span class="cb"></span><span>Q4 目标对齐</span></div>
+      <div class="ed-check"><span class="cb"></span><span>风险与依赖盘点</span></div>
+
+      <div><span class="ed-hl">下季度 OKR 草案需 Anna 确认</span></div>
+
+      <span class="ed-tag">#工作<svg><use href="icons.svg#close"/></svg></span>
+
+      <div class="ed-foot">
+        <svg><use href="icons.svg#sync"/></svg>已自动保存 · 上次编辑 2 分钟前
+      </div>
+    </section>
+
+    
+    <div class="side-col">
+      <span class="anno"><i></i>一键贴到桌面，常驻壁纸层</span>
+      <span class="anno"><i></i>8 种便签色 · 支持自定义</span>
+
+      <div class="card color-pop" style="margin-top:10px;">
+        <div class="spec-title" style="margin-bottom:0;">便签颜色</div>
+        <div class="sw-grid">
+          <span class="sw on" style="background:var(--sticky-lemon-bg);border:1px solid var(--sticky-lemon-line);"></span>
+          <span class="sw" style="background:var(--sticky-apricot-bg);border:1px solid var(--sticky-apricot-line);"></span>
+          <span class="sw" style="background:var(--sticky-cherry-bg);border:1px solid var(--sticky-cherry-line);"></span>
+          <span class="sw" style="background:var(--sticky-mint-bg);border:1px solid var(--sticky-mint-line);"></span>
+          <span class="sw" style="background:var(--sticky-sky-bg);border:1px solid var(--sticky-sky-line);"></span>
+          <span class="sw" style="background:var(--sticky-lavender-bg);border:1px solid var(--sticky-lavender-line);"></span>
+          <span class="sw" style="background:var(--sticky-paper-bg);border:1px solid var(--sticky-paper-line);"></span>
+          <span class="sw" style="background:var(--sticky-night-bg);border:1px solid var(--sticky-night-line);"></span>
+          <span class="sw sw-custom"><svg class="ic"><use href="icons.svg#plus"/></svg></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+          <span class="sw sw-custom" style="width:34px;height:34px;"><svg class="ic-sm"><use href="icons.svg#plus"/></svg></span>
+          <span style="font-size:var(--text-xs);color:var(--color-text-2);">自定义颜色</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

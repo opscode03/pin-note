@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>搜索 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .tb-search.active-state { background: var(--color-surface); border-color: var(--color-primary); color: var(--color-text); font-weight: 600; box-shadow: 0 0 0 3px var(--color-primary-tint); }
+  .caret { width: 1.5px; height: 13px; background: var(--color-primary); }
+  .search-drop { left: 50%; transform: translateX(-50%); top: 60px; width: min(600px, 62vw); padding: 10px; }
+  .sd-group { font-size: 11px; color: var(--color-faint); font-weight: 700; margin: 10px 14px 4px; }
+  .sd-row { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 14px; border-radius: var(--radius-sm); }
+  .sd-row:hover { background: var(--color-hover); }
+  .sd-row.focus { background: var(--color-sel-bg); }
+  .sd-ic { color: var(--color-text-2); flex: none; }
+  .sd-title { font-size: var(--text-sm); }
+  .sd-title.done { color: var(--color-text-2); text-decoration: line-through; text-decoration-color: var(--color-faint); }
+  .sd-meta { margin-left: auto; font-size: 11px; color: var(--color-faint); flex: none; display: flex; align-items: center; gap: 8px; }
+  .sd-foot { display: flex; align-items: center; gap: 16px; margin: 10px 14px 4px; padding-top: 10px; border-top: 1px solid var(--color-line); font-size: 11px; color: var(--color-faint); }
+</style>
+</head>
+<body>
+<div class="win" style="position:relative;">
+
+  <header class="titlebar">
+    <span class="logo"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+    <span class="tb-name">贴记 PinNote</span>
+    <a class="tb-search active-state" href="search.html">
+      <svg class="ic-sm"><use href="icons.svg#search"/></svg>评审<span class="caret"></span>
+      <span style="margin-left:auto;"><kbd>Esc</kbd></span>
+    </a>
+    <div class="tb-right">
+      <a class="icon-btn" href="dark.html"><svg class="ic"><use href="icons.svg#theme"/></svg></a>
+      <a class="icon-btn" href="settings.html"><svg class="ic"><use href="icons.svg#gear"/></svg></a>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <nav class="sidebar">
+      <a class="nav-item active" href="home.html"><svg class="ic"><use href="icons.svg#calendar"/></svg>今日<span class="nav-badge">5</span></a>
+      <a class="nav-item" href="empty-states.html"><svg class="ic"><use href="icons.svg#clock"/></svg>最近 7 天<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="#"><svg class="ic"><use href="icons.svg#layers"/></svg>全部<span class="nav-badge">38</span></a>
+      <a class="nav-item" href="empty-states.html"><svg class="ic"><use href="icons.svg#check"/></svg>已完成</a>
+      <a class="nav-item" href="notes.html"><svg class="ic"><use href="icons.svg#pin"/></svg>便签库<span class="nav-badge">8</span></a>
+      <div class="nav-section">清单</div>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-inbox)"></span>收件箱<span class="nav-badge">3</span></a>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-work)"></span>工作<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-life)"></span>生活<span class="nav-badge">9</span></a>
+      <div class="nav-section">标签</div>
+      <a class="nav-item" href="#"><span class="nav-hash" style="color:var(--color-danger-strong)">#</span>重要</a>
+      <a class="nav-item" href="#"><span class="nav-hash" style="color:var(--color-primary-strong)">#</span>设计</a>
+      <div class="side-foot">
+        <span class="avatar">晓</span>
+        <div class="who"><b>李晓</b><span>本地模式 · 数据已同步</span></div>
+        <svg class="ic-sm"><use href="icons.svg#sync"/></svg>
+      </div>
+    </nav>
+
+    
+    <main class="content"></main>
+
+  </div>
+
+  
+  <div class="popover search-drop">
+    <div class="sd-group">任务 · 2</div>
+    <a class="sd-row focus" href="task-edit.html">
+      <span class="cb"></span>
+      <span class="sd-title">设计<span class="hl">评审</span>材料准备</span>
+      <span class="sd-meta">今天 14:00 · 工作</span>
+    </a>
+    <a class="sd-row" href="task-edit.html">
+      <span class="cb done"><svg><use href="icons.svg#check"/></svg></span>
+      <span class="sd-title done">提交年度设计<span class="hl" style="text-decoration:underline line-through;">评审</span>材料</span>
+      <span class="sd-meta">11月6日 · 已完成</span>
+    </a>
+
+    <div class="sd-group">便签 · 1</div>
+    <a class="sd-row" href="note-editor.html">
+      <svg class="ic sd-ic"><use href="icons.svg#note"/></svg>
+      <span class="sd-title">设计<span class="hl">评审</span>准备</span>
+      <span class="sd-meta"><span class="chip chip-accent"><svg><use href="icons.svg#pin"/></svg>桌面贴</span>柠檬黄 · 2 小时前</span>
+    </a>
+
+    <div class="sd-group">清单与标签 · 1</div>
+    <a class="sd-row" href="notes.html">
+      <svg class="ic sd-ic" style="color:var(--color-violet-strong);"><use href="icons.svg#tag"/></svg>
+      <span class="sd-title" style="color:var(--color-violet-strong);font-weight:700;">#设计</span>
+      <span class="sd-title" style="color:var(--color-text-2);">— 查看该标签下的 12 条内容</span>
+      <span class="sd-meta">标签</span>
+    </a>
+
+    <div class="sd-foot">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> 选择</span>
+      <span><kbd>Enter</kbd> 打开</span>
+      <span><kbd>Esc</kbd> 关闭</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

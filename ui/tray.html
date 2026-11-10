@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<meta name="dsh-capsule" content="white">
+<title>托盘与通知 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .toast-box { position: absolute; right: 26px; top: 58px; width: 352px; z-index: 20; }
+  .toast-box .toast { flex-direction: column; align-items: stretch; padding: 16px 18px 14px; }
+  .t-top { display: flex; align-items: center; gap: 10px; }
+  .t-top .src { font-size: 11px; color: var(--color-text-2); }
+  .t-top .icon-btn { margin-left: auto; width: 24px; height: 24px; }
+  .t-body b { font-size: var(--text-md); font-weight: 700; display: block; margin-top: 10px; }
+  .t-body span { display: block; font-size: 12px; color: var(--color-text-2); margin-top: 5px; }
+  .t-actions { display: flex; gap: 8px; margin-top: 13px; }
+  .t-btn { height: 28px; padding: 0 13px; border-radius: var(--radius-full); font-size: 11px; display: inline-flex; align-items: center; gap: 6px; }
+  .t-btn svg { width: 11px; height: 11px; }
+  .t-done { background: var(--color-primary-tint); color: var(--color-primary-strong); font-weight: 700; }
+  .t-later { border: 1px solid var(--color-line-strong); color: var(--color-text-2); }
+  .tray-menu { position: absolute; right: 18px; bottom: 62px; z-index: 20; width: 268px; }
+</style>
+</head>
+<body>
+<div class="scene wp-d">
+
+  
+  <div class="toast-box">
+    <div class="toast">
+      <div class="t-top">
+        <span class="logo" style="width:22px;height:22px;border-radius:6px;"><svg style="width:12px;height:12px;"><use href="icons.svg#pin"/></svg></span>
+        <span class="src">贴记 PinNote · 任务提醒</span>
+        <a class="icon-btn" href="#"><svg class="ic-sm"><use href="icons.svg#close"/></svg></a>
+      </div>
+      <div class="t-body">
+        <b>提交年度设计评审材料</b>
+        <span>今天 14:00 · 工作 · 提前 30 分钟提醒</span>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn t-done" href="home.html"><svg><use href="icons.svg#check"/></svg>完成</a>
+        <a class="t-btn t-later" href="#">稍后 10 分钟</a>
+        <a class="t-btn t-later" href="#">稍后 1 小时</a>
+      </div>
+    </div>
+  </div>
+
+  
+  <nav class="menu tray-menu">
+    <div class="menu-head">
+      <span class="logo" style="width:26px;height:26px;border-radius:7px;"><svg style="width:14px;height:14px;"><use href="icons.svg#pin"/></svg></span>
+      <div>
+        <b>贴记 PinNote</b>
+        <div class="synced"><svg><use href="icons.svg#check"/></svg>刚刚已同步</div>
+      </div>
+    </div>
+    <a class="menu-item" href="quick-capture.html"><svg class="ic"><use href="icons.svg#zap"/></svg>快速捕获<span class="menu-kbd">Ctrl+Shift+Space</span></a>
+    <a class="menu-item" href="note-editor.html"><svg class="ic"><use href="icons.svg#note"/></svg>新建便签<span class="menu-kbd">Ctrl+Alt+N</span></a>
+    <a class="menu-item" href="task-edit.html"><svg class="ic"><use href="icons.svg#plus"/></svg>新建待办<span class="menu-kbd">Ctrl+Shift+T</span></a>
+    <a class="menu-item" href="desktop-pins.html"><svg class="ic"><use href="icons.svg#pin"/></svg>显示桌面贴<span class="menu-kbd">Ctrl+Alt+D</span></a>
+    <a class="menu-item" href="home.html"><svg class="ic"><use href="icons.svg#layers"/></svg>打开贴记</a>
+    <div class="menu-div"></div>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#folder"/></svg>导出数据</a>
+    <a class="menu-item" href="settings.html"><svg class="ic"><use href="icons.svg#gear"/></svg>设置</a>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#close"/></svg>退出</a>
+  </nav>
+
+  
+  <footer class="taskbar">
+    <div class="tb-center">
+      <a class="tb-app" href="#"><svg class="ic" style="color:#55A0FF;"><use href="icons.svg#start"/></svg></a>
+      <span class="tb-searchpill"><svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索</span>
+      <a class="tb-app" href="#" style="background:#4C72E5;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#folder"/></svg></a>
+      <a class="tb-app" href="#" style="background:#E8943A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#note"/></svg></a>
+      <a class="tb-app active" href="home.html" style="background:#40A87A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#check"/></svg></a>
+      <a class="tb-app" href="#" style="background:#B060C6;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#image"/></svg></a>
+      <a class="tb-app" href="#" style="background:#589EE4;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#person"/></svg></a>
+      <a class="tb-app" href="#" style="background:#7A8494;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#gear"/></svg></a>
+    </div>
+    <div class="tb-right">
+      <a class="tray-pin on" href="tray.html"><svg class="ic"><use href="icons.svg#pin"/></svg></a>
+      <svg class="ic"><use href="icons.svg#chevron-up"/></svg>
+      <svg class="ic"><use href="icons.svg#wifi"/></svg>
+      <svg class="ic"><use href="icons.svg#volume"/></svg>
+      <svg class="ic"><use href="icons.svg#battery"/></svg>
+      <div class="tb-clock">17:05<small>2026/11/9</small></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

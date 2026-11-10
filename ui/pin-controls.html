@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<meta name="dsh-capsule" content="white">
+<title>桌面贴控制 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .pin-toolbar {
+    position: absolute; left: 14%; top: 16.5%; z-index: 60;
+    display: flex; align-items: center; gap: 2px;
+    background: var(--color-surface); border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-far); padding: 7px 10px;
+  }
+  .pt-btn { width: 58px; height: 50px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--color-text-2); font-size: 11px; }
+  .pt-btn svg { width: 17px; height: 17px; }
+  .pt-btn:hover { background: var(--color-hover); color: var(--color-text); }
+  .pt-btn.on { background: var(--color-primary-tint); color: var(--color-primary-strong); font-weight: 600; }
+  .pt-btn.wide { width: 72px; }
+  .pt-sep { width: 1px; height: 34px; background: var(--color-line); margin: 0 5px; }
+  .pt-close { width: 36px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-text-2); }
+  .pt-close:hover { background: var(--color-hover); }
+  .pt-close svg { width: 13px; height: 13px; }
+  .big-note { position: absolute; left: 14%; top: 29%; width: 430px; transform: rotate(-1deg); }
+  .big-note .s-check { font-size: var(--text-sm); margin-top: 12px; }
+  .big-note .s-check .cb { width: 17px; height: 17px; }
+  .note-status { margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="scene wp-b">
+
+  
+  <div class="pin-toolbar">
+    <a class="pt-btn" href="#"><svg><use href="icons.svg#palette"/></svg>颜色</a>
+    <a class="pt-btn" href="#" style="font-weight:700;font-size:13px;"><span style="line-height:17px;">Aa</span>大小</a>
+    <a class="pt-btn wide" href="#"><svg><use href="icons.svg#opacity"/></svg>透明度</a>
+    <a class="pt-btn wide on" href="#"><svg><use href="icons.svg#layers"/></svg>置顶显示</a>
+    <a class="pt-btn" href="#"><svg><use href="icons.svg#more"/></svg>更多</a>
+    <span class="pt-sep"></span>
+    <a class="pt-close" href="desktop-pins.html"><svg><use href="icons.svg#close"/></svg></a>
+  </div>
+
+  
+  <div class="sticky big-note" data-color="lemon">
+    <div class="sticky-title" style="font-size:17px;">设计评审准备</div>
+    <div class="s-check done"><span class="cb done"><svg><use href="icons.svg#check"/></svg></span><span>整理竞品分析</span></div>
+    <div class="s-check done"><span class="cb done"><svg><use href="icons.svg#check"/></svg></span><span>收集 Q3 数据</span></div>
+    <div class="s-check"><span class="cb"></span><span>制作演示文稿</span></div>
+    <div class="s-check"><span class="cb"></span><span>请 Anna 核对数据</span></div>
+    <div class="note-status">
+      <span class="note-chip" style="height:22px;"><svg><use href="icons.svg#pin"/></svg>已贴附 · 壁纸层</span>
+    </div>
+  </div>
+
+  
+  <nav class="menu" style="left:57%;top:19%;width:262px;">
+    <a class="menu-item" href="#"><svg class="ic menu-check"><use href="icons.svg#check"/></svg>置顶显示</a>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#opacity"/></svg>点击穿透</a>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#lock"/></svg>锁定位置</a>
+    <div class="menu-div"></div>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#palette"/></svg>更换颜色<svg class="ic menu-sub"><use href="icons.svg#chevron-right"/></svg></a>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#opacity"/></svg>透明度<svg class="ic menu-sub"><use href="icons.svg#chevron-right"/></svg></a>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#note"/></svg>文字大小<svg class="ic menu-sub"><use href="icons.svg#chevron-right"/></svg></a>
+    <div class="menu-div"></div>
+    <a class="menu-item" href="task-edit.html"><svg class="ic"><use href="icons.svg#check"/></svg>转为任务</a>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#note"/></svg>复制内容</a>
+    <a class="menu-item" href="#"><svg class="ic"><use href="icons.svg#image"/></svg>另存为图片</a>
+    <div class="menu-div"></div>
+    <a class="menu-item" href="notes.html"><svg class="ic"><use href="icons.svg#pin"/></svg>取消贴附</a>
+    <a class="menu-item danger" href="#"><svg class="ic"><use href="icons.svg#trash"/></svg>删除</a>
+  </nav>
+
+  
+  <footer class="taskbar">
+    <div class="tb-center">
+      <a class="tb-app" href="#"><svg class="ic" style="color:#55A0FF;"><use href="icons.svg#start"/></svg></a>
+      <span class="tb-searchpill"><svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索</span>
+      <a class="tb-app" href="#" style="background:#4C72E5;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#folder"/></svg></a>
+      <a class="tb-app" href="#" style="background:#E8943A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#note"/></svg></a>
+      <a class="tb-app active" href="home.html" style="background:#40A87A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#check"/></svg></a>
+      <a class="tb-app" href="#" style="background:#B060C6;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#image"/></svg></a>
+      <a class="tb-app" href="#" style="background:#589EE4;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#person"/></svg></a>
+      <a class="tb-app" href="#" style="background:#7A8494;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#gear"/></svg></a>
+    </div>
+    <div class="tb-right">
+      <a class="tray-pin" href="tray.html"><svg class="ic"><use href="icons.svg#pin"/></svg></a>
+      <svg class="ic"><use href="icons.svg#chevron-up"/></svg>
+      <svg class="ic"><use href="icons.svg#wifi"/></svg>
+      <svg class="ic"><use href="icons.svg#volume"/></svg>
+      <svg class="ic"><use href="icons.svg#battery"/></svg>
+      <div class="tb-clock">17:05<small>2026/11/9</small></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

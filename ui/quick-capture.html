@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<meta name="dsh-capsule" content="white">
+<title>快速捕获 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .capture {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10;
+    width: min(620px, 86vw); background: var(--color-surface);
+    border: 1px solid var(--color-line); border-radius: var(--radius-lg);
+    box-shadow: 0 24px 64px rgba(4, 8, 18, 0.5); padding: 18px 24px 20px; color: var(--color-text);
+  }
+  .cap-head { display: flex; align-items: center; gap: 10px; }
+  .cap-head .t { font-size: var(--text-xs); font-weight: 600; color: var(--color-text-2); }
+  .cap-head .keys { margin-left: auto; display: flex; gap: 4px; }
+  .cap-input { display: flex; align-items: center; gap: 6px; margin: 22px 4px 20px; font-size: 18px; flex-wrap: wrap; }
+  .seg-date { background: var(--color-primary-tint); color: var(--color-primary-strong); font-weight: 700; padding: 3px 8px; border-radius: 7px; }
+  .seg-tag { color: var(--color-violet-strong); font-weight: 700; }
+  .seg-prio { color: var(--color-danger-strong); font-weight: 700; }
+  .caret { width: 2px; height: 20px; background: var(--color-primary); }
+  .cap-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .cap-foot { display: flex; align-items: center; margin-top: 20px; gap: 12px; }
+  .cap-hint { font-size: 11px; color: var(--color-text-2); }
+  .cap-foot .btns { margin-left: auto; display: flex; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="scene wp-c dim">
+
+  <div class="capture">
+    <div class="cap-head">
+      <span class="logo"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+      <span class="t">快速捕获</span>
+      <span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Space</kbd></span>
+      <a class="icon-btn" href="home.html" style="margin-left:6px;"><svg class="ic-sm"><use href="icons.svg#close"/></svg></a>
+    </div>
+
+    <div class="cap-input">
+      <span class="seg-date">明天9:00</span>
+      <span>提交周报</span>
+      <span class="seg-tag">#工作</span>
+      <span class="seg-prio">!!</span>
+      <span class="caret"></span>
+    </div>
+
+    <div class="cap-chips">
+      <span class="chip chip-accent chip-lg"><svg><use href="icons.svg#calendar"/></svg><b>11月10日 周二 09:00</b></span>
+      <span class="chip chip-violet chip-lg"><svg><use href="icons.svg#tag"/></svg>#工作</span>
+      <span class="chip chip-red chip-lg"><svg><use href="icons.svg#flag"/></svg>高优先级</span>
+      <span class="chip chip-neutral chip-lg">清单 · 工作<svg><use href="icons.svg#chevron-down"/></svg></span>
+    </div>
+
+    <div class="cap-foot">
+      <span class="cap-hint">自动识别日期 · 标签 · 优先级，保存后同步到所有设备</span>
+      <span class="btns">
+        <a class="btn btn-secondary" href="notes.html">存为便签</a>
+        <a class="btn btn-primary" href="home.html">添加待办<svg class="ic"><use href="icons.svg#enter"/></svg></a>
+      </span>
+    </div>
+  </div>
+
+  
+  <footer class="taskbar" style="z-index:12;">
+    <div class="tb-center">
+      <a class="tb-app" href="#"><svg class="ic" style="color:#55A0FF;"><use href="icons.svg#start"/></svg></a>
+      <span class="tb-searchpill"><svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索</span>
+      <a class="tb-app" href="#" style="background:#4C72E5;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#folder"/></svg></a>
+      <a class="tb-app" href="#" style="background:#E8943A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#note"/></svg></a>
+      <a class="tb-app active" href="home.html" style="background:#40A87A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#check"/></svg></a>
+      <a class="tb-app" href="#" style="background:#B060C6;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#image"/></svg></a>
+      <a class="tb-app" href="#" style="background:#589EE4;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#person"/></svg></a>
+      <a class="tb-app" href="#" style="background:#7A8494;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#gear"/></svg></a>
+    </div>
+    <div class="tb-right">
+      <a class="tray-pin" href="tray.html"><svg class="ic"><use href="icons.svg#pin"/></svg></a>
+      <svg class="ic"><use href="icons.svg#chevron-up"/></svg>
+      <svg class="ic"><use href="icons.svg#wifi"/></svg>
+      <svg class="ic"><use href="icons.svg#volume"/></svg>
+      <svg class="ic"><use href="icons.svg#battery"/></svg>
+      <div class="tb-clock">17:05<small>2026/11/9</small></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

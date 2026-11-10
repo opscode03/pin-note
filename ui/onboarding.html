@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>首次启动 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .ob-card { width: 500px; padding: 40px 44px 30px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+  .ob-card h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-top: 22px; }
+  .ob-card .sub { font-size: 13px; color: var(--color-text-2); margin-top: 10px; }
+  .feat { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; margin-top: 20px; }
+  .feat-ic { width: 46px; height: 46px; border-radius: 50%; background: var(--color-primary-tint); color: var(--color-primary-strong); display: flex; align-items: center; justify-content: center; flex: none; }
+  .feat b { font-size: var(--text-md); font-weight: 600; display: block; }
+  .feat span { font-size: 12px; color: var(--color-text-2); display: block; margin-top: 3px; }
+  .ob-cta { margin-top: 30px; width: 100%; }
+  .ob-alt { margin-top: 14px; font-size: var(--text-xs); display: inline-block; padding: 6px 4px; }
+  .steps { display: flex; gap: 7px; justify-content: center; margin-top: 26px; }
+  .steps i { width: 8px; height: 8px; border-radius: var(--radius-full); background: #D6DAE2; }
+  .steps i.on { width: 18px; background: var(--color-primary); }
+  .ob-cap { margin-top: 10px; font-size: 11px; color: var(--color-faint); }
+  /* 教学卡 */
+  .teach { width: 560px; padding: 40px 40px 30px; }
+  .teach .step-chip { position: absolute; left: 32px; top: 28px; }
+  .teach h2 { font-size: 18px; font-weight: 700; margin: 6px 0 18px; text-align: center; }
+  .mini-scene { position: relative; width: 100%; height: 300px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid rgba(255,255,255,.14); }
+  .welcome-note { position: absolute; left: 50%; top: 54px; transform: translateX(-50%) rotate(-2deg); width: 216px; padding: 16px 18px; }
+  .callout { position: absolute; background: #fff; border-radius: var(--radius-full); padding: 0 13px; height: 30px; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-text); box-shadow: 0 8px 20px rgba(8, 14, 28, 0.4); white-space: nowrap; z-index: 5; }
+  .callout::before { content: ""; width: 16px; height: 1.5px; background: rgba(255,255,255,.65); position: absolute; }
+  .c1 { right: 22px; top: 46px; }   .c1::before { left: -20px; }
+  .c2 { right: 22px; top: 128px; }  .c2::before { left: -20px; }
+  .c3 { left: 26px; bottom: 26px; } .c3::before { right: -20px; }
+  .mini-tb { position: absolute; left: 0; right: 0; bottom: 0; height: 32px; background: rgba(14,18,26,.82); display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .mini-tb i { width: 14px; height: 14px; border-radius: 4px; background: rgba(255,255,255,.28); }
+  .skip { margin-top: 12px; font-size: var(--text-xs); color: var(--color-text-2); display: inline-block; padding: 6px 10px; }
+</style>
+</head>
+<body class="canvas-page">
+
+  
+  <section class="artboard ob-card">
+    <span class="logo logo-xl"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+    <h1>把重要的事，贴在眼前。</h1>
+    <p class="sub">轻量好看的待办与便签 · 贴在桌面 · 全端同步</p>
+
+    <div class="feat">
+      <span class="feat-ic"><svg class="ic-lg"><use href="icons.svg#pin"/></svg></span>
+      <div><b>桌面贴</b><span>重要的事常驻桌面，一抬头就能看到</span></div>
+    </div>
+    <div class="feat">
+      <span class="feat-ic"><svg class="ic-lg"><use href="icons.svg#zap"/></svg></span>
+      <div><b>快速捕获</b><span>任何应用内 Ctrl+Shift+Space，1 秒记下想法</span></div>
+    </div>
+    <div class="feat">
+      <span class="feat-ic"><svg class="ic-lg"><use href="icons.svg#sync"/></svg></span>
+      <div><b>全端同步</b><span>手机上记的内容，回到电脑时已在桌面</span></div>
+    </div>
+
+    <a class="btn btn-primary btn-xl ob-cta" href="home.html">开始使用</a>
+    <a class="ob-alt link" href="account.html">已有账号？登录并同步 →</a>
+
+    <div class="steps"><i class="on"></i><i></i><i></i></div>
+    <p class="ob-cap">第 1 步 · 欢迎页（共 3 步）</p>
+  </section>
+
+  
+  <section class="artboard ob-card teach">
+    <span class="chip chip-neutral step-chip">第 2 步 · 共 3 步</span>
+    <h2>试试把便签贴到桌面</h2>
+
+    <div class="mini-scene wp-a">
+      <div class="sticky tape welcome-note" data-color="lemon">
+        <div class="sticky-title" style="font-size:14px;">欢迎来到贴记</div>
+        <div class="s-line">这是你的第一张桌面贴</div>
+        <div class="s-line">双击可以再次编辑</div>
+      </div>
+      <span class="callout c1">拖动 · 摆放位置</span>
+      <span class="callout c2">Ctrl + 滚轮 · 缩放</span>
+      <span class="callout c3">右键 · 更多设置</span>
+      <div class="mini-tb"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <a class="btn btn-primary btn-xl ob-cta" href="home.html" style="margin-top:26px;">完成，进入贴记</a>
+    <a class="skip" href="home.html">跳过引导</a>
+
+    <div class="steps"><i></i><i class="on"></i><i></i></div>
+    <p class="ob-cap">第 2 步 · 贴第一张（教学页）</p>
+  </section>
+
+</body>
+</html>

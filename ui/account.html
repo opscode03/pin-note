@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>登录与账户 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .acc-card { width: 460px; padding: 44px 40px 30px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+  .acc-card h1 { font-size: 22px; font-weight: 700; margin-top: 18px; }
+  .acc-card .sub { font-size: 12px; color: var(--color-text-2); margin-top: 8px; }
+  .opt { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left;
+         border: 1.5px solid var(--color-line-strong); border-radius: var(--radius-md);
+         padding: 16px 18px; margin-top: 16px; transition: border-color var(--dur) var(--ease); }
+  .opt:hover { border-color: var(--color-faint); }
+  .opt.on { border-color: var(--color-primary); background: var(--color-surface); }
+  .opt-ic { width: 44px; height: 44px; border-radius: 50%; background: var(--color-surface-3);
+            color: var(--color-text-2); display: flex; align-items: center; justify-content: center; flex: none; }
+  .opt.on .opt-ic { background: var(--color-primary-tint); color: var(--color-primary-strong); }
+  .opt b { font-size: 16px; font-weight: 600; display: block; }
+  .opt span { font-size: 12px; color: var(--color-text-2); display: block; margin-top: 4px; }
+  .opt .radio { margin-left: auto; }
+  .acc-note { font-size: 11px; color: var(--color-text-2); margin-top: 16px; }
+  /* 登录卡 */
+  .login { width: 460px; padding: 40px 40px 28px; display: flex; flex-direction: column; }
+  .login h1 { font-size: 18px; font-weight: 700; text-align: center; }
+  .tabs { display: flex; justify-content: center; margin: 18px 0 22px; }
+  .tabs .seg-item.on { background: var(--color-primary-tint); color: var(--color-primary-strong); box-shadow: none; }
+  .login .field { height: 42px; }
+  .login .field + .field { margin-top: 12px; }
+  .caret { width: 1.5px; height: 16px; background: var(--color-primary); }
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--color-text-2); font-size: 11px; margin: 22px 0; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--color-line); }
+  .social { display: flex; gap: 12px; }
+  .social .btn { flex: 1; height: 42px; font-weight: 500; }
+  .s-dot { width: 15px; height: 15px; border-radius: 50%; }
+  .agree { text-align: center; font-size: 11px; color: var(--color-text-2); margin-top: 18px; }
+</style>
+</head>
+<body class="canvas-page">
+
+  
+  <section class="artboard acc-card">
+    <span class="logo logo-lg"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+    <h1>欢迎使用贴记</h1>
+    <p class="sub">数据默认保存在本机 · 随时可开启同步</p>
+
+    <a class="opt on" href="home.html">
+      <span class="opt-ic"><svg class="ic-lg"><use href="icons.svg#folder"/></svg></span>
+      <div><b>先在本地使用</b><span>无需账号，数据仅保存在这台电脑，可随时导出</span></div>
+      <span class="radio on"></span>
+    </a>
+    <a class="opt" href="home.html">
+      <span class="opt-ic"><svg class="ic-lg"><use href="icons.svg#sync"/></svg></span>
+      <div><b>登录并同步（推荐）</b><span>手机、平板、电脑多端实时同步，端到端加密</span></div>
+      <span class="radio"></span>
+    </a>
+
+    <a class="btn btn-primary btn-xl" style="width:100%;margin-top:24px;" href="home.html">开始使用</a>
+    <p class="acc-note">本地模式可随时在 设置 → 账户 中升级登录，数据自动合并</p>
+  </section>
+
+  
+  <section class="artboard login">
+    <h1>登录贴记</h1>
+    <div class="tabs">
+      <span class="seg"><span class="seg-item on">手机号</span><span class="seg-item">邮箱</span></span>
+    </div>
+
+    <label class="field">
+      <svg class="ic"><use href="icons.svg#person"/></svg>
+      <span>138 0013 8000</span>
+      <span class="caret"></span>
+    </label>
+    <label class="field">
+      <svg class="ic"><use href="icons.svg#lock"/></svg>
+      <span class="ph">输入 6 位验证码</span>
+      <a class="link" style="margin-left:auto;font-size:12px;padding:6px 0;" href="home.html">获取验证码</a>
+    </label>
+
+    <a class="btn btn-primary btn-xl" style="width:100%;margin-top:20px;" href="home.html">登录 / 注册</a>
+
+    <div class="divider">或</div>
+    <div class="social">
+      <a class="btn btn-secondary" href="home.html"><span class="s-dot" style="background:#58BE6C"></span>微信登录</a>
+      <a class="btn btn-secondary" href="home.html"><span class="s-dot" style="background:#383A42"></span>Apple 登录</a>
+    </div>
+
+    <div style="text-align:center;margin-top:22px;">
+      <span class="chip chip-green chip-lg"><svg><use href="icons.svg#lock"/></svg>支持端到端加密（Pro）</span>
+    </div>
+    <p class="agree">登录即代表同意<a class="link" style="font-size:11px;" href="#">《用户协议》</a>与<a class="link" style="font-size:11px;" href="#">《隐私政策》</a></p>
+  </section>
+
+</body>
+</html>

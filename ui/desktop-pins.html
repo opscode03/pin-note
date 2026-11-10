@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<meta name="dsh-capsule" content="white">
+<title>桌面贴总览 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .pin { position: absolute; }
+  .pin.sm { width: 280px; }
+  .tcard { position: absolute; width: 296px; background: var(--color-surface); border: 1px solid #E8ECF2; border-radius: var(--radius-md); box-shadow: var(--shadow-far); padding: 15px 18px; color: var(--color-text); }
+  .tc-head { display: flex; align-items: center; gap: 8px; }
+  .tc-head b { font-size: var(--text-md); }
+  .tc-head .ring { margin-left: auto; }
+  .tc-row { display: flex; align-items: center; gap: 10px; margin-top: 11px; font-size: 12.5px; }
+  .tc-row.done span { color: var(--color-text-2); text-decoration: line-through; text-decoration-color: var(--color-faint); }
+  .tc-row .chip { margin-left: auto; }
+  .tc-add { display: flex; align-items: center; gap: 7px; margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--color-line); color: var(--color-faint); font-size: 11.5px; }
+  .tc-add svg { width: 11px; height: 11px; }
+  .count { position: absolute; width: 212px; background: rgba(16, 20, 30, 0.78); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); border-radius: var(--radius-md); padding: 14px 16px; color: #E8ECF4; }
+  .count .row1 { display: flex; align-items: center; font-size: 11.5px; color: #D0D8E6; }
+  .count .row1 span { margin-left: auto; font-size: 11px; color: #A6AEBE; }
+  .count .big { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; }
+  .count .big b { font-size: 38px; font-weight: 700; line-height: 1; }
+  .count .big span { font-size: var(--text-xs); color: #A8B0C0; }
+  .cbar { height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.16); margin-top: 12px; overflow: hidden; }
+  .cbar i { display: block; height: 100%; width: 42%; border-radius: 3px; background: rgba(255, 255, 255, 0.82); }
+  .ghost { position: absolute; border: 1.5px dashed rgba(255, 255, 255, 0.55); border-radius: var(--radius-md); }
+  .snap { position: absolute; border-radius: var(--radius-md); background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px); background-size: 22px 22px; }
+  .week { display: flex; gap: 8px; margin-top: 13px; }
+  .week i { width: 20px; height: 20px; border-radius: 50%; border: 1.2px solid var(--note-ink2); color: var(--note-ink2); font-size: 11px; font-style: normal; display: flex; align-items: center; justify-content: center; }
+  .week i.on { background: var(--note-ink); border-color: var(--note-ink); color: var(--note-bg); }
+</style>
+</head>
+<body>
+<div class="scene wp-a">
+
+  <div class="bin" style="left:36px;top:26px;">
+    <svg class="ic-xl"><use href="icons.svg#trash"/></svg>回收站
+  </div>
+
+  
+  <div class="snap" style="left:56%;top:50%;width:31%;height:40%;"></div>
+  <div class="ghost" style="left:62.5%;top:58%;width:235px;height:200px;"></div>
+
+  
+  <div class="sticky tape pin sm" data-color="lemon" style="left:4.5%;top:12%;transform:rotate(-2deg);">
+    <div class="sticky-title">给妈妈订生日蛋糕</div>
+    <div class="s-line">本周五之前 · 8 寸 · 少糖</div>
+    <div class="s-line">卡片写：『岁岁平安』</div>
+    <div style="margin-top:16px;">
+      <span class="note-chip" style="height:22px;"><svg><use href="icons.svg#clock"/></svg>11月13日 周五</span>
+    </div>
+  </div>
+
+  
+  <a class="tcard" href="home.html" style="left:29%;top:8.5%;">
+    <div class="tc-head">
+      <b>今日待办</b>
+      <span class="ring" style="--p:25;"></span>
+      <span style="font-size:11px;color:var(--color-text-2);">1/4</span>
+    </div>
+    <div class="tc-row done"><span class="cb done sm"><svg><use href="icons.svg#check"/></svg></span><span>回复张总邮件</span></div>
+    <div class="tc-row"><span class="cb sm"></span><span>设计评审材料准备</span><span class="chip chip-accent">14:00</span></div>
+    <div class="tc-row"><span class="cb sm"></span><span>整理 Q4 用户反馈</span><span class="chip chip-accent">16:30</span></div>
+    <div class="tc-row"><span class="cb sm"></span><span>买猫粮</span></div>
+    <div class="tc-add"><svg><use href="icons.svg#plus"/></svg>添加任务</div>
+  </a>
+
+  
+  <a class="sticky tack pin" data-color="cherry" href="pin-controls.html" style="left:57%;top:11%;width:248px;transform:rotate(3deg);">
+    <div class="sticky-title" style="font-size:16px;">『把重要的事，</div>
+    <div class="sticky-title" style="font-size:16px;">贴在眼前。』</div>
+    <div class="s-line" style="margin-top:14px;">— 品牌口号草稿 · 11月2日</div>
+  </a>
+
+  
+  <div class="count" style="left:76.5%;top:12%;">
+    <div class="row1">产品发布会<span>11月21日 周六</span></div>
+    <div class="big"><b>12</b><span>天</span></div>
+    <div class="cbar"><i></i></div>
+  </div>
+
+  
+  <div class="sticky tack pin sm" data-color="mint" style="left:26%;top:55%;transform:rotate(-1.5deg);">
+    <div class="sticky-title" style="font-size:var(--text-md);">健身打卡</div>
+    <div class="s-check done"><span class="cb done sm"><svg><use href="icons.svg#check"/></svg></span><span>跑步 5 公里</span></div>
+    <div class="s-check"><span class="cb sm"></span><span>力量训练 45 分钟</span></div>
+    <div class="s-check"><span class="cb sm"></span><span>拉伸 10 分钟</span></div>
+    <div class="week"><i class="on">一</i><i class="on">二</i><i class="on">三</i><i>四</i><i>五</i><i>六</i><i>日</i></div>
+  </div>
+
+  
+  <div class="sticky tape pin lift" data-color="lemon" style="left:59.5%;top:52%;width:235px;transform:rotate(4deg);">
+    <div class="sticky-title" style="font-size:var(--text-md);">午饭灵感</div>
+    <div class="s-line">楼下新开的云南米线馆</div>
+    <div class="s-line">周五和 Anna 一起去</div>
+  </div>
+
+  
+  <footer class="taskbar">
+    <div class="tb-center">
+      <a class="tb-app" href="#"><svg class="ic" style="color:#55A0FF;"><use href="icons.svg#start"/></svg></a>
+      <span class="tb-searchpill"><svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索</span>
+      <a class="tb-app" href="#" style="background:#4C72E5;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#folder"/></svg></a>
+      <a class="tb-app" href="#" style="background:#E8943A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#note"/></svg></a>
+      <a class="tb-app active" href="home.html" style="background:#40A87A;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#check"/></svg></a>
+      <a class="tb-app" href="#" style="background:#B060C6;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#image"/></svg></a>
+      <a class="tb-app" href="#" style="background:#589EE4;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#person"/></svg></a>
+      <a class="tb-app" href="#" style="background:#7A8494;border-radius:8px;"><svg class="ic-sm"><use href="icons.svg#gear"/></svg></a>
+    </div>
+    <div class="tb-right">
+      <a class="tray-pin" href="tray.html"><svg class="ic"><use href="icons.svg#pin"/></svg></a>
+      <svg class="ic"><use href="icons.svg#chevron-up"/></svg>
+      <svg class="ic"><use href="icons.svg#wifi"/></svg>
+      <svg class="ic"><use href="icons.svg#volume"/></svg>
+      <svg class="ic"><use href="icons.svg#battery"/></svg>
+      <div class="tb-clock">17:05<small>2026/11/9</small></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

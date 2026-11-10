@@ -1,0 +1,106 @@
+{
+  "format": 1,
+  "type": "template",
+  "title": {
+    "zh": "贴记 PinNote"
+  },
+  "kind": "desktop",
+  "os": "windows",
+  "screens": [
+    {
+      "file": "onboarding.html",
+      "title": {
+        "zh": "首次启动"
+      }
+    },
+    {
+      "file": "account.html",
+      "title": {
+        "zh": "登录与账户"
+      }
+    },
+    {
+      "file": "home.html",
+      "title": {
+        "zh": "今日"
+      }
+    },
+    {
+      "file": "notes.html",
+      "title": {
+        "zh": "便签库"
+      }
+    },
+    {
+      "file": "note-editor.html",
+      "title": {
+        "zh": "便签编辑"
+      }
+    },
+    {
+      "file": "desktop-pins.html",
+      "title": {
+        "zh": "桌面贴总览"
+      }
+    },
+    {
+      "file": "pin-controls.html",
+      "title": {
+        "zh": "桌面贴控制"
+      }
+    },
+    {
+      "file": "quick-capture.html",
+      "title": {
+        "zh": "快速捕获"
+      }
+    },
+    {
+      "file": "search.html",
+      "title": {
+        "zh": "搜索"
+      }
+    },
+    {
+      "file": "task-edit.html",
+      "title": {
+        "zh": "任务编辑"
+      }
+    },
+    {
+      "file": "settings.html",
+      "title": {
+        "zh": "设置"
+      }
+    },
+    {
+      "file": "tray.html",
+      "title": {
+        "zh": "托盘与通知"
+      }
+    },
+    {
+      "file": "empty-states.html",
+      "title": {
+        "zh": "空状态与反馈"
+      }
+    },
+    {
+      "file": "design-language.html",
+      "title": {
+        "zh": "设计语言"
+      }
+    },
+    {
+      "file": "dark.html",
+      "title": {
+        "zh": "深色模式"
+      }
+    }
+  ],
+  "license": "CC0-1.0",
+  "ai": {
+    "generated": true,
+    "tool": "dsh-design-studio@0.16.0"
+  }
+}

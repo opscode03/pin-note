@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>空状态与反馈 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .es-grid { display: grid; grid-template-columns: repeat(2, minmax(420px, 520px)); gap: 28px; }
+  .es-card { padding: 20px 26px 28px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; min-height: 380px; }
+  .es-tag { position: absolute; left: 22px; top: 18px; font-size: var(--text-md); font-weight: 700; }
+  .es-tag small { font-weight: 400; font-size: 11px; color: var(--color-text-2); margin-left: 8px; }
+  .es-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .es-body h2 { font-size: 16px; font-weight: 700; margin-top: 22px; }
+  .es-body p { font-size: var(--text-xs); color: var(--color-text-2); margin-top: 9px; }
+  .es-actions { display: flex; gap: 12px; margin-top: 22px; }
+  .stack { position: relative; width: 200px; height: 110px; margin-top: 26px; }
+  .stack .sticky { position: absolute; width: 118px; padding: 14px; }
+  .toast-cap { font-size: 11px; color: var(--color-faint); margin-top: 12px; }
+  .toast-pair { display: flex; flex-direction: column; gap: 26px; align-items: center; }
+</style>
+</head>
+<body class="canvas-page">
+
+  <div class="es-grid">
+
+    
+    <section class="artboard es-card">
+      <span class="es-tag">A · 今日<small>情绪安抚 + 引导创建</small></span>
+      <div class="es-body">
+        <span class="illus" style="background:var(--color-primary-tint);">
+          <svg class="ic-xl" style="width:42px;height:42px;color:var(--color-primary);"><use href="icons.svg#pin"/></svg>
+          <span class="illus-badge" style="background:var(--color-success);"><svg class="ic-sm"><use href="icons.svg#check"/></svg></span>
+        </span>
+        <h2>今天没有任务了，去喝口水吧</h2>
+        <p>已完成 3 项 · 明天还有 2 项安排</p>
+        <div class="es-actions">
+          <a class="btn btn-primary" href="home.html"><svg class="ic"><use href="icons.svg#plus"/></svg>添加任务</a>
+          <a class="btn btn-secondary" href="notes.html">从便签创建</a>
+        </div>
+      </div>
+    </section>
+
+    
+    <section class="artboard es-card">
+      <span class="es-tag">B · 便签库<small>堆叠插画 + 双入口</small></span>
+      <div class="es-body">
+        <div class="stack">
+          <span class="sticky" data-color="lemon" style="left:6px;top:14px;transform:rotate(-7deg);"></span>
+          <span class="sticky" data-color="sky" style="left:44px;top:8px;"></span>
+          <span class="sticky" data-color="cherry" style="left:80px;top:16px;transform:rotate(7deg);"></span>
+        </div>
+        <h2>第一张便签，从一个想法开始</h2>
+        <p>富文本 · 清单 · 8 种颜色 · 一键贴桌面</p>
+        <div class="es-actions">
+          <a class="btn btn-primary" href="note-editor.html"><svg class="ic"><use href="icons.svg#plus"/></svg>新建便签</a>
+          <a class="btn btn-secondary" href="#">从 Windows 便签导入</a>
+        </div>
+      </div>
+    </section>
+
+    
+    <section class="artboard es-card">
+      <span class="es-tag">C · 回收站<small>说明数据保留策略</small></span>
+      <div class="es-body">
+        <span class="illus" style="background:var(--color-surface-3);">
+          <svg class="ic-xl" style="width:42px;height:42px;color:var(--color-faint);"><use href="icons.svg#trash"/></svg>
+        </span>
+        <h2>回收站是空的</h2>
+        <p>删除的任务与便签会在这里保留 30 天，之后永久删除</p>
+        <a class="link" style="margin-top:18px;font-size:var(--text-xs);display:inline-block;padding:6px 0;" href="#">了解数据安全与隐私 →</a>
+      </div>
+    </section>
+
+    
+    <section class="artboard es-card">
+      <span class="es-tag">D · Toast<small>操作反馈 · 5 秒消失 · 可撤销</small></span>
+      <div class="es-body">
+        <div class="toast-pair">
+          <div>
+            <div class="toast">
+              <span class="toast-ic" style="background:var(--color-success-tint);color:var(--color-success-strong);"><svg class="ic"><use href="icons.svg#check"/></svg></span>
+              <div class="toast-main"><b>已完成「背 50 个单词」</b><span>重复任务已顺延至明天</span></div>
+              <a class="toast-act link" style="font-size:var(--text-xs);font-weight:600;padding:6px 0;" href="#">撤销</a>
+            </div>
+            <p class="toast-cap">完成反馈 · Ctrl+Z 可撤销</p>
+          </div>
+          <div>
+            <div class="toast">
+              <span class="toast-ic" style="background:var(--color-primary-tint);color:var(--color-primary-strong);"><svg class="ic"><use href="icons.svg#sync"/></svg></span>
+              <div class="toast-main"><b>已同步 12 条更新</b></div>
+              <span class="toast-act" style="font-size:11px;color:var(--color-text-2);">刚刚</span>
+            </div>
+            <p class="toast-cap">同步状态 · 静默提示</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>

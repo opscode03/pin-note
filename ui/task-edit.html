@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dsh-design" content="desktop windows">
+<title>任务编辑 · 贴记 PinNote</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .edit-pop { left: 50%; top: 52%; transform: translate(-50%, -50%); width: min(408px, 90vw); padding: 20px; }
+  .ep-label { font-size: var(--text-2xs); color: var(--color-faint); font-weight: 700; margin: 16px 0 7px; display: flex; align-items: center; }
+  .ep-title-field { height: 40px; font-size: 13px; }
+  .qchips { display: flex; gap: 8px; }
+  .qchip { height: 26px; padding: 0 13px; border-radius: 13px; background: var(--color-surface-3); color: var(--color-text-2); font-size: var(--text-xs); display: inline-flex; align-items: center; }
+  .qchip.on { background: var(--color-primary-tint); color: var(--color-primary-strong); font-weight: 700; }
+  .time-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .prio-row { display: flex; gap: 6px; }
+  .prio { flex: 1; height: 32px; border-radius: var(--radius-sm); background: var(--color-surface-3); color: var(--color-text-2); font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .prio svg { width: 11px; height: 11px; }
+  .prio.on { background: var(--color-danger-tint); color: var(--color-danger-strong); font-weight: 700; }
+  .tag-row { display: flex; gap: 8px; align-items: center; }
+  .tag-add { width: 34px; height: 26px; border-radius: 13px; border: 1.3px dashed var(--color-line-strong); display: inline-flex; align-items: center; justify-content: center; color: var(--color-faint); }
+  .tag-add svg { width: 11px; height: 11px; }
+  .ep-foot { display: flex; align-items: center; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--color-line); }
+  .ep-del { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-danger-strong); padding: 6px 8px; margin: -6px -8px; }
+  .ep-del svg { width: 12px; height: 12px; }
+  .ep-foot .btns { margin-left: auto; display: flex; gap: 8px; }
+  .chip .x { width: 7px; height: 7px; }
+</style>
+</head>
+<body>
+<div class="win" style="position:relative;">
+
+  <header class="titlebar">
+    <span class="logo"><svg class="ic"><use href="icons.svg#pin"/></svg></span>
+    <span class="tb-name">贴记 PinNote</span>
+    <a class="tb-search" href="search.html">
+      <svg class="ic-sm"><use href="icons.svg#search"/></svg>搜索任务与便签…
+      <span style="display:flex;gap:4px;"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+    </a>
+    <div class="tb-right">
+      <a class="icon-btn" href="dark.html"><svg class="ic"><use href="icons.svg#theme"/></svg></a>
+      <a class="icon-btn" href="settings.html"><svg class="ic"><use href="icons.svg#gear"/></svg></a>
+    </div>
+  </header>
+
+  <div class="app-body with-detail">
+
+    <nav class="sidebar">
+      <a class="nav-item active" href="home.html"><svg class="ic"><use href="icons.svg#calendar"/></svg>今日<span class="nav-badge">5</span></a>
+      <a class="nav-item" href="empty-states.html"><svg class="ic"><use href="icons.svg#clock"/></svg>最近 7 天<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="#"><svg class="ic"><use href="icons.svg#layers"/></svg>全部<span class="nav-badge">38</span></a>
+      <a class="nav-item" href="empty-states.html"><svg class="ic"><use href="icons.svg#check"/></svg>已完成</a>
+      <a class="nav-item" href="notes.html"><svg class="ic"><use href="icons.svg#pin"/></svg>便签库<span class="nav-badge">8</span></a>
+      <div class="nav-section">清单</div>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-work)"></span>工作<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="#"><span class="nav-dot" style="background:var(--dot-life)"></span>生活<span class="nav-badge">9</span></a>
+      <div class="side-foot">
+        <span class="avatar">晓</span>
+        <div class="who"><b>李晓</b><span>本地模式 · 数据已同步</span></div>
+        <svg class="ic-sm"><use href="icons.svg#sync"/></svg>
+      </div>
+    </nav>
+
+    <main class="content">
+      <div class="page-head"><h1>今天</h1><span class="sub">11月9日 星期一</span></div>
+      <div class="group-h accent" style="margin-top:20px;">今天<span>5</span></div>
+      <div class="task sel">
+        <span class="cb"></span>
+        <div class="task-main">
+          <div class="task-title">设计评审材料准备</div>
+          <div class="task-meta"><span class="chip chip-accent"><svg><use href="icons.svg#clock"/></svg>14:00</span><span class="chip chip-violet">#设计</span></div>
+        </div>
+      </div>
+      <div class="task">
+        <span class="cb"></span>
+        <div class="task-main"><div class="task-title">整理 Q4 用户反馈</div></div>
+      </div>
+      <div class="task">
+        <span class="cb"></span>
+        <div class="task-main"><div class="task-title">买猫粮</div></div>
+      </div>
+    </main>
+
+    <aside class="detail">
+      <div style="padding:14px 20px 0;font-size:var(--text-2xs);color:var(--color-faint);font-weight:600;">任务详情</div>
+      <h2 style="font-size:16px;font-weight:700;padding:10px 20px;">设计评审材料准备</h2>
+      <p style="padding:0 20px;font-size:11px;color:var(--color-faint);margin-top:auto;">创建于 11月7日 09:12 · 修改于 2 小时前</p>
+    </aside>
+
+  </div>
+
+  <div class="scrim"></div>
+
+  
+  <div class="popover edit-pop">
+    <div class="field ep-title-field">
+      <span>设计评审材料准备</span>
+      <span class="caret" style="width:1.5px;height:16px;background:var(--color-primary);margin-left:4px;"></span>
+    </div>
+
+    <div class="ep-label" style="margin-top:14px;">日期与时间</div>
+    <div class="qchips">
+      <span class="qchip on">今天</span><span class="qchip">明天</span><span class="qchip">后天</span><span class="qchip">下周一</span>
+    </div>
+
+    <div class="cal" style="margin-top:12px;">
+      <div class="cal-head">
+        <a class="icon-btn" style="left:0;"><svg class="ic-sm"><use href="icons.svg#chevron-left"/></svg></a>
+        2026 年 11 月
+        <a class="icon-btn" style="right:0;"><svg class="ic-sm"><use href="icons.svg#chevron-right"/></svg></a>
+      </div>
+      <div class="cal-wd"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div class="cal-grid">
+        <span class="cal-d dim">26</span><span class="cal-d dim">27</span><span class="cal-d dim">28</span><span class="cal-d dim">29</span><span class="cal-d dim">30</span><span class="cal-d dim">31</span><span class="cal-d">1</span>
+        <span class="cal-d">2</span><span class="cal-d">3</span><span class="cal-d">4</span><span class="cal-d">5</span><span class="cal-d">6</span><span class="cal-d">7</span><span class="cal-d">8</span>
+        <span class="cal-d today">9</span><span class="cal-d">10</span><span class="cal-d">11</span><span class="cal-d">12</span><span class="cal-d">13</span><span class="cal-d">14</span><span class="cal-d">15</span>
+        <span class="cal-d">16</span><span class="cal-d">17</span><span class="cal-d">18</span><span class="cal-d">19</span><span class="cal-d">20</span><span class="cal-d">21</span><span class="cal-d">22</span>
+        <span class="cal-d">23</span><span class="cal-d">24</span><span class="cal-d">25</span><span class="cal-d">26</span><span class="cal-d">27</span><span class="cal-d">28</span><span class="cal-d">29</span>
+        <span class="cal-d">30</span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <div class="time-row">
+      <span class="chip chip-accent chip-lg"><svg><use href="icons.svg#clock"/></svg>14:00 - 15:00</span>
+      <span class="chip chip-neutral chip-lg"><svg><use href="icons.svg#bell"/></svg>提前 30 分钟</span>
+      <span class="chip chip-teal chip-lg"><svg><use href="icons.svg#repeat"/></svg>每天</span>
+    </div>
+
+    <div class="ep-label">优先级</div>
+    <div class="prio-row">
+      <span class="prio">无</span>
+      <span class="prio">低</span>
+      <span class="prio">中</span>
+      <span class="prio on"><svg><use href="icons.svg#flag"/></svg>高</span>
+    </div>
+
+    <div class="ep-label">标签</div>
+    <div class="tag-row">
+      <span class="chip chip-violet chip-lg">#设计<svg class="x"><use href="icons.svg#close"/></svg></span>
+      <span class="chip chip-accent chip-lg">#Q4<svg class="x"><use href="icons.svg#close"/></svg></span>
+      <span class="tag-add"><svg><use href="icons.svg#plus"/></svg></span>
+    </div>
+
+    <div class="ep-foot">
+      <a class="ep-del" href="empty-states.html"><svg><use href="icons.svg#trash"/></svg>删除</a>
+      <span class="btns">
+        <a class="btn btn-secondary" href="home.html">取消</a>
+        <a class="btn btn-primary" href="home.html">确定</a>
+      </span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
