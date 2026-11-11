@@ -26,7 +26,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
-  Win32Window::Size size(1280, 720);
+  // Keep in sync with PinSize.windowDefault* in lib/app/desktop_window.dart
+  // so the engine surface matches the window and avoids startup stretching.
+  Win32Window::Size size(1440, 900);
   if (!window.Create(L"pin_note", origin, size)) {
     return EXIT_FAILURE;
   }

@@ -56,6 +56,13 @@ class _PinNoteAppState extends State<PinNoteApp> {
         theme: buildPinTheme(pinSpecLight),
         darkTheme: buildPinTheme(pinSpecDark),
         themeMode: _controller.mode,
+        // 页面为 CSS 1:1 还原，未使用 Scaffold/Material 包裹文本，
+        // 导致所有 Text 继承 DefaultTextStyle.fallback（红色 + 黄色下划线）。
+        // 在根节点安装默认文本样式，颜色由各 Text 显式指定不受影响。
+        builder: (context, child) => DefaultTextStyle(
+          style: Theme.of(context).textTheme.bodyMedium ?? const TextStyle(),
+          child: child!,
+        ),
         home: const HomeScreen(),
         routes: {
           '/home': (_) => const HomeScreen(),
