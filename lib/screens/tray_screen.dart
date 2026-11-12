@@ -48,6 +48,7 @@ class _ReminderToast extends StatelessWidget {
         boxShadow: spec.shadowFar,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(

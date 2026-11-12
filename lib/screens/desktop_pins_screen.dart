@@ -243,6 +243,7 @@ class _BirthdayNote extends StatelessWidget {
       color: StickyColor.lemon,
       tape: true,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           StickyTitle('给妈妈订生日蛋糕'),
@@ -275,6 +276,7 @@ class _TodayCard extends StatelessWidget {
             boxShadow: spec.shadowFar,
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
@@ -386,6 +388,7 @@ class _QuoteNote extends StatelessWidget {
         color: StickyColor.cherry,
         tack: true,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             StickyTitle('『把重要的事，', fontSize: PinFontSize.lg),
@@ -415,6 +418,7 @@ class _CountdownCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(PinRadius.md),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Row(
@@ -501,6 +505,7 @@ class _FitnessNote extends StatelessWidget {
       color: StickyColor.mint,
       tack: true,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           StickyTitle('健身打卡'),
@@ -564,6 +569,7 @@ class _LunchNote extends StatelessWidget {
       tape: true,
       lift: true,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           StickyTitle('午饭灵感'),

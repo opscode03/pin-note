@@ -4,13 +4,19 @@
 /// 深色模式由标题栏的主题按钮切换（对应设计稿 dark.html）。
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'app/app.dart';
 import 'app/desktop_window.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // web 端启用 path 路由（/notes 直达对应屏；默认 hash 策略下 /notes 会回落首页）
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
   await DesktopWindow.ensureInitialized();
   runApp(const PinNoteApp());
 }

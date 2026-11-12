@@ -218,6 +218,7 @@ class _BigNote extends StatelessWidget {
     return const PinSticky(
       color: StickyColor.lemon,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           StickyTitle('设计评审准备', fontSize: 17),

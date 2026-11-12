@@ -65,7 +65,12 @@ abstract final class PinMotion {
 
 /// 字体族（对应 --font-sans / --font-mono）
 abstract final class PinFont {
+  /// sans 主链。
+  /// web 端前面放 Roboto / Noto Sans SC（CanvasKit 会从 gstatic 自动加载，
+  /// 缺了会触发后备字形占位线）；桌面端自动跳到 Segoe UI / PingFang SC。
   static const List<String> sans = [
+    'Roboto',
+    'Noto Sans SC',
     'Segoe UI Variable',
     'Segoe UI',
     'Microsoft YaHei UI',
