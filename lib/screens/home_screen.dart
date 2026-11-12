@@ -14,7 +14,6 @@ import '../widgets/app_window.dart';
 import '../widgets/buttons.dart';
 import '../widgets/chips.dart';
 import '../widgets/controls.dart';
-import '../widgets/interactive.dart';
 import '../widgets/sidebar.dart';
 import '../widgets/task_views.dart';
 import '../widgets/toast.dart';
@@ -156,7 +155,7 @@ class _Content extends StatelessWidget {
               for (final task in overdue)
                 TaskRow(
                   task: task,
-                  onTap: () => showTaskEditDialog<void>(context),
+                  onTap: () => _openEdit(context, task),
                   onToggle: () => _toggle(context, task),
                 ),
             ],
@@ -165,7 +164,7 @@ class _Content extends StatelessWidget {
             for (final task in today)
               TaskRow(
                 task: task,
-                onTap: () => showTaskEditDialog<void>(context),
+                onTap: () => _openEdit(context, task),
                 onToggle: () => _toggle(context, task),
               ),
             GroupHeader('已完成', count: done.length,
@@ -173,7 +172,7 @@ class _Content extends StatelessWidget {
             for (final task in done)
               TaskRow(
                 task: task,
-                onTap: () => showTaskEditDialog<void>(context),
+                onTap: () => _openEdit(context, task),
                 onToggle: () => _toggle(context, task),
               ),
             const SizedBox(height: PinSpace.s5),
@@ -181,6 +180,12 @@ class _Content extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// 打开编辑浮层：先选中（详情面板联动），再弹层
+  void _openEdit(BuildContext context, DemoTask task) {
+    TaskScope.of(context).select(task.id ?? task.title);
+    showTaskEditDialog<void>(context);
   }
 
   /// 勾选完成 / 撤销：跨组移动 + Toast 反馈（5 秒可撤销）
@@ -198,294 +203,306 @@ class _Content extends StatelessWidget {
   }
 }
 
-/// 任务详情面板（对应 .detail）
+/// 任务详情面板（对应 .detail）：展示仓库当前选中任务
 class _DetailPanel extends StatelessWidget {
   const _DetailPanel();
 
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
-    return Container(
-      width: PinSize.detail,
-      decoration: BoxDecoration(
-        color: spec.surface,
-        border: Border(left: BorderSide(color: spec.line)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 面板头
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 12, 0),
-            child: Row(
-              children: [
-                Text(
-                  '任务详情',
-                  style: TextStyle(
-                    fontSize: PinFontSize.xs2,
-                    fontWeight: FontWeight.w600,
-                    color: spec.faint,
-                    fontFamilyFallback: PinFont.sans,
-                  ),
-                ),
-                const Spacer(),
-                const PinIconButton(PinIcons.more, size: 28, iconSize: 15),
-                PinIconButton(
-                  PinIcons.trash,
-                  size: 28,
-                  iconSize: 15,
-                  onTap: () => Navigator.pushNamed(context, '/empty-states'),
-                ),
-              ],
-            ),
+    return ListenableBuilder(
+      listenable: TaskScope.of(context),
+      builder: (context, _) {
+        final repo = TaskScope.of(context);
+        final task = repo.resolveEditable();
+        return Container(
+          width: PinSize.detail,
+          decoration: BoxDecoration(
+            color: spec.surface,
+            border: Border(left: BorderSide(color: spec.line)),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
-            child: Text(
-              '设计评审材料准备',
-              style: spec.tlg.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-          const _MetaCard(),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
-            child: Text(
-              '备注',
-              style: TextStyle(
-                fontSize: PinFontSize.xs2,
-                fontWeight: FontWeight.w600,
-                color: spec.faint,
-                fontFamilyFallback: PinFont.sans,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              '重点：竞品对比 · 数据指标 · 下季度规划',
-              style: TextStyle(
-                fontSize: 12.5,
-                height: 1.6,
-                color: spec.text,
-                fontFamilyFallback: PinFont.sans,
-              ),
-            ),
-          ),
-          const SizedBox(height: 22),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
-            child: Row(
-              children: [
-                Text(
-                  '子任务',
-                  style: TextStyle(
-                    fontSize: PinFontSize.xs2,
-                    fontWeight: FontWeight.w600,
-                    color: spec.faint,
-                    fontFamilyFallback: PinFont.sans,
-                  ),
-                ),
-                const Spacer(),
-                const PinProgressBar(value: 0.5, width: 60),
-                const SizedBox(width: PinSpace.s2),
-                Text(
-                  '2/4',
-                  style: TextStyle(
-                    fontSize: PinFontSize.xs2,
-                    fontWeight: FontWeight.w400,
-                    color: spec.text,
-                    fontFamilyFallback: PinFont.sans,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const _SubtaskRow('整理竞品分析', done: true),
-          const _SubtaskRow('收集 Q3 数据', done: true),
-          const _SubtaskRow('制作演示文稿'),
-          const _SubtaskRow('请 Anna 核对数据'),
-          HoverBuilder(
-            builder: (context, hover, _) => GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/task-edit'),
-              child: Container(
-                height: 32,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    PinIcon(
-                      PinIcons.plus,
-                      size: 13,
-                      color: hover ? spec.text : spec.faint,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      '添加子任务',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        color: hover ? spec.text2 : spec.faint,
-                        fontFamilyFallback: PinFont.sans,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: spec.line)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '创建于 11月7日 09:12 · 修改于 2 小时前',
-                    style: TextStyle(
-                      fontSize: PinFontSize.xs2,
-                      color: spec.faint,
-                      fontFamilyFallback: PinFont.sans,
-                    ),
-                  ),
-                ),
-                PinIcon(PinIcons.sync, size: 13, color: spec.faint),
-              ],
-            ),
-          ),
-        ],
-      ),
+          child: task == null ? const _EmptyDetail() : _DetailBody(task: task),
+        );
+      },
     );
   }
 }
 
-/// 元信息卡（对应 .meta-card）
-class _MetaCard extends StatelessWidget {
-  const _MetaCard();
+/// 无选中任务
+class _EmptyDetail extends StatelessWidget {
+  const _EmptyDetail();
 
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
-    Widget row(PinIconData icon, String k, Widget value) {
-      return SizedBox(
-        height: 40,
-        child: Row(
-          children: [
-            PinIcon(icon, size: 14, color: spec.faint),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 40,
-              child: Text(
-                k,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        PinIcon(PinIcons.check, size: 26, color: spec.faint),
+        const SizedBox(height: PinSpace.s2),
+        Text('没有选中的任务', style: spec.tsm.copyWith(color: spec.text2)),
+      ],
+    );
+  }
+}
+
+/// 详情主体
+class _DetailBody extends StatelessWidget {
+  const _DetailBody({required this.task});
+
+  final DemoTask task;
+
+  @override
+  Widget build(BuildContext context) {
+    final spec = context.pin;
+    final dateMeta = task.meta.isEmpty ? null : task.meta.first;
+    final (subDone, subTotal) = task.progress ?? (0, 0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 面板头
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 12, 0),
+          child: Row(
+            children: [
+              Text(
+                '任务详情',
                 style: TextStyle(
-                  fontSize: PinFontSize.xs,
-                  color: spec.text2,
+                  fontSize: PinFontSize.xs2,
+                  fontWeight: FontWeight.w600,
+                  color: spec.faint,
                   fontFamilyFallback: PinFont.sans,
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            value,
-          ],
+              const Spacer(),
+              const PinIconButton(PinIcons.more, size: 28, iconSize: 15),
+              PinIconButton(
+                PinIcons.trash,
+                size: 28,
+                iconSize: 15,
+                onTap: () {
+                  final repo = TaskScope.of(context);
+                  final undo = repo.deleteTask(task.id ?? task.title);
+                  showPinToast(
+                    context,
+                    title: '已删除「${task.title}」',
+                    subtitle: '30 天内可在回收站恢复',
+                    icon: PinIcons.trash,
+                    iconBg: spec.dangerTint,
+                    iconColor: spec.dangerStrong,
+                    actionLabel: undo != null ? '撤销' : null,
+                    onAction: undo?.restore,
+                  );
+                },
+              ),
+            ],
+          ),
         ),
-      );
-    }
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(horizontal: PinSpace.s4, vertical: 4),
-      decoration: BoxDecoration(
-        color: spec.surface,
-        borderRadius: BorderRadius.circular(PinRadius.md),
-        border: Border.all(color: spec.line),
-      ),
-      child: Column(
-        children: [
-          row(
-            PinIcons.calendar,
-            '日期',
-            const PinChip('今天 14:00 - 15:00', icon: PinIcons.calendar),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+          child: Text(
+            task.title,
+            style: spec.tlg.copyWith(fontWeight: FontWeight.w700),
           ),
-          row(PinIcons.bell, '提醒', const PinChip('提前 30 分钟')),
-          row(
-            PinIcons.flag,
-            '优先级',
-            const PinChip('高', style: PinChipStyle.red),
+        ),
+        // 元信息卡
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding:
+              const EdgeInsets.symmetric(horizontal: PinSpace.s4, vertical: 4),
+          decoration: BoxDecoration(
+            color: spec.surface,
+            borderRadius: BorderRadius.circular(PinRadius.md),
+            border: Border.all(color: spec.line),
           ),
-          row(
-            PinIcons.folder,
-            '清单',
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 9,
-                  height: 9,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: PinListDots.work,
-                  ),
+          child: Column(
+            children: [
+              _metaRow(context, PinIcons.calendar, '日期',
+                  _valueChip(context, dateMeta)),
+              _metaRow(
+                context,
+                PinIcons.bell,
+                '提醒',
+                const PinChip('提前 30 分钟'),
+              ),
+              _metaRow(
+                context,
+                PinIcons.flag,
+                '优先级',
+                PinChip(task.priority.label,
+                    style: switch (task.priority) {
+                      PinPriority.high => PinChipStyle.red,
+                      PinPriority.medium => PinChipStyle.amber,
+                      PinPriority.low => PinChipStyle.teal,
+                      PinPriority.none => PinChipStyle.neutral,
+                    }),
+              ),
+              _metaRow(
+                context,
+                PinIcons.folder,
+                '清单',
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  if (task.listColor != null)
+                    Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: task.listColor,
+                      ),
+                    ),
+                  const SizedBox(width: 7),
+                  Text(task.listName ?? '—',
+                      style: TextStyle(
+                        fontSize: PinFontSize.xs,
+                        color: spec.text,
+                        fontFamilyFallback: PinFont.sans,
+                      )),
+                ]),
+              ),
+              _metaRow(
+                context,
+                PinIcons.tag,
+                '标签',
+                Wrap(
+                  spacing: PinSpace.s2,
+                  runSpacing: PinSpace.s1,
+                  children: [
+                    if (task.tags.isEmpty)
+                      Text('—',
+                          style: TextStyle(
+                            fontSize: PinFontSize.xs,
+                            color: spec.text2,
+                            fontFamilyFallback: PinFont.sans,
+                          ))
+                    else
+                      for (final tag in task.tags)
+                        PinChip(tag, style: PinChipStyle.violet),
+                  ],
                 ),
-                const SizedBox(width: 7),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PinSpace.s4),
+        // 备注
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
+          child: Text(
+            '备注',
+            style: TextStyle(
+              fontSize: PinFontSize.xs2,
+              fontWeight: FontWeight.w600,
+              color: spec.faint,
+              fontFamilyFallback: PinFont.sans,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            '重点：竞品对比 · 数据指标 · 下季度规划',
+            style: TextStyle(
+              fontSize: 12.5,
+              height: 1.6,
+              color: spec.text,
+              fontFamilyFallback: PinFont.sans,
+            ),
+          ),
+        ),
+        const SizedBox(height: PinSpace.s5),
+        // 子任务
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
+          child: Row(
+            children: [
+              Text(
+                '子任务',
+                style: TextStyle(
+                  fontSize: PinFontSize.xs2,
+                  fontWeight: FontWeight.w600,
+                  color: spec.faint,
+                  fontFamilyFallback: PinFont.sans,
+                ),
+              ),
+              const Spacer(),
+              if (task.progress != null) ...[
+                PinProgressBar(value: subTotal == 0 ? 0 : subDone / subTotal,
+                    width: 60),
+                const SizedBox(width: PinSpace.s2),
                 Text(
-                  '工作',
+                  '$subDone/$subTotal',
                   style: TextStyle(
-                    fontSize: PinFontSize.xs,
+                    fontSize: PinFontSize.xs2,
                     color: spec.text,
                     fontFamilyFallback: PinFont.sans,
                   ),
                 ),
               ],
+            ],
+          ),
+        ),
+        const Spacer(),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration:
+              BoxDecoration(border: Border(top: BorderSide(color: spec.line))),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '创建于 11月7日 09:12 · 修改于 2 小时前',
+                  style: TextStyle(
+                    fontSize: PinFontSize.xs2,
+                    color: spec.faint,
+                    fontFamilyFallback: PinFont.sans,
+                  ),
+                ),
+              ),
+              PinIcon(PinIcons.sync, size: 13, color: spec.faint),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _metaRow(BuildContext context, PinIconData icon, String k, Widget value) {
+    final spec = context.pin;
+    return SizedBox(
+      height: 40,
+      child: Row(
+        children: [
+          PinIcon(icon, size: 14, color: spec.faint),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 40,
+            child: Text(
+              k,
+              style: TextStyle(
+                fontSize: PinFontSize.xs,
+                color: spec.text2,
+                fontFamilyFallback: PinFont.sans,
+              ),
             ),
           ),
-          row(
-            PinIcons.tag,
-            '标签',
-            const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                PinChip('#设计', style: PinChipStyle.violet),
-                SizedBox(width: PinSpace.s2),
-                PinChip('#Q4'),
-              ],
-            ),
-          ),
+          const SizedBox(width: 10),
+          value,
         ],
       ),
     );
   }
-}
 
-/// 子任务行（对应 .subtask）
-class _SubtaskRow extends StatelessWidget {
-  const _SubtaskRow(this.label, {this.done = false});
-
-  final String label;
-  final bool done;
-
-  @override
-  Widget build(BuildContext context) {
-    final spec = context.pin;
-    return Container(
-      height: 32,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          PinCheckbox(done: done, sm: true),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.5,
-              color: done ? spec.text2 : spec.text,
-              decoration: done ? TextDecoration.lineThrough : null,
-              decorationColor: spec.faint,
-              fontFamilyFallback: PinFont.sans,
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _valueChip(BuildContext context, PinChipMeta? meta) {
+    if (meta == null) {
+      return Text('—',
+          style: TextStyle(
+            fontSize: PinFontSize.xs,
+            color: context.pin.text2,
+            fontFamilyFallback: PinFont.sans,
+          ));
+    }
+    return PinChip(meta.label, style: meta.style, icon: meta.icon);
   }
 }

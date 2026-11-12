@@ -247,8 +247,15 @@ class TaskRow extends StatelessWidget {
     for (final m in task.meta) {
       meta.add(PinChip(m.label, style: m.style, icon: m.icon));
     }
-    if (task.flagHigh) {
+    // 标签（任务编辑可改； violet 与设计稿一致）
+    for (final tag in task.tags) {
+      meta.add(PinChip(tag, style: PinChipStyle.violet));
+    }
+    // 优先级旗标（高=红 / 中=琥珀，与设计稿一致）
+    if (task.priority == PinPriority.high || task.flagHigh) {
       meta.add(PinFlag('高', color: spec.dangerStrong));
+    } else if (task.priority == PinPriority.medium) {
+      meta.add(PinFlag('中', color: spec.warningStrong));
     }
     if (task.progress != null) {
       final (done, total) = task.progress!;

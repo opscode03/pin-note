@@ -136,6 +136,8 @@ class PinTitleBar extends StatelessWidget {
   const PinTitleBar({
     this.searchActive = false,
     this.searchText,
+    this.searchController,
+    this.searchFocusNode,
     this.searchTrailing,
     this.trailing,
     super.key,
@@ -144,6 +146,12 @@ class PinTitleBar extends StatelessWidget {
   /// 搜索胶囊处于激活态（搜索页）
   final bool searchActive;
   final String? searchText;
+
+  /// 激活态 + 真实输入：传入控制器后胶囊内渲染 TextField（搜索页实时过滤）
+  final TextEditingController? searchController;
+
+  /// 输入框焦点节点（可选）
+  final FocusNode? searchFocusNode;
 
   /// 激活态时替换右侧 Ctrl+K 提示（如 Esc）
   final List<String>? searchTrailing;
@@ -156,7 +164,13 @@ class PinTitleBar extends StatelessWidget {
     final pillWidth = width * 0.4 < 380 ? width * 0.4 : 380.0;
 
     final Widget pill;
-    if (searchActive) {
+    if (searchController != null) {
+      pill = _SearchPillInput(
+        width: pillWidth,
+        controller: searchController!,
+        focusNode: searchFocusNode,
+      );
+    } else if (searchActive) {
       pill = _SearchPillActive(
         width: pillWidth,
         text: searchText ?? '',
@@ -265,7 +279,66 @@ class _SearchPillIdle extends StatelessWidget {
   }
 }
 
-/// 激活态搜索胶囊（搜索页：有输入文字 + Esc）
+/// 输入态搜索胶囊（搜索页：真 TextField + Esc）
+class _SearchPillInput extends StatelessWidget {
+  const _SearchPillInput({
+    required this.width,
+    required this.controller,
+    this.focusNode,
+  });
+
+  final double width;
+  final TextEditingController controller;
+  final FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    final spec = context.pin;
+    return Container(
+      width: width,
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: PinSpace.s3),
+      decoration: BoxDecoration(
+        color: spec.surface,
+        borderRadius: BorderRadius.circular(PinRadius.full),
+        border: Border.all(color: spec.primary),
+        boxShadow: [
+          BoxShadow(blurRadius: 0, spreadRadius: 3, color: spec.primaryTint),
+        ],
+      ),
+      child: Row(
+        children: [
+          PinIcon(PinIcons.search, size: 13, color: spec.text),
+          const SizedBox(width: 8),
+          Expanded(
+            // 自绘 UI 无 Material 祖先：TextField 需要 Material（透明）
+            child: Material(
+              type: MaterialType.transparency,
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                style: TextStyle(
+                  fontSize: PinFontSize.xs,
+                  fontWeight: FontWeight.w600,
+                  color: spec.text,
+                  fontFamilyFallback: PinFont.sans,
+                ),
+                cursorColor: spec.primary,
+                decoration: const InputDecoration(
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ),
+          const PinKbd(['Esc']),
+        ],
+      ),
+    );
+  }
+}
+
+/// 激活态搜索胶囊（静态展示：有输入文字 + Esc）
 class _SearchPillActive extends StatelessWidget {
   const _SearchPillActive({
     required this.width,

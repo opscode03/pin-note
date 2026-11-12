@@ -10,6 +10,18 @@ import '../design/icons.dart';
 import '../design/tokens.dart';
 import '../widgets/chips.dart';
 
+/// 任务优先级（对应任务编辑弹层的优先级四选）
+enum PinPriority { none, low, medium, high }
+
+extension PinPriorityX on PinPriority {
+  String get label => switch (this) {
+        PinPriority.none => '无',
+        PinPriority.low => '低',
+        PinPriority.medium => '中',
+        PinPriority.high => '高',
+      };
+}
+
 /// 演示任务（对应 home.html 的任务行）
 class DemoTask {
   const DemoTask({
@@ -23,6 +35,8 @@ class DemoTask {
     this.progress,
     this.group = TaskGroup.today,
     this.id,
+    this.priority = PinPriority.none,
+    this.tags = const <String>[],
   });
 
   final String title;
@@ -42,6 +56,12 @@ class DemoTask {
   /// 稳定标识（仓库内唯一；种子数据默认取标题）
   final String? id;
 
+  /// 优先级（任务编辑可改）
+  final PinPriority priority;
+
+  /// 标签（#xxx；任务编辑可增删）
+  final List<String> tags;
+
   DemoTask copyWith({
     String? title,
     List<PinChipMeta>? meta,
@@ -53,6 +73,8 @@ class DemoTask {
     (int, int)? progress,
     TaskGroup? group,
     String? id,
+    PinPriority? priority,
+    List<String>? tags,
   }) {
     return DemoTask(
       title: title ?? this.title,
@@ -65,6 +87,8 @@ class DemoTask {
       progress: progress ?? this.progress,
       group: group ?? this.group,
       id: id ?? this.id,
+      priority: priority ?? this.priority,
+      tags: tags ?? this.tags,
     );
   }
 }
@@ -103,9 +127,9 @@ const kTodayTasks = <DemoTask>[
     title: '设计评审材料准备',
     meta: [
       PinChipMeta('14:00', icon: PinIcons.clock),
-      PinChipMeta('#设计', style: PinChipStyle.violet),
     ],
-    flagHigh: true,
+    tags: ['#设计'],
+    priority: PinPriority.high,
     progress: (2, 4),
     listName: '工作',
     listColor: PinListDots.work,
@@ -115,8 +139,8 @@ const kTodayTasks = <DemoTask>[
     title: '整理 Q4 用户反馈',
     meta: [
       PinChipMeta('16:30', icon: PinIcons.clock),
-      PinChipMeta('#复盘', style: PinChipStyle.violet),
     ],
+    tags: ['#复盘'],
     listName: '工作',
     listColor: PinListDots.work,
   ),

@@ -68,3 +68,5 @@
 | （浮层）任务编辑 / 快速捕获 | `showTaskEditDialog` / `showQuickCaptureDialog`（Esc + 蒙层关闭） |
 | （状态）任务勾选 / 快速添加 | `TaskScope.of(context)` → `TaskRepository` |
 | （反馈）操作 Toast | `showPinToast`（5 秒消失，可撤销） |
+| （快捷键）Ctrl/Cmd+K、Ctrl+Shift+Space 等 | `app.dart` CallbackShortcuts 表 |
+| （搜索）实时过滤 + ↑↓/Enter/Esc | `SearchScreen`（标题栏真输入框） |

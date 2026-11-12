@@ -10,6 +10,15 @@ import '../data/task_repository.dart';
 class AppController extends ChangeNotifier {
   ThemeMode _mode = ThemeMode.light;
 
+  // 首启引导标记（会话级；持久化在 P2 用 shared_preferences）
+  bool onboardingSeen = false;
+
+  void markOnboardingSeen() {
+    if (onboardingSeen) return;
+    onboardingSeen = true;
+    notifyListeners();
+  }
+
   ThemeMode get mode => _mode;
 
   bool get isDark => _mode == ThemeMode.dark;

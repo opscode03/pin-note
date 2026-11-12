@@ -19,16 +19,30 @@ import '../chips.dart';
 import '../toast.dart';
 
 /// 快速捕获卡片
-class QuickCaptureCard extends StatelessWidget {
+class QuickCaptureCard extends StatefulWidget {
   const QuickCaptureCard({super.key, required this.width});
 
   final double width;
 
   @override
+  State<QuickCaptureCard> createState() => _QuickCaptureCardState();
+}
+
+class _QuickCaptureCardState extends State<QuickCaptureCard> {
+  late final TextEditingController _title =
+      TextEditingController(text: '提交周报');
+
+  @override
+  void dispose() {
+    _title.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final spec = context.pin;
     return Container(
-      width: width,
+      width: widget.width,
       padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
       decoration: BoxDecoration(
         color: spec.surface,
@@ -99,12 +113,26 @@ class QuickCaptureCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text(
-                  '提交周报',
-                  style: TextStyle(
-                    fontSize: PinFontSize.lg,
-                    color: spec.text,
-                    fontFamilyFallback: PinFont.sans,
+                // Wrap 内不可用 Expanded：标题输入用固定宽（设计稿识别段占位）
+                SizedBox(
+                  width: 220,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: TextField(
+                      controller: _title,
+                      autofocus: true,
+                      style: TextStyle(
+                        fontSize: PinFontSize.lg,
+                        color: spec.text,
+                        fontFamilyFallback: PinFont.sans,
+                      ),
+                      cursorColor: spec.primary,
+                      decoration: const InputDecoration(
+                        isCollapsed: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
                   ),
                 ),
                 Text(
@@ -189,10 +217,12 @@ class QuickCaptureCard extends StatelessWidget {
                 '添加待办',
                 trailingIcon: PinIcons.enter,
                 onTap: () {
-                  TaskScope.of(context).addQuickTask('提交周报');
+                  final title = _title.text.trim();
+                  if (title.isEmpty) return;
+                  TaskScope.of(context).addQuickTask(title);
                   showPinToast(
                     context,
-                    title: '已添加待办「提交周报」',
+                    title: '已添加待办「$title」',
                     subtitle: '明天 9:00 · 收件箱',
                   );
                   Navigator.pop(context);

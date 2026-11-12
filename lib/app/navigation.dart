@@ -10,11 +10,36 @@ library;
 
 import 'package:flutter/material.dart';
 
+/// 当前路由名跟踪（供全局快捷键等无 context 场景判断）
+class PinRouteObserver extends NavigatorObserver {
+  String current = '/';
+
+  void _setCurrent(Route<Object?>? route) {
+    final name = route?.settings.name;
+    if (name != null && name.isNotEmpty) current = name;
+  }
+
+  @override
+  void didPush(Route<Object?> route, Route<Object?>? previousRoute) =>
+      _setCurrent(route);
+
+  @override
+  void didReplace({Route<Object?>? newRoute, Route<Object?>? oldRoute}) =>
+      _setCurrent(newRoute);
+
+  @override
+  void didPop(Route<Object?> route, Route<Object?>? previousRoute) =>
+      _setCurrent(previousRoute);
+}
+
 class AppNav {
   AppNav._();
 
-  /// 平级切换主屏（替换当前路由，不加深栈）
+  static final PinRouteObserver observer = PinRouteObserver();
+
+  /// 平级切换主屏（替换当前路由，不加深栈）；同名路由跳过
   static void go(BuildContext context, String route) {
+    if (observer.current == route) return;
     Navigator.pushReplacementNamed(context, route);
   }
 }

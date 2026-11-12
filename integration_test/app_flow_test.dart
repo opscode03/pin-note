@@ -6,6 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:pin_note/app/app.dart';
@@ -24,6 +25,14 @@ void main() {
 
     await tester.pumpWidget(const PinNoteApp());
     await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    // 首启引导（会话级标记）：点「开始使用」进入主界面
+    final startBtn = find.text('开始使用');
+    if (startBtn.evaluate().isNotEmpty) {
+      await tester.tap(startBtn.first, warnIfMissed: false);
+      await tester.pumpAndSettle();
+      debugPrint('[走查] ✅ 首启引导 → 「开始使用」→ 主界面');
+    }
 
     void mark(bool ok, String what) {
       debugPrint('[走查] ${ok ? "✅" : "❌"} $what');
@@ -48,8 +57,8 @@ void main() {
 
     await tester.tap(find.text('搜索任务与便签…'), warnIfMissed: false);
     await settle('A2 标题栏搜索胶囊');
-    mark(find.text('评审').evaluate().isNotEmpty,
-        'A2 标题栏搜索 → 搜索页（关键词「评审」高亮）');
+    mark(find.byType(TextField).evaluate().isNotEmpty,
+        'A2 标题栏搜索 → 搜索页（真输入框 + 空态提示）');
 
     // ---------- 流程 B：搜索结果 → 任务编辑 ----------
     debugPrint('===== 流程 B：搜索 → 任务编辑 =====');
@@ -68,7 +77,7 @@ void main() {
     debugPrint('[走查] ℹ️ 弹层「确定」= pop：canPop $canPopBefore → $canPopAfter'
         '（false = 弹层关闭且栈深不变 ✓）');
     mark(!canPopAfter, 'B3 弹层「确定」→ 关闭弹层（栈深不变）');
-    mark(find.text('评审').evaluate().isNotEmpty, 'B3 回到搜索页');
+    mark(find.byType(TextField).evaluate().isNotEmpty, 'B3 回到搜索页（输入框在）');
 
     // ---------- 流程 C：便签链路 ----------
     debugPrint('===== 流程 C：便签链路 =====');
@@ -179,6 +188,53 @@ void main() {
     mark(cb.done == false, 'F2 撤销 → 任务恢复未完成');
     mark(find.text('已完成「回复客户张总的报价邮件」').evaluate().isEmpty,
         'F2 动作后 Toast 收起');
+
+    // ---------- 流程 G：搜索真输入 + 全局快捷键 ----------
+    debugPrint('===== 流程 G：搜索输入 / 快捷键 =====');
+    // Ctrl+K → 搜索页
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.keyK);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.keyK);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await settle('G1 Ctrl+K');
+    mark(find.byType(TextField).evaluate().isNotEmpty, 'G1 Ctrl+K → 搜索页（真输入框）');
+
+    // 输入「设计」→ 实时过滤
+    await tester.enterText(find.byType(TextField), '设计');
+    await settle('G2 输入「设计」');
+    mark(find.text('设计评审材料准备').evaluate().isNotEmpty, 'G2 实时过滤命中任务');
+    mark(find.text('#设计').evaluate().isNotEmpty, 'G2 实时过滤命中标签');
+
+    // Enter 打开第一条（任务编辑浮层）
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+    await settle('G3 Enter 打开');
+    mark(find.text('日期与时间').evaluate().isNotEmpty, 'G3 Enter → 任务编辑浮层');
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+    await settle('G4 Esc 关浮层');
+    mark(find.byType(TextField).evaluate().isNotEmpty, 'G4 Esc 回搜索页');
+
+    // Esc 关搜索 → 回今日
+    debugPrint('[诊断] G5 前 hits=${find.byType(TextField).evaluate().length} '
+        'hint=${find.text('输入关键词，搜索任务与便签…').evaluate().length} '
+        'result行=${find.text('设计评审材料准备').evaluate().length}');
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+    await settle('G5 Esc 关搜索');
+    debugPrint('[诊断] G5 后 TextField=${find.byType(TextField).evaluate().length} '
+        '已逾期=${find.text('已逾期').evaluate().length} '
+        'hint=${find.text('输入关键词，搜索任务与便签…').evaluate().length}');
+    mark(find.text('已逾期').evaluate().isNotEmpty, 'G5 Esc → 回今日页');
+
+    // Ctrl+Shift+Space → 快速捕获
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.space);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.space);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await settle('G6 Ctrl+Shift+Space');
+    mark(find.text('快速捕获').evaluate().isNotEmpty, 'G6 快捷键 → 快速捕获浮层');
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+    await settle('G7 Esc 关捕获');
 
     // ---------- 栈行为取证 ----------
     debugPrint('===== 栈行为取证 =====');

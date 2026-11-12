@@ -1,26 +1,132 @@
 /// 贴记 PinNote · 搜索（对应 ui/search.html）
 ///
-/// 主窗口 + 空内容区；搜索结果浮层（.popover.search-drop）贴在标题栏下方居中：
-/// 「任务 / 便签 / 清单与标签」三组结果行 + 底部快捷键提示。
+/// 标题栏真输入框实时过滤（任务 / 便签 / 标签三组结果），
+/// ↑↓ 选择、Enter 打开、Esc 关闭；点击结果直达对应目标。
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../app/app_scope.dart';
 import '../app/dialogs.dart';
 import '../app/navigation.dart';
+import '../data/demo.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
 import '../widgets/app_window.dart';
-import '../widgets/esc_handler.dart';
 import '../widgets/chips.dart';
 import '../widgets/controls.dart';
 import '../widgets/interactive.dart';
 import '../widgets/sidebar.dart';
 
 /// 搜索页（search.html：标题栏激活搜索胶囊 + 空内容区 + 结果浮层）
-class SearchScreen extends StatelessWidget {
+class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
+
+  @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  final TextEditingController _query = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+  int _selected = 0;
+  List<_SearchHit> _hits = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _query.addListener(_refresh);
+    HardwareKeyboard.instance.addHandler(_onKey);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    _query.removeListener(_refresh);
+    _query.dispose();
+    _searchFocus.dispose();
+    super.dispose();
+  }
+
+  ModalRoute<Object?>? _route;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+  }
+
+  /// 全局键盘：↑↓ 移动选择、Enter 打开、Esc 关闭（先于 TextField 消费）
+  bool _onKey(KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
+    final key = event.logicalKey;
+    // Esc：仅当搜索页是当前路由时由本页处理（否则交给弹层自身的 EscHandler）
+    if (key == LogicalKeyboardKey.escape) {
+      if (_route?.isCurrent == true) {
+        AppNav.go(context, '/');
+        return true;
+      }
+      return false;
+    }
+    if (_hits.isEmpty) return false;
+    if (key == LogicalKeyboardKey.arrowDown) {
+      setState(() => _selected = (_selected + 1) % _hits.length);
+      return true;
+    }
+    if (key == LogicalKeyboardKey.arrowUp) {
+      setState(() => _selected = (_selected - 1 + _hits.length) % _hits.length);
+      return true;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter) {
+      _open(_hits[_selected.clamp(0, _hits.length - 1)]);
+      return true;
+    }
+    return false;
+  }
+
+  void _refresh() {
+    final repo = TaskScope.of(context);
+    final q = _query.text.trim().toLowerCase();
+    final hits = <_SearchHit>[];
+    // 任务（仓库实时）
+    for (final t in [...repo.today, ...repo.overdue, ...repo.done]) {
+      if (q.isEmpty || t.title.toLowerCase().contains(q)) {
+        hits.add(_SearchHit.task(t));
+      }
+    }
+    // 便签（演示数据）
+    for (final n in kDemoNotes) {
+      if (q.isEmpty || n.title.toLowerCase().contains(q)) {
+        hits.add(_SearchHit.note(n));
+      }
+    }
+    // 标签（任务标签聚合）
+    final tagSet = <String>{for (final t in repo.tasks) ...t.tags};
+    for (final tag in tagSet) {
+      if (q.isEmpty || tag.toLowerCase().contains(q)) {
+        hits.add(_SearchHit.tag(tag));
+      }
+    }
+    setState(() {
+      _hits = hits;
+      _selected = 0;
+    });
+  }
+
+  void _open(_SearchHit hit) {
+    switch (hit.kind) {
+      case _HitKind.task:
+        showTaskEditDialog<void>(context, task: hit.task);
+      case _HitKind.note:
+        AppNav.go(context, '/note-editor');
+      case _HitKind.tag:
+        AppNav.go(context, '/notes');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,17 +134,14 @@ class SearchScreen extends StatelessWidget {
     // .search-drop { width: min(600px, 62vw); top: 60px; 水平居中 }
     final dropWidth = width * 0.62 < 600 ? width * 0.62 : 600.0;
 
-    // Esc 关闭搜索（对应胶囊右侧 Esc 提示）→ 返回今日
-    return EscHandler(
-      onEsc: () => AppNav.go(context, '/'),
-      child: Stack(
+    // Esc 关闭搜索：由本页 HardwareKeyboard 处理器接管（见 _onKey）
+    return Stack(
       children: [
         PinAppWindow(
-          // 标题栏搜索胶囊为激活态（.tb-search.active-state：评审 + 光标 + Esc）
-          titleBar: const PinTitleBar(
-            searchActive: true,
-            searchText: '评审',
-            searchTrailing: ['Esc'],
+          // 标题栏搜索胶囊：真输入框（实时过滤）
+          titleBar: PinTitleBar(
+            searchController: _query,
+            searchFocusNode: _searchFocus,
           ),
           body: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,12 +156,39 @@ class SearchScreen extends StatelessWidget {
           top: 60,
           left: 0,
           right: 0,
-          child: Center(child: _SearchDrop(width: dropWidth)),
+          child: Center(
+            child: _SearchDrop(
+              width: dropWidth,
+              hits: _hits,
+              selected: _selected,
+              query: _query.text.trim(),
+              onOpen: _open,
+            ),
+          ),
         ),
       ],
-      ),
     );
   }
+}
+
+class _SearchHit {
+  const _SearchHit.task(this.task)
+    : kind = _HitKind.task,
+      note = null,
+      tag = null;
+  const _SearchHit.note(this.note)
+    : kind = _HitKind.note,
+      task = null,
+      tag = null;
+  const _SearchHit.tag(this.tag)
+    : kind = _HitKind.tag,
+      task = null,
+      note = null;
+
+  final _HitKind kind;
+  final DemoTask? task;
+  final DemoNote? note;
+  final String? tag;
 }
 
 /// 侧栏（与 search.html 一致：清单只有收件箱/工作/生活，标签只有重要/设计）
@@ -111,11 +241,24 @@ class _EmptyContent extends StatelessWidget {
   }
 }
 
+/// 搜索命中
+enum _HitKind { task, note, tag }
+
 /// 搜索结果浮层（.search-drop：padding 10）
 class _SearchDrop extends StatelessWidget {
-  const _SearchDrop({required this.width});
+  const _SearchDrop({
+    required this.width,
+    required this.hits,
+    required this.selected,
+    required this.query,
+    required this.onOpen,
+  });
 
   final double width;
+  final List<_SearchHit> hits;
+  final int selected;
+  final String query;
+  final ValueChanged<_SearchHit> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -133,79 +276,16 @@ class _SearchDrop extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _GroupLabel('任务 · 2'),
-          _ResultRow(
-            focus: true,
-            onTap: () => showTaskEditDialog<void>(context),
-            leading: const PinCheckbox(),
-            title: const PinHighlightText('设计评审材料准备', query: '评审'),
-            trailing: const _MetaText('今天 14:00 · 工作'),
-          ),
-          _ResultRow(
-            onTap: () => showTaskEditDialog<void>(context),
-            leading: const PinCheckbox(done: true),
-            // 已完成任务：整行划线，「评审」再加主色下划线
-            title: Text.rich(
-              TextSpan(
-                children: [
-                  const TextSpan(text: '提交年度设计'),
-                  TextSpan(
-                    text: '评审',
-                    style: TextStyle(
-                      fontSize: PinFontSize.sm,
-                      fontWeight: FontWeight.w700,
-                      color: spec.primaryStrong,
-                      decoration: TextDecoration.combine([
-                        TextDecoration.underline,
-                        TextDecoration.lineThrough,
-                      ]),
-                      decorationColor: spec.primary,
-                      decorationThickness: 1.5,
-                    ),
-                  ),
-                  const TextSpan(text: '材料'),
-                ],
-                style: TextStyle(
-                  fontSize: PinFontSize.sm,
-                  color: spec.text2,
-                  decoration: TextDecoration.lineThrough,
-                  decorationColor: spec.faint,
-                ),
+          if (hits.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 22),
+              child: Text(
+                query.isEmpty ? '输入关键词，搜索任务与便签…' : '没有找到「$query」相关的结果',
+                style: spec.tsm.copyWith(color: spec.faint),
               ),
-            ),
-            trailing: const _MetaText('11月6日 · 已完成'),
-          ),
-          const _GroupLabel('便签 · 1'),
-          _ResultRow(
-            onTap: () => AppNav.go(context, '/note-editor'),
-            leading: PinIcon(PinIcons.note, size: 16, color: spec.text2),
-            title: const PinHighlightText('设计评审准备', query: '评审'),
-            trailing: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                PinChip('桌面贴', icon: PinIcons.pin, style: PinChipStyle.accent),
-                SizedBox(width: PinSpace.s2),
-                _MetaText('柠檬黄 · 2 小时前'),
-              ],
-            ),
-          ),
-          const _GroupLabel('清单与标签 · 1'),
-          _ResultRow(
-            onTap: () => AppNav.go(context, '/notes'),
-            leading: PinIcon(PinIcons.tag, size: 16, color: spec.violetStrong),
-            title: Text(
-              '#设计',
-              style: spec.tsm.copyWith(
-                color: spec.violetStrong,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            title2: Text(
-              '— 查看该标签下的 12 条内容',
-              style: spec.tsm.copyWith(color: spec.text2),
-            ),
-            trailing: const _MetaText('标签'),
-          ),
+            )
+          else
+            _grouped(context),
           // 底部快捷键提示（.sd-foot）
           Container(
             margin: const EdgeInsets.fromLTRB(14, 10, 14, 4),
@@ -226,6 +306,105 @@ class _SearchDrop extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _grouped(BuildContext context) {
+    final children = <Widget>[];
+    var lastKind = _HitKind.task;
+    var groupCount = 0;
+
+    // 分组渲染：任务 / 便签 / 清单与标签
+    String labelFor(_HitKind k) => switch (k) {
+      _HitKind.task => '任务',
+      _HitKind.note => '便签',
+      _HitKind.tag => '清单与标签',
+    };
+
+    for (var i = 0; i < hits.length; i++) {
+      final hit = hits[i];
+      if (i == 0 || hit.kind != lastKind) {
+        if (i > 0) {
+          children.add(_GroupLabel('${labelFor(lastKind)} · $groupCount'));
+        }
+        lastKind = hit.kind;
+        groupCount = 0;
+      }
+      groupCount += 1;
+      children.add(_row(context, hit, i, query));
+    }
+    if (hits.isNotEmpty) {
+      children.add(_GroupLabel('${labelFor(lastKind)} · $groupCount'));
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+  }
+
+  Widget _row(BuildContext context, _SearchHit hit, int index, String query) {
+    final spec = context.pin;
+    final focus = index == selected;
+    switch (hit.kind) {
+      case _HitKind.task:
+        final t = hit.task!;
+        return _ResultRow(
+          focus: focus,
+          onTap: () => onOpen(hit),
+          leading: PinCheckbox(done: t.done),
+          title: PinHighlightText(t.title, query: query),
+          trailing: _MetaText(
+            '${t.done ? '已完成' : (t.listName ?? '任务')} · ${t.priority.label}',
+          ),
+        );
+      case _HitKind.note:
+        final n = hit.note!;
+        return _ResultRow(
+          focus: focus,
+          onTap: () => onOpen(hit),
+          leading: PinIcon(PinIcons.note, size: 16, color: spec.text2),
+          title: PinHighlightText(n.title, query: query),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PinNoteChipOf(n.color),
+              const SizedBox(width: PinSpace.s2),
+              _MetaText(n.time),
+            ],
+          ),
+        );
+      case _HitKind.tag:
+        final tag = hit.tag!;
+        return _ResultRow(
+          focus: focus,
+          onTap: () => onOpen(hit),
+          leading: PinIcon(PinIcons.tag, size: 16, color: spec.violetStrong),
+          title: Text(
+            tag,
+            style: spec.tsm.copyWith(
+              color: spec.violetStrong,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          title2: Text(
+            '— 查看该标签下的内容',
+            style: spec.tsm.copyWith(color: spec.text2),
+          ),
+          trailing: const _MetaText('标签'),
+        );
+    }
+  }
+}
+
+/// 按便签色渲染的色名 Chip（搜索结果里的「桌面贴」胶囊）
+class PinNoteChipOf extends StatelessWidget {
+  const PinNoteChipOf(this.color, {super.key});
+
+  final StickyColor color;
+
+  @override
+  Widget build(BuildContext context) {
+    return const PinChip('桌面贴', icon: PinIcons.pin, style: PinChipStyle.accent);
   }
 }
 

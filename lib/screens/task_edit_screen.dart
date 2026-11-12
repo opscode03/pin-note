@@ -12,6 +12,7 @@ import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
 import '../widgets/app_window.dart';
+import '../app/app_scope.dart';
 import '../widgets/overlays/task_edit_popover.dart';
 import '../widgets/chips.dart';
 import '../widgets/sidebar.dart';
@@ -46,7 +47,11 @@ class TaskEditScreen extends StatelessWidget {
         Positioned.fill(
           child: Align(
             alignment: const Alignment(0, 0.04), // top: 52%
-            child: TaskEditPopover(width: popWidth),
+            child: TaskEditPopover(
+              task: TaskScope.of(context).resolveEditable() ??
+                  const DemoTask(title: '设计评审材料准备', selected: true),
+              width: popWidth,
+            ),
           ),
         ),
       ],
