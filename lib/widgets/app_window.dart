@@ -171,11 +171,13 @@ class PinTitleBar extends StatelessWidget {
       child: Stack(
         children: [
           // 可拖拽区域
+          // 注意：不要在这里挂 onDoubleTap —— DoubleTapGestureRecognizer 会把
+          // 本区域内所有单击的手势裁定挂起约 300ms，导致标题栏按钮点击迟滞
+          // （真机手感延迟 + 测试环境假时钟下永不裁定）。拖拽窗口用 onPanStart。
           Positioned.fill(
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onPanStart: (_) => DesktopWindow.startDragging(),
-              onDoubleTap: DesktopWindow.toggleMaximize,
               child: Row(
                 children: [
                   const SizedBox(width: 14),
