@@ -4,6 +4,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import '../data/task_repository.dart';
+
 /// 全局应用控制器：浅 / 深色切换（对应设计稿 titlebar 的主题按钮）
 class AppController extends ChangeNotifier {
   ThemeMode _mode = ThemeMode.light;
@@ -35,6 +37,21 @@ class AppScope extends InheritedNotifier<AppController> {
   static AppController of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<AppScope>();
     assert(scope != null && scope.notifier != null, 'AppScope 未挂载');
+    return scope!.notifier!;
+  }
+}
+
+/// 任务状态作用域：`TaskScope.of(context)` 读写任务仓库
+class TaskScope extends InheritedNotifier<TaskRepository> {
+  const TaskScope({
+    required TaskRepository super.notifier,
+    required super.child,
+    super.key,
+  });
+
+  static TaskRepository of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<TaskScope>();
+    assert(scope != null && scope.notifier != null, 'TaskScope 未挂载');
     return scope!.notifier!;
   }
 }

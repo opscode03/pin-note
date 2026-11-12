@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -78,7 +79,7 @@ class _WelcomeCard extends StatelessWidget {
           '开始使用',
           size: PinButtonSize.xl,
           expand: true,
-          onTap: () => Navigator.pushNamed(context, '/'),
+          onTap: () => AppNav.go(context, '/'),
         ),
         const SizedBox(height: 16),
         Text(
@@ -115,7 +116,7 @@ class _AccountOption extends StatelessWidget {
     final spec = context.pin;
     return HoverBuilder(
       builder: (context, hover, _) => GestureDetector(
-        onTap: () => Navigator.pushNamed(context, '/'),
+        onTap: () => AppNav.go(context, '/'),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           decoration: BoxDecoration(
@@ -200,7 +201,7 @@ class _LoginCard extends StatelessWidget {
             child: PinLink(
               '获取验证码',
               fontSize: PinFontSize.xs,
-              onTap: () => Navigator.pushNamed(context, '/'),
+              onTap: () => AppNav.go(context, '/'),
             ),
           ),
         ),
@@ -209,7 +210,7 @@ class _LoginCard extends StatelessWidget {
           '登录 / 注册',
           size: PinButtonSize.xl,
           expand: true,
-          onTap: () => Navigator.pushNamed(context, '/'),
+          onTap: () => AppNav.go(context, '/'),
         ),
         const SizedBox(height: 22),
         // 「或」分隔（.divider：两侧细线）
@@ -236,7 +237,7 @@ class _LoginCard extends StatelessWidget {
               child: _SocialButton(
                 label: '微信登录',
                 dot: const Color(0xFF58BE6C), // 微信绿（设计稿固定色）
-                onTap: () => Navigator.pushNamed(context, '/'),
+                onTap: () => AppNav.go(context, '/'),
               ),
             ),
             const SizedBox(width: 12),
@@ -244,7 +245,7 @@ class _LoginCard extends StatelessWidget {
               child: _SocialButton(
                 label: 'Apple 登录',
                 dot: const Color(0xFF383A42), // Apple 黑（设计稿固定色）
-                onTap: () => Navigator.pushNamed(context, '/'),
+                onTap: () => AppNav.go(context, '/'),
               ),
             ),
           ],

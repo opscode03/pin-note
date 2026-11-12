@@ -6,10 +6,13 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../app/dialogs.dart';
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
 import '../widgets/app_window.dart';
+import '../widgets/esc_handler.dart';
 import '../widgets/chips.dart';
 import '../widgets/controls.dart';
 import '../widgets/interactive.dart';
@@ -25,7 +28,10 @@ class SearchScreen extends StatelessWidget {
     // .search-drop { width: min(600px, 62vw); top: 60px; 水平居中 }
     final dropWidth = width * 0.62 < 600 ? width * 0.62 : 600.0;
 
-    return Stack(
+    // Esc 关闭搜索（对应胶囊右侧 Esc 提示）→ 返回今日
+    return EscHandler(
+      onEsc: () => AppNav.go(context, '/'),
+      child: Stack(
       children: [
         PinAppWindow(
           // 标题栏搜索胶囊为激活态（.tb-search.active-state：评审 + 光标 + Esc）
@@ -50,6 +56,7 @@ class SearchScreen extends StatelessWidget {
           child: Center(child: _SearchDrop(width: dropWidth)),
         ),
       ],
+      ),
     );
   }
 }
@@ -63,25 +70,25 @@ List<Object> _navItems(BuildContext context) {
       icon: PinIcons.calendar,
       badge: '5',
       selected: true,
-      onTap: () => Navigator.pushNamed(context, '/'),
+      onTap: () => AppNav.go(context, '/'),
     ),
     SidebarEntry(
       '最近 7 天',
       icon: PinIcons.clock,
       badge: '12',
-      onTap: () => Navigator.pushNamed(context, '/empty-states'),
+      onTap: () => AppNav.go(context, '/empty-states'),
     ),
     const SidebarEntry('全部', icon: PinIcons.layers, badge: '38'),
     SidebarEntry(
       '已完成',
       icon: PinIcons.check,
-      onTap: () => Navigator.pushNamed(context, '/empty-states'),
+      onTap: () => AppNav.go(context, '/empty-states'),
     ),
     SidebarEntry(
       '便签库',
       icon: PinIcons.pin,
       badge: '8',
-      onTap: () => Navigator.pushNamed(context, '/notes'),
+      onTap: () => AppNav.go(context, '/notes'),
     ),
     const SidebarHeader('清单'),
     const SidebarEntry('收件箱', dotColor: PinListDots.inbox, badge: '3'),
@@ -129,13 +136,13 @@ class _SearchDrop extends StatelessWidget {
           const _GroupLabel('任务 · 2'),
           _ResultRow(
             focus: true,
-            onTap: () => Navigator.pushNamed(context, '/task-edit'),
+            onTap: () => showTaskEditDialog<void>(context),
             leading: const PinCheckbox(),
             title: const PinHighlightText('设计评审材料准备', query: '评审'),
             trailing: const _MetaText('今天 14:00 · 工作'),
           ),
           _ResultRow(
-            onTap: () => Navigator.pushNamed(context, '/task-edit'),
+            onTap: () => showTaskEditDialog<void>(context),
             leading: const PinCheckbox(done: true),
             // 已完成任务：整行划线，「评审」再加主色下划线
             title: Text.rich(
@@ -170,7 +177,7 @@ class _SearchDrop extends StatelessWidget {
           ),
           const _GroupLabel('便签 · 1'),
           _ResultRow(
-            onTap: () => Navigator.pushNamed(context, '/note-editor'),
+            onTap: () => AppNav.go(context, '/note-editor'),
             leading: PinIcon(PinIcons.note, size: 16, color: spec.text2),
             title: const PinHighlightText('设计评审准备', query: '评审'),
             trailing: const Row(
@@ -184,7 +191,7 @@ class _SearchDrop extends StatelessWidget {
           ),
           const _GroupLabel('清单与标签 · 1'),
           _ResultRow(
-            onTap: () => Navigator.pushNamed(context, '/notes'),
+            onTap: () => AppNav.go(context, '/notes'),
             leading: PinIcon(PinIcons.tag, size: 16, color: spec.violetStrong),
             title: Text(
               '#设计',

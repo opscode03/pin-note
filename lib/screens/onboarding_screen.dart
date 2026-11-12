@@ -7,6 +7,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -85,7 +86,7 @@ class _WelcomeCard extends StatelessWidget {
           '开始使用',
           size: PinButtonSize.xl,
           expand: true,
-          onTap: () => Navigator.pushNamed(context, '/'),
+          onTap: () => AppNav.go(context, '/'),
         ),
         const SizedBox(height: 14),
         Center(
@@ -94,7 +95,7 @@ class _WelcomeCard extends StatelessWidget {
             child: PinLink(
               '已有账号？登录并同步 →',
               fontSize: PinFontSize.xs,
-              onTap: () => Navigator.pushNamed(context, '/account'),
+              onTap: () => AppNav.go(context, '/account'),
             ),
           ),
         ),
@@ -213,13 +214,13 @@ class _TeachCard extends StatelessWidget {
               '完成，进入贴记',
               size: PinButtonSize.xl,
               expand: true,
-              onTap: () => Navigator.pushNamed(context, '/'),
+              onTap: () => AppNav.go(context, '/'),
             ),
             const SizedBox(height: 12),
             Center(
               child: HoverBuilder(
                 builder: (context, _, _) => GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, '/'),
+                  onTap: () => AppNav.go(context, '/'),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,

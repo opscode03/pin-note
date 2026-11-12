@@ -150,10 +150,19 @@ class GroupHeader extends StatelessWidget {
 
 /// 任务行（对应 .task）
 class TaskRow extends StatelessWidget {
-  const TaskRow({required this.task, this.onTap, this.trailing, super.key});
+  const TaskRow({
+    required this.task,
+    this.onTap,
+    this.onToggle,
+    this.trailing,
+    super.key,
+  });
 
   final DemoTask task;
   final VoidCallback? onTap;
+
+  /// 勾选区独立命中：点击复选框 = 完成 / 撤销（不进编辑弹层）
+  final VoidCallback? onToggle;
   final Widget? trailing;
 
   @override
@@ -198,11 +207,15 @@ class TaskRow extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: PinCheckbox(done: task.done),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onToggle,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: PinCheckbox(done: task.done),
+                        ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(child: _main(context)),
                       if (trailing != null || task.listName != null)
                         Center(child: trailing ?? _listName(context)),

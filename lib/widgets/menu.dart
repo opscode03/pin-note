@@ -164,6 +164,7 @@ class PinToast extends StatelessWidget {
     this.iconColor,
     this.icon = PinIcons.check,
     this.action,
+    this.onAction,
     this.trailing,
     this.minWidth = 320,
     super.key,
@@ -175,6 +176,7 @@ class PinToast extends StatelessWidget {
   final Color? iconColor;
   final PinIconData icon;
   final String? action; // e.g. 撤销
+  final VoidCallback? onAction; // 动作回调（撤销等）
   final String? trailing; // e.g. 刚刚
   final double minWidth;
 
@@ -232,7 +234,7 @@ class PinToast extends StatelessWidget {
           if (action != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-              child: PinLink(action!, fontSize: PinFontSize.xs),
+              child: PinLink(action!, fontSize: PinFontSize.xs, onTap: onAction),
             ),
           if (trailing != null)
             Text(

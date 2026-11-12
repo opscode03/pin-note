@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../data/demo.dart';
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -37,19 +38,19 @@ List<Object> _navItems(BuildContext context) {
       '今日',
       icon: PinIcons.calendar,
       badge: '5',
-      onTap: () => Navigator.pushNamed(context, '/'),
+      onTap: () => AppNav.go(context, '/'),
     ),
     SidebarEntry(
       '最近 7 天',
       icon: PinIcons.clock,
       badge: '12',
-      onTap: () => Navigator.pushNamed(context, '/empty-states'),
+      onTap: () => AppNav.go(context, '/empty-states'),
     ),
     const SidebarEntry('全部', icon: PinIcons.layers, badge: '38'),
     SidebarEntry(
       '已完成',
       icon: PinIcons.check,
-      onTap: () => Navigator.pushNamed(context, '/empty-states'),
+      onTap: () => AppNav.go(context, '/empty-states'),
     ),
     const SidebarEntry('便签库', icon: PinIcons.pin, badge: '8', selected: true),
     const SidebarHeader('清单'),
@@ -103,7 +104,7 @@ class _NotesContent extends StatelessWidget {
                 PinButton(
                   '新建便签',
                   icon: PinIcons.plus,
-                  onTap: () => Navigator.pushNamed(context, '/note-editor'),
+                  onTap: () => AppNav.go(context, '/note-editor'),
                 ),
               ],
             ),
@@ -158,7 +159,7 @@ class _NoteCard extends StatelessWidget {
     return HoverBuilder(
       builder: (context, hover, _) {
         return GestureDetector(
-          onTap: () => Navigator.pushNamed(context, '/note-editor'),
+          onTap: () => AppNav.go(context, '/note-editor'),
           child: AnimatedContainer(
             duration: PinMotion.dur,
             curve: PinMotion.ease,
@@ -241,7 +242,7 @@ class _AddCard extends StatelessWidget {
       builder: (context, hover, _) {
         final color = hover ? spec.primaryStrong : spec.faint;
         return GestureDetector(
-          onTap: () => Navigator.pushNamed(context, '/note-editor'),
+          onTap: () => AppNav.go(context, '/note-editor'),
           child: Container(
             height: 188,
             decoration: BoxDecoration(

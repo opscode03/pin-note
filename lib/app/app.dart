@@ -19,6 +19,7 @@ import '../screens/settings_screen.dart';
 import '../screens/task_edit_screen.dart';
 import '../screens/tray_screen.dart';
 import 'app_scope.dart';
+import '../data/task_repository.dart';
 
 /// MaterialApp + 全局主题（浅 / 深色由 [AppController] 切换）
 class PinNoteApp extends StatefulWidget {
@@ -30,6 +31,7 @@ class PinNoteApp extends StatefulWidget {
 
 class _PinNoteAppState extends State<PinNoteApp> {
   final AppController _controller = AppController();
+  final TaskRepository _taskRepo = TaskRepository();
 
   @override
   void initState() {
@@ -50,7 +52,9 @@ class _PinNoteAppState extends State<PinNoteApp> {
   Widget build(BuildContext context) {
     return AppScope(
       notifier: _controller,
-      child: MaterialApp(
+      child: TaskScope(
+        notifier: _taskRepo,
+        child: MaterialApp(
         title: '贴记 PinNote',
         debugShowCheckedModeBanner: false,
         theme: buildPinTheme(pinSpecLight),
@@ -80,6 +84,7 @@ class _PinNoteAppState extends State<PinNoteApp> {
           '/account': (_) => const AccountScreen(),
           '/design-language': (_) => const DesignLanguageScreen(),
         },
+      ),
       ),
     );
   }

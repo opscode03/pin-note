@@ -64,3 +64,7 @@
 | `.scene` / `.taskbar` / `.wp-*` | `WallpaperScene` / `PinTaskbar` |
 | `.canvas-page` / `.artboard` | `CanvasPage` / `Artboard` |
 | `icons.svg#xxx` | `PinIcons.xxx` |
+| （导航约定）主屏切换 | `AppNav.go`（pushReplacement，栈深恒 1） |
+| （浮层）任务编辑 / 快速捕获 | `showTaskEditDialog` / `showQuickCaptureDialog`（Esc + 蒙层关闭） |
+| （状态）任务勾选 / 快速添加 | `TaskScope.of(context)` → `TaskRepository` |
+| （反馈）操作 Toast | `showPinToast`（5 秒消失，可撤销） |

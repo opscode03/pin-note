@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -164,14 +165,14 @@ class _NoteHead extends StatelessWidget {
         const SizedBox(width: PinSpace.s2),
         // pill-primary：贴到桌面（→ desktop-pins.html）
         _NotePill(
-          onTap: () => Navigator.pushNamed(context, '/desktop-pins'),
+          onTap: () => AppNav.go(context, '/desktop-pins'),
           icon: PinIcons.pin,
           label: '贴到桌面',
         ),
         const SizedBox(width: PinSpace.s2),
         // pill-outline：置顶（→ pin-controls.html）
         _NotePill(
-          onTap: () => Navigator.pushNamed(context, '/pin-controls'),
+          onTap: () => AppNav.go(context, '/pin-controls'),
           icon: PinIcons.layers,
           label: '置顶',
           outline: true,
@@ -180,7 +181,7 @@ class _NoteHead extends StatelessWidget {
         const _NoteWindowButton(PinIcons.minus), // href="#"，无跳转
         _NoteWindowButton(
           PinIcons.close,
-          onTap: () => Navigator.pushNamed(context, '/notes'),
+          onTap: () => AppNav.go(context, '/notes'),
         ),
       ],
     );

@@ -7,6 +7,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -149,13 +150,13 @@ class _TodayBody extends StatelessWidget {
             PinButton(
               '添加任务',
               icon: PinIcons.plus,
-              onTap: () => Navigator.pushNamed(context, '/'),
+              onTap: () => AppNav.go(context, '/'),
             ),
             const SizedBox(width: 12),
             PinButton(
               '从便签创建',
               variant: PinButtonVariant.secondary,
-              onTap: () => Navigator.pushNamed(context, '/notes'),
+              onTap: () => AppNav.go(context, '/notes'),
             ),
           ],
         ),
@@ -223,7 +224,7 @@ class _NotesBody extends StatelessWidget {
             PinButton(
               '新建便签',
               icon: PinIcons.plus,
-              onTap: () => Navigator.pushNamed(context, '/note-editor'),
+              onTap: () => AppNav.go(context, '/note-editor'),
             ),
             const SizedBox(width: 12),
             PinButton(

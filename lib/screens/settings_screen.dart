@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../app/app_scope.dart';
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -61,20 +62,20 @@ class _SettingsSidebar extends StatelessWidget {
                     '外观',
                     icon: PinIcons.theme,
                     selected: true,
-                    onTap: () => Navigator.pushNamed(context, '/settings'),
+                    onTap: () => AppNav.go(context, '/settings'),
                   ),
                   const _SettingsNavItem('行为', icon: PinIcons.gear),
                   const _SettingsNavItem('热键', icon: PinIcons.keyboard),
                   _SettingsNavItem(
                     '通知',
                     icon: PinIcons.bell,
-                    onTap: () => Navigator.pushNamed(context, '/tray'),
+                    onTap: () => AppNav.go(context, '/tray'),
                   ),
                   const _SettingsNavItem('数据', icon: PinIcons.folder),
                   _SettingsNavItem(
                     '账户',
                     icon: PinIcons.person,
-                    onTap: () => Navigator.pushNamed(context, '/account'),
+                    onTap: () => AppNav.go(context, '/account'),
                   ),
                   const _SettingsNavItem('关于', icon: PinIcons.info),
                 ],
@@ -98,7 +99,7 @@ class _BackLink extends StatelessWidget {
     final spec = context.pin;
     return HoverBuilder(
       builder: (context, hover, _) => GestureDetector(
-        onTap: () => Navigator.pushNamed(context, '/'),
+        onTap: () => AppNav.go(context, '/'),
         child: Container(
           margin: const EdgeInsets.fromLTRB(10, 4, 10, 0),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -379,7 +380,7 @@ class _ThemeCard extends StatelessWidget {
                 _ThemeTile(
                   on: true,
                   label: '浅色',
-                  onTap: () => Navigator.pushNamed(context, '/settings'),
+                  onTap: () => AppNav.go(context, '/settings'),
                   preview: const _ThemePreview(
                     canvas: Color(0xFFFFFFFF), // 浅色画布 #fff
                     side: Color(0xFFF5F6F8), // 浅色侧栏 --color-surface-2
@@ -400,7 +401,7 @@ class _ThemeCard extends StatelessWidget {
                 const SizedBox(width: 26),
                 _ThemeTile(
                   label: '跟随系统',
-                  onTap: () => Navigator.pushNamed(context, '/settings'),
+                  onTap: () => AppNav.go(context, '/settings'),
                   preview: const _ThemePreview.split(),
                 ),
               ],
@@ -723,7 +724,7 @@ class _PinModeCard extends StatelessWidget {
             child: PinLink(
               '两种模式可在桌面贴右键菜单中随时切换 →',
               fontSize: PinFontSize.xs,
-              onTap: () => Navigator.pushNamed(context, '/pin-controls'),
+              onTap: () => AppNav.go(context, '/pin-controls'),
             ),
           ),
         ],

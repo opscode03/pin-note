@@ -5,6 +5,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../app/dialogs.dart';
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -88,7 +90,7 @@ class _ReminderToast extends StatelessWidget {
                 '完成',
                 icon: PinIcons.check,
                 filled: true,
-                onTap: () => Navigator.pushNamed(context, '/'),
+                onTap: () => AppNav.go(context, '/'),
               ),
               const SizedBox(width: 8),
               const _ToastButton('稍后 10 分钟'),
@@ -165,36 +167,36 @@ class _TrayMenu extends StatelessWidget {
           label: '快速捕获',
           icon: PinIcons.zap,
           kbd: 'Ctrl+Shift+Space',
-          onTap: () => Navigator.pushNamed(context, '/quick-capture'),
+          onTap: () => showQuickCaptureDialog<void>(context),
         ),
         PinMenuItem(
           label: '新建便签',
           icon: PinIcons.note,
           kbd: 'Ctrl+Alt+N',
-          onTap: () => Navigator.pushNamed(context, '/note-editor'),
+          onTap: () => AppNav.go(context, '/note-editor'),
         ),
         PinMenuItem(
           label: '新建待办',
           icon: PinIcons.plus,
           kbd: 'Ctrl+Shift+T',
-          onTap: () => Navigator.pushNamed(context, '/task-edit'),
+          onTap: () => showTaskEditDialog<void>(context),
         ),
         PinMenuItem(
           label: '显示桌面贴',
           icon: PinIcons.pin,
           kbd: 'Ctrl+Alt+D',
-          onTap: () => Navigator.pushNamed(context, '/desktop-pins'),
+          onTap: () => AppNav.go(context, '/desktop-pins'),
         ),
         PinMenuItem(
           label: '打开贴记',
           icon: PinIcons.layers,
-          onTap: () => Navigator.pushNamed(context, '/'),
+          onTap: () => AppNav.go(context, '/'),
         ),
         const PinMenuItem(label: '导出数据', icon: PinIcons.folder),
         PinMenuItem(
           label: '设置',
           icon: PinIcons.gear,
-          onTap: () => Navigator.pushNamed(context, '/settings'),
+          onTap: () => AppNav.go(context, '/settings'),
         ),
         const PinMenuItem(label: '退出', icon: PinIcons.close),
       ],

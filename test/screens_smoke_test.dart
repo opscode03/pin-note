@@ -6,6 +6,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pin_note/app/app.dart';
+import 'package:pin_note/app/app_scope.dart';
+import 'package:pin_note/data/task_repository.dart';
 import 'package:pin_note/design/icons.dart';
 import 'package:pin_note/design/tokens.dart';
 import 'package:pin_note/design/theme.dart';
@@ -33,7 +35,10 @@ Widget _wrap(Widget child, {Brightness brightness = Brightness.light}) {
     theme: buildPinTheme(
       brightness == Brightness.light ? pinSpecLight : pinSpecDark,
     ),
-    home: Scaffold(body: child),
+    home: TaskScope(
+      notifier: TaskRepository(),
+      child: Scaffold(body: child),
+    ),
   );
 }
 
@@ -211,6 +216,21 @@ void main() {
 
     testWidgets('托盘与通知（1440×900）', (tester) async {
       await _desktop(tester, const TrayScreen());
+    });
+
+    test('任务仓库：勾选跨组移动 + 快速添加 + 撤销回原组', () {
+      final repo = TaskRepository();
+      final today0 = repo.today.length;
+      final done0 = repo.done.length;
+      final task = repo.today.first;
+      repo.toggleDone(task.id!);
+      expect(repo.today.length, today0 - 1);
+      expect(repo.done.length, done0 + 1);
+      repo.toggleDone(task.id!); // 撤销 → 回原分组
+      expect(repo.today.length, today0);
+      expect(repo.done.length, done0);
+      repo.addQuickTask('测试任务');
+      expect(repo.today.any((t) => t.title == '测试任务'), isTrue);
     });
 
     test('主题规格浅深色齐全', () {

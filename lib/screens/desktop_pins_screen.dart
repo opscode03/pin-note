@@ -7,6 +7,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -266,7 +267,7 @@ class _TodayCard extends StatelessWidget {
     final spec = context.pin;
     return HoverBuilder(
       builder: (context, hover, _) => GestureDetector(
-        onTap: () => Navigator.pushNamed(context, '/'),
+        onTap: () => AppNav.go(context, '/'),
         child: Container(
           padding: const EdgeInsets.fromLTRB(18, 15, 18, 15),
           decoration: BoxDecoration(
@@ -383,7 +384,7 @@ class _QuoteNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/pin-controls'),
+      onTap: () => AppNav.go(context, '/pin-controls'),
       child: const PinSticky(
         color: StickyColor.cherry,
         tack: true,

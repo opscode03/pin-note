@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../app/app_scope.dart';
+import '../app/navigation.dart';
 import '../app/desktop_window.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
@@ -202,7 +203,7 @@ class PinTitleBar extends StatelessWidget {
                   const SizedBox(width: 6),
                   PinIconButton(
                     PinIcons.gear,
-                    onTap: () => Navigator.pushNamed(context, '/settings'),
+                    onTap: () => AppNav.go(context, '/settings'),
                     tooltip: '设置',
                   ),
                   const SizedBox(width: 6),
@@ -231,7 +232,7 @@ class _SearchPillIdle extends StatelessWidget {
     final spec = context.pin;
     return HoverBuilder(
       builder: (context, hover, _) => GestureDetector(
-        onTap: () => Navigator.pushNamed(context, '/search'),
+        onTap: () => AppNav.go(context, '/search'),
         child: Container(
           width: width,
           height: 28,

@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:pin_note/app/app.dart';
 import 'package:pin_note/app/desktop_window.dart';
+import 'package:pin_note/widgets/controls.dart';
+import 'package:pin_note/widgets/task_views.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -63,9 +65,10 @@ void main() {
     await tester.tap(find.text('确定'), warnIfMissed: false);
     await settle('B3 点「确定」');
     final canPopAfter = navForPopCheck.canPop();
-    debugPrint('[走查] ℹ️ 「确定」前 canPop=$canPopBefore，后 canPop=$canPopAfter'
-        '（true = 栈在叠加：返回操作会退回旧层而非关闭）');
-    mark(find.text('已逾期').evaluate().isNotEmpty, 'B3 弹层「确定」→ 回到今日页');
+    debugPrint('[走查] ℹ️ 弹层「确定」= pop：canPop $canPopBefore → $canPopAfter'
+        '（false = 弹层关闭且栈深不变 ✓）');
+    mark(!canPopAfter, 'B3 弹层「确定」→ 关闭弹层（栈深不变）');
+    mark(find.text('评审').evaluate().isNotEmpty, 'B3 回到搜索页');
 
     // ---------- 流程 C：便签链路 ----------
     debugPrint('===== 流程 C：便签链路 =====');
@@ -104,6 +107,9 @@ void main() {
     await tester.tap(find.text('添加待办'), warnIfMissed: false);
     await settle('D2 添加待办');
     mark(find.text('已逾期').evaluate().isNotEmpty, 'D2 「添加待办」→ 回今日页');
+    mark(find.text('已添加待办「提交周报」').evaluate().isNotEmpty,
+        'D2 添加反馈 Toast 出现');
+    mark(find.text('提交周报').evaluate().isNotEmpty, 'D2 新待办出现在「今天」分组');
 
     // ---------- 流程 E：设置 / 主题 / 托盘 ----------
     debugPrint('===== 流程 E：设置 / 主题 / 托盘 =====');
@@ -147,6 +153,33 @@ void main() {
         Theme.of(tester.element(find.text('今天').first)).brightness;
     mark(brightnessAfter == Brightness.light, 'E5 标题栏 ⏾ 切回浅色');
 
+    // ---------- 流程 F：勾选完成 / 撤销 ----------
+    debugPrint('===== 流程 F：勾选完成 =====');
+    // 第一个 TaskRow = 「已逾期」分组的「回复客户张总的报价邮件」
+    await tester.tap(
+      find.descendant(
+        of: find.byType(TaskRow).first,
+        matching: find.byType(PinCheckbox),
+      ),
+      warnIfMissed: false,
+    );
+    await settle('F1 勾选第一条任务');
+    mark(find.text('已完成「回复客户张总的报价邮件」').evaluate().isNotEmpty,
+        'F1 勾选 → 完成 Toast');
+    mark(find.text('撤销').evaluate().isNotEmpty, 'F1 Toast 带「撤销」');
+    await tester.tap(find.text('撤销'), warnIfMissed: false);
+    await settle('F2 点撤销');
+    // 断言恢复结果：该行复选框回到未完成，且 Toast 已随动作收起
+    final cb = tester.widget<PinCheckbox>(
+      find.descendant(
+        of: find.byType(TaskRow).first,
+        matching: find.byType(PinCheckbox),
+      ),
+    );
+    mark(cb.done == false, 'F2 撤销 → 任务恢复未完成');
+    mark(find.text('已完成「回复客户张总的报价邮件」').evaluate().isEmpty,
+        'F2 动作后 Toast 收起');
+
     // ---------- 栈行为取证 ----------
     debugPrint('===== 栈行为取证 =====');
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
@@ -154,11 +187,11 @@ void main() {
     while (nav.canPop() && pops < 40) {
       nav.pop();
       pops += 1;
+      await tester.pumpAndSettle();
     }
-    await tester.pumpAndSettle();
     debugPrint('[走查] ℹ️ 走完全部流程后需要 pop $pops 次才回到栈底'
-        '（理想值：主屏切换 0，浮层关闭 1）');
-    issues.add('Navigator 栈叠加：全流程走完需要 pop $pops 次才回栈底');
+        '（目标值 0：主屏切换 = replacement，浮层 = pop）');
+    mark(pops == 0, '栈深管理：全流程走完后回到栈底（实测 $pops 层）');
 
     debugPrint('===== 走查结束：${issues.length} 个问题 =====');
     for (final s in issues) {

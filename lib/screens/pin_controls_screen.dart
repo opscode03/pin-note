@@ -7,6 +7,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../app/dialogs.dart';
+import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -131,7 +133,7 @@ class _PinToolbar extends StatelessWidget {
             PinIcons.close,
             size: 36,
             iconSize: 13,
-            onTap: () => Navigator.pushNamed(context, '/desktop-pins'),
+            onTap: () => AppNav.go(context, '/desktop-pins'),
           ),
         ],
       ),
@@ -270,14 +272,14 @@ class _ContextMenu extends StatelessWidget {
         PinMenuItem(
           label: '转为任务',
           icon: PinIcons.check,
-          onTap: () => Navigator.pushNamed(context, '/task-edit'),
+          onTap: () => showTaskEditDialog<void>(context),
         ),
         const PinMenuItem(label: '复制内容', icon: PinIcons.note),
         const PinMenuItem(label: '另存为图片', icon: PinIcons.image),
         PinMenuItem(
           label: '取消贴附',
           icon: PinIcons.pin,
-          onTap: () => Navigator.pushNamed(context, '/notes'),
+          onTap: () => AppNav.go(context, '/notes'),
         ),
         const PinMenuItem(label: '删除', icon: PinIcons.trash, danger: true),
       ],

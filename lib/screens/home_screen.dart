@@ -3,6 +3,9 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../app/app_scope.dart';
+import '../app/dialogs.dart';
+import '../app/navigation.dart';
 import '../data/demo.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
@@ -14,6 +17,7 @@ import '../widgets/controls.dart';
 import '../widgets/interactive.dart';
 import '../widgets/sidebar.dart';
 import '../widgets/task_views.dart';
+import '../widgets/toast.dart';
 
 /// 主窗口三栏布局（220 侧栏 / 1fr 内容 / 340 详情，<1180 隐藏详情）
 class HomeScreen extends StatelessWidget {
@@ -24,25 +28,32 @@ class HomeScreen extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     final showDetail = width >= 1180;
 
-    return PinAppWindow(
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          PinSidebar(items: _navItems(context)),
-          Expanded(child: _Content()),
-          if (showDetail) const _DetailPanel(),
-        ],
-      ),
+    // 徽标 / 分组随任务仓库变化
+    return ListenableBuilder(
+      listenable: TaskScope.of(context),
+      builder: (context, _) {
+        return PinAppWindow(
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PinSidebar(items: _navItems(context)),
+              const Expanded(child: _Content()),
+              if (showDetail) const _DetailPanel(),
+            ],
+          ),
+        );
+      },
     );
   }
 }
 
 List<Object> _navItems(BuildContext context) {
+  final repo = TaskScope.of(context);
   return [
     SidebarEntry(
       '今日',
       icon: PinIcons.calendar,
-      badge: '5',
+      badge: '${repo.today.length + repo.overdue.length}',
       selected: true,
       onTap: () {},
     ),
@@ -50,19 +61,20 @@ List<Object> _navItems(BuildContext context) {
       '最近 7 天',
       icon: PinIcons.clock,
       badge: '12',
-      onTap: () => Navigator.pushNamed(context, '/empty-states'),
+      onTap: () => AppNav.go(context, '/empty-states'),
     ),
     const SidebarEntry('全部', icon: PinIcons.layers, badge: '38'),
     SidebarEntry(
       '已完成',
       icon: PinIcons.check,
-      onTap: () => Navigator.pushNamed(context, '/empty-states'),
+      badge: '${repo.done.length}',
+      onTap: () => AppNav.go(context, '/empty-states'),
     ),
     SidebarEntry(
       '便签库',
       icon: PinIcons.pin,
       badge: '8',
-      onTap: () => Navigator.pushNamed(context, '/notes'),
+      onTap: () => AppNav.go(context, '/notes'),
     ),
     const SidebarHeader('清单'),
     const SidebarEntry('收件箱', dotColor: PinListDots.inbox, badge: '3'),
@@ -79,9 +91,20 @@ List<Object> _navItems(BuildContext context) {
 }
 
 class _Content extends StatelessWidget {
+  const _Content();
+
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
+    final repo = TaskScope.of(context);
+    final overdue = repo.overdue;
+    final today = repo.today;
+    final done = repo.done;
+
+    // 完成进度：子任务与任务数合并的演示口径
+    final total = today.length + done.length + overdue.length;
+    final doneCount = done.length;
+
     return Container(
       color: spec.bg,
       child: SingleChildScrollView(
@@ -95,12 +118,13 @@ class _Content extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const PinRing(value: 0.375),
+                    PinRing(
+                        value: total == 0 ? 0 : doneCount / total),
                     const SizedBox(width: PinSpace.s2),
                     Text.rich(
                       TextSpan(
                         children: [
-                          const TextSpan(text: '3/8 '),
+                          TextSpan(text: '$doneCount/$total '),
                           TextSpan(
                             text: '已完成',
                             style: TextStyle(color: spec.text2),
@@ -118,48 +142,58 @@ class _Content extends StatelessWidget {
                 PinButton(
                   '新建任务',
                   icon: PinIcons.plus,
-                  onTap: () => Navigator.pushNamed(context, '/task-edit'),
+                  onTap: () => showTaskEditDialog<void>(context),
                 ),
               ],
             ),
             QuickAdd(
               hint: '添加任务，输入 #标签 · !优先级 · 明天 9:00…',
-              onTap: () => Navigator.pushNamed(context, '/quick-capture'),
+              onTap: () => showQuickCaptureDialog<void>(context),
             ),
-            GroupHeader(
-              '已逾期',
-              count: kOverdueTasks.length,
-              color: spec.dangerStrong,
-            ),
-            for (final task in kOverdueTasks)
+            if (overdue.isNotEmpty) ...[
+              GroupHeader('已逾期', count: overdue.length,
+                  color: spec.dangerStrong),
+              for (final task in overdue)
+                TaskRow(
+                  task: task,
+                  onTap: () => showTaskEditDialog<void>(context),
+                  onToggle: () => _toggle(context, task),
+                ),
+            ],
+            GroupHeader('今天', count: today.length,
+                color: spec.primaryStrong),
+            for (final task in today)
               TaskRow(
                 task: task,
-                onTap: () => Navigator.pushNamed(context, '/task-edit'),
+                onTap: () => showTaskEditDialog<void>(context),
+                onToggle: () => _toggle(context, task),
               ),
-            GroupHeader(
-              '今天',
-              count: kTodayTasks.length,
-              color: spec.primaryStrong,
-            ),
-            for (final task in kTodayTasks)
+            GroupHeader('已完成', count: done.length,
+                color: spec.successStrong),
+            for (final task in done)
               TaskRow(
                 task: task,
-                onTap: () => Navigator.pushNamed(context, '/task-edit'),
-              ),
-            GroupHeader(
-              '已完成',
-              count: kDoneTasks.length,
-              color: spec.successStrong,
-            ),
-            for (final task in kDoneTasks)
-              TaskRow(
-                task: task,
-                onTap: () => Navigator.pushNamed(context, '/task-edit'),
+                onTap: () => showTaskEditDialog<void>(context),
+                onToggle: () => _toggle(context, task),
               ),
             const SizedBox(height: PinSpace.s5),
           ],
         ),
       ),
+    );
+  }
+
+  /// 勾选完成 / 撤销：跨组移动 + Toast 反馈（5 秒可撤销）
+  void _toggle(BuildContext context, DemoTask task) {
+    final repo = TaskScope.of(context);
+    repo.toggleDone(task.id ?? task.title);
+    final nowDone = !task.done;
+    showPinToast(
+      context,
+      title: nowDone ? '已完成「${task.title}」' : '已恢复「${task.title}」',
+      subtitle: nowDone ? '可在已完成分组中查看' : '已移回原分组',
+      actionLabel: '撤销',
+      onAction: () => repo.toggleDone(task.id ?? task.title),
     );
   }
 }

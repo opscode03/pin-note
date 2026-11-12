@@ -21,6 +21,8 @@ class DemoTask {
     this.selected = false,
     this.flagHigh = false,
     this.progress,
+    this.group = TaskGroup.today,
+    this.id,
   });
 
   final String title;
@@ -33,7 +35,42 @@ class DemoTask {
 
   /// 子任务进度 (done, total)
   final (int, int)? progress;
+
+  /// 所属分组（逾期/今天/已完成）——勾选完成后跨组移动
+  final TaskGroup group;
+
+  /// 稳定标识（仓库内唯一；种子数据默认取标题）
+  final String? id;
+
+  DemoTask copyWith({
+    String? title,
+    List<PinChipMeta>? meta,
+    String? listName,
+    Color? listColor,
+    bool? done,
+    bool? selected,
+    bool? flagHigh,
+    (int, int)? progress,
+    TaskGroup? group,
+    String? id,
+  }) {
+    return DemoTask(
+      title: title ?? this.title,
+      meta: meta ?? this.meta,
+      listName: listName ?? this.listName,
+      listColor: listColor ?? this.listColor,
+      done: done ?? this.done,
+      selected: selected ?? this.selected,
+      flagHigh: flagHigh ?? this.flagHigh,
+      progress: progress ?? this.progress,
+      group: group ?? this.group,
+      id: id ?? this.id,
+    );
+  }
 }
+
+/// 任务分组（对应 home.html 的分组标题）
+enum TaskGroup { overdue, today, done }
 
 /// 任务 meta 用的 Chip 配置
 class PinChipMeta {
@@ -57,6 +94,7 @@ const kOverdueTasks = <DemoTask>[
     flagHigh: true,
     listName: '工作',
     listColor: PinListDots.work,
+    group: TaskGroup.overdue,
   ),
 ];
 
@@ -98,9 +136,9 @@ const kTodayTasks = <DemoTask>[
 ];
 
 const kDoneTasks = <DemoTask>[
-  DemoTask(title: '晨跑 30 分钟', done: true),
-  DemoTask(title: '确认周五聚餐地点', done: true),
-  DemoTask(title: '提交报销单', done: true),
+  DemoTask(title: '晨跑 30 分钟', done: true, group: TaskGroup.done),
+  DemoTask(title: '确认周五聚餐地点', done: true, group: TaskGroup.done),
+  DemoTask(title: '提交报销单', done: true, group: TaskGroup.done),
 ];
 
 /// 演示便签（对应 notes.html 的卡片）

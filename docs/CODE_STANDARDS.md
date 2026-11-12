@@ -39,8 +39,13 @@ widgets/screens；页面之间不互相 import（跳转一律走路由名）。
 3. 文本必须指定 `fontFamilyFallback: PinFont.sans`（或用 `PinSpec.t*` 系列样式）。
 4. 可滚动区域一律 `SingleChildScrollView` + 明确 `crossAxisAlignment`，
    页面底部留 `PinSpace.s5` 呼吸空间。
-5. 禁止使用 Material 视觉组件（ElevatedButton / Card / Dialog / InkWell 波纹），
+5. 禁止使用 Material 视觉组件（ElevatedButton / Card / InkWell 波纹）；
    交互反馈用 HoverBuilder + GestureDetector（自绘组件保持设计语言一致性）。
+6. **导航约定（P0 起强制）**：
+   - 主屏之间一律 `AppNav.go(context, route)`（pushReplacement），栈深恒为 1；
+   - 浮层（任务编辑 / 快速捕获）用 `showTaskEditDialog` / `showQuickCaptureDialog`
+     （showGeneralDialog + EscHandler）：点蒙层 / Esc / 确定 / 取消都是 `pop`；
+   - 走查基准：全流程操作后 `Navigator` 栈深必须为 0（见 integration_test 走查）。
 
 ## 4. 状态管理（当前阶段）
 
@@ -73,7 +78,10 @@ flutter test       # 冒烟测试 + 组件测试
 
 ## 8. 已知技术债（按优先级）
 
-1. `PinButton` hover 深化未用真实 color-mix 感知（sRGB lerp 近似）
-2. 窗口 <900px 侧栏缩窄未实现（HTML 有断点）
-3. 编辑器（note-editor）暂为静态视觉，未接富文本
-4. 场景页桌面贴拖拽、Ctrl+滚轮缩放待实现（设计稿为静态展示）
+1. ~~任务不能勾选完成 / 导航栈叠加 / 弹层无法 Esc 关闭~~ → P0 已完成
+   （TaskRepository + AppNav.go + showPinDialog；遗留：任务编辑的数据保存仍为演示）
+2. 搜索框为展示态，无输入过滤与键盘导航（P1）
+3. 全局快捷键（Ctrl+K / Ctrl+Shift+Space 等）未实现（P1）
+4. 主题/偏好不持久化（P2）；窗口 <900px 侧栏缩窄未实现（P2）
+5. 编辑器工具栏 B/I/U/S 无功能；桌面贴拖拽 / 缩放 / 菜单项多数无动作（P2）
+6. `PinButton` hover 深化用 sRGB lerp 近似 color-mix
