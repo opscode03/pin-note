@@ -20,14 +20,18 @@ Future<void> main() async {
   if (kIsWeb) {
     usePathUrlStrategy();
   }
+  debugPrint('[启动] 1 path/url 策略完成');
+  // 偏好与数据持久化（web 端走 localStorage，桌面端走 plist/注册表）
   await PreferencesService.init();
+  debugPrint('[启动] 2 偏好初始化完成');
   final taskRepo = TaskRepository();
   final noteRepo = NoteRepository();
-  // 桌面端从偏好恢复数据（web 端跳过，保持演示态）
-  if (!kIsWeb) {
-    await taskRepo.load();
-    await noteRepo.load();
-  }
+  await taskRepo.load();
+  debugPrint('[启动] 3 任务加载完成 (${taskRepo.tasks.length} 条)');
+  await noteRepo.load();
+  debugPrint('[启动] 4 便签加载完成 (${noteRepo.notes.length} 条)');
   await DesktopWindow.ensureInitialized();
+  debugPrint('[启动] 5 窗口初始化完成');
   runApp(PinNoteApp(taskRepo: taskRepo, noteRepo: noteRepo));
+  debugPrint('[启动] 6 runApp 完成');
 }

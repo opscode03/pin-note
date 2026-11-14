@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:pin_note/app/app.dart';
+import 'package:pin_note/app/app_scope.dart';
 import 'package:pin_note/app/desktop_window.dart';
 import 'package:pin_note/data/note_repository.dart';
 import 'package:pin_note/data/task_repository.dart';
@@ -251,6 +252,22 @@ void main() {
     mark(find.text('快速捕获').evaluate().isNotEmpty, 'G6 快捷键 → 快速捕获浮层');
     await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
     await settle('G7 Esc 关捕获');
+
+    // ---------- 流程 H：持久化读回（模拟重启） ----------
+    debugPrint('===== 流程 H：持久化读回 =====');
+    final homeCtx = tester.element(find.byType(TaskRow).first);
+    final repoHere = TaskScope.of(homeCtx);
+    final target = repoHere.today.first;
+    repoHere.toggleDone(target.id ?? target.title);
+    await settle('H1 完成一条任务');
+    final fresh = TaskRepository();
+    await fresh.load();
+    final freshList = fresh.tasks.where((t) => t.title == target.title).toList();
+    mark(freshList.isNotEmpty && freshList.first.done,
+        'H1 重启读回：任务「${target.title}」保持完成态');
+    // 恢复走查现场
+    repoHere.toggleDone(target.id ?? target.title);
+    await settle('H2 恢复现场');
 
     // ---------- 栈行为取证 ----------
     debugPrint('===== 栈行为取证 =====');
