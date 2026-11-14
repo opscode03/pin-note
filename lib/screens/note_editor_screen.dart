@@ -1,13 +1,14 @@
-/// 贴记 PinNote · 便签编辑（对应 ui/note-editor.html）
+/// 贴记 PinNote · 便签编辑页（对应 ui/note-editor.html）
 ///
-/// 画布页（.canvas-page）：左侧柠檬黄便签编辑窗（头部动作、格式工具栏、
-/// 标题、4 条清单、高亮块、#工作 标签、自动保存脚注），
+/// 便签仓库驱动：标题 / 勾选项 / 颜色可编辑并持久化；
 /// 右侧两行标注 + 「便签颜色」面板卡（8 色色板 + 自定义）。
 library;
 
 import 'package:flutter/material.dart';
 
+import '../app/app_scope.dart';
 import '../app/navigation.dart';
+import '../data/demo.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -15,64 +16,83 @@ import '../widgets/app_window.dart';
 import '../widgets/interactive.dart';
 import '../widgets/sticky_note.dart';
 
-/// 便签编辑页（note-editor.html：data-color="lemon" 的编辑窗）
+/// 便签色 → scheme
+StickyScheme noteSchemeOf(StickyColor c) => kStickySchemes[c]!;
+
+/// color-mix(in srgb, var(--note-bg) n%, #fff) → 便签底色与白按比例混合
+Color mixNoteBg(StickyScheme scheme, double n) =>
+    Color.lerp(scheme.bg, Colors.white, 1 - n / 100)!;
+
+/// 便签编辑页（note-editor.html：data-color 的编辑窗）
 class NoteEditorScreen extends StatelessWidget {
   const NoteEditorScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.sizeOf(context).height;
-    return CanvasPage(
-      children: [
+    return ListenableBuilder(
+      listenable: NoteScope.of(context),
+      builder: (context, _) {
+        final note = NoteScope.of(context).selected;
+        final effective = note ??
+            const DemoNote(
+              id: '新便签',
+              title: '新便签',
+              color: StickyColor.lemon,
+              time: '刚刚',
+            );
         // .editor-wrap：flex-wrap、align-items center、gap 26
         // （窗口较窄时右侧颜色面板换行到便签下方，对应 HTML flex-wrap: wrap）
-        ConstrainedBox(
-          constraints: BoxConstraints(minHeight: height - 80),
-          child: const Center(
-            child: Wrap(
-              spacing: 26,
-              runSpacing: 26,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [_NoteWindow(), _SideColumn()],
+        return CanvasPage(
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(minHeight: height - 80),
+              child: Center(
+                child: Wrap(
+                  spacing: 26,
+                  runSpacing: 26,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _NoteWindow(note: effective),
+                    _SideColumn(note: effective),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
 
-/// 编辑窗便签色（note-editor.html data-color="lemon"）
-StickyScheme get _noteScheme => kStickySchemes[StickyColor.lemon]!;
-
-/// color-mix(in srgb, var(--note-bg) n%, #fff) → 便签底色与白按比例混合
-Color _mixNoteBg(double n) =>
-    Color.lerp(_noteScheme.bg, Colors.white, 1 - n / 100)!;
-
-/// 便签编辑窗（.sticky.note-win：宽 470、圆角 14、远阴影、padding 18 20）
+/// 编辑窗便签窗体（.sticky.note-win：宽 470、圆角 14、远阴影）
 class _NoteWindow extends StatelessWidget {
-  const _NoteWindow();
+  const _NoteWindow({required this.note});
+
+  final DemoNote note;
 
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
-    final scheme = _noteScheme;
+    final scheme = noteSchemeOf(note.color);
+    final repo = NoteScope.of(context);
     return SizedBox(
       width: 470,
       child: PinSticky(
-        color: StickyColor.lemon,
+        color: note.color,
         radius: PinRadius.lg,
         shadow: spec.shadowFar,
         padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 18, 20, 0),
-              child: _NoteHead(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+              child: _NoteHead(scheme: scheme),
             ),
             const SizedBox(height: 14), // .toolbar margin-top 14（全出血）
-            const _Toolbar(),
+            _Toolbar(scheme: scheme),
             const SizedBox(height: 6), // .toolbar margin-bottom 6
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
@@ -82,18 +102,39 @@ class _NoteWindow extends StatelessWidget {
                   // 标题（.ed-title：18px 加粗、margin-top 12）
                   Padding(
                     padding: const EdgeInsets.only(top: PinSpace.s3),
-                    child: Text(
-                      '周报要点',
-                      style: context.pin.txl.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: scheme.ink,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: TextField(
+                          controller: TextEditingController(text: note.title),
+                          onChanged: (v) =>
+                              repo.update(note.id ?? note.title, title: v),
+                          style: context.pin.txl.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: scheme.ink,
+                          ),
+                          cursorColor: spec.primary,
+                          decoration: const InputDecoration(
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  const _CheckRow('竞品动态梳理', done: true),
-                  const _CheckRow('数据指标核对', done: true),
-                  const _CheckRow('Q4 目标对齐'),
-                  const _CheckRow('风险与依赖盘点'),
+                  // 清单项（.ed-check）
+                  for (var i = 0; i < note.checks.length; i++)
+                    _CheckRow(
+                      note.checks[i].$1,
+                      done: note.checks[i].$2,
+                      scheme: scheme,
+                      onTap: () => repo.toggleCheck(note.id ?? note.title, i),
+                      onRemove: () =>
+                          repo.removeCheck(note.id ?? note.title, i),
+                    ),
+                  // 添加清单项
+                  _AddCheckRow(noteId: note.id ?? note.title),
                   // 高亮块（.ed-hl：margin-top 16、padding 3 9、圆角 6）
                   Padding(
                     padding: const EdgeInsets.only(top: PinSpace.s4),
@@ -103,7 +144,7 @@ class _NoteWindow extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: _mixNoteBg(35),
+                        color: mixNoteBg(scheme, 35),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -113,9 +154,9 @@ class _NoteWindow extends StatelessWidget {
                     ),
                   ),
                   // 标签（.ed-tag：margin-top 16）
-                  const Padding(
-                    padding: EdgeInsets.only(top: PinSpace.s4),
-                    child: _NoteTag(),
+                  Padding(
+                    padding: const EdgeInsets.only(top: PinSpace.s4),
+                    child: _NoteTag(scheme: scheme),
                   ),
                   // 脚注（.ed-foot：margin-top 22、11px）
                   Padding(
@@ -125,7 +166,7 @@ class _NoteWindow extends StatelessWidget {
                         PinIcon(PinIcons.sync, size: 12, color: scheme.ink2),
                         const SizedBox(width: PinSpace.s2),
                         Text(
-                          '已自动保存 · 上次编辑 2 分钟前',
+                          '已自动保存 · ${note.time}',
                           style: TextStyle(
                             fontSize: PinFontSize.xs2,
                             color: scheme.ink2,
@@ -147,11 +188,12 @@ class _NoteWindow extends StatelessWidget {
 
 /// 窗头（.nw-head：kind + 两个 pill + 右侧窗控）
 class _NoteHead extends StatelessWidget {
-  const _NoteHead();
+  const _NoteHead({required this.scheme});
+
+  final StickyScheme scheme;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = _noteScheme;
     return Row(
       children: [
         Text(
@@ -168,6 +210,7 @@ class _NoteHead extends StatelessWidget {
           onTap: () => AppNav.go(context, '/desktop-pins'),
           icon: PinIcons.pin,
           label: '贴到桌面',
+          scheme: scheme,
         ),
         const SizedBox(width: PinSpace.s2),
         // pill-outline：置顶（→ pin-controls.html）
@@ -176,12 +219,14 @@ class _NoteHead extends StatelessWidget {
           icon: PinIcons.layers,
           label: '置顶',
           outline: true,
+          scheme: scheme,
         ),
         const Spacer(),
-        const _NoteWindowButton(PinIcons.minus), // href="#"，无跳转
+        _NoteWindowButton(PinIcons.minus, scheme: scheme), // href="#"，无跳转
         _NoteWindowButton(
           PinIcons.close,
           onTap: () => AppNav.go(context, '/notes'),
+          scheme: scheme,
         ),
       ],
     );
@@ -194,18 +239,20 @@ class _NotePill extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    required this.scheme,
     this.outline = false,
   });
 
   final PinIconData icon;
   final String label;
   final VoidCallback onTap;
+  final StickyScheme scheme;
   final bool outline;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = _noteScheme;
-    final fg = outline ? _noteScheme.ink : Colors.white;
+    final spec = context.pin;
+    final fg = outline ? scheme.ink : Colors.white;
     return HoverBuilder(
       builder: (context, _, _) => GestureDetector(
         onTap: onTap,
@@ -213,7 +260,7 @@ class _NotePill extends StatelessWidget {
           height: 26,
           padding: const EdgeInsets.symmetric(horizontal: 13),
           decoration: BoxDecoration(
-            color: outline ? _mixNoteBg(45) : context.pin.primary,
+            color: outline ? mixNoteBg(scheme, 45) : spec.primary,
             borderRadius: BorderRadius.circular(PinRadius.full),
             border: outline ? Border.all(color: scheme.line) : null,
           ),
@@ -241,14 +288,14 @@ class _NotePill extends StatelessWidget {
 
 /// 窗控图标按钮（.nw-head .icon-btn：26×26，hover 便签底变浅）
 class _NoteWindowButton extends StatelessWidget {
-  const _NoteWindowButton(this.icon, {this.onTap});
+  const _NoteWindowButton(this.icon, {this.onTap, required this.scheme});
 
   final PinIconData icon;
   final VoidCallback? onTap;
+  final StickyScheme scheme;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = _noteScheme;
     return HoverBuilder(
       builder: (context, hover, _) => GestureDetector(
         onTap: onTap,
@@ -256,7 +303,7 @@ class _NoteWindowButton extends StatelessWidget {
           width: 26,
           height: 26,
           decoration: BoxDecoration(
-            color: hover ? _mixNoteBg(40) : Colors.transparent,
+            color: hover ? mixNoteBg(scheme, 40) : Colors.transparent,
             borderRadius: BorderRadius.circular(PinRadius.sm),
           ),
           child: Center(
@@ -274,43 +321,44 @@ class _NoteWindowButton extends StatelessWidget {
 
 /// 格式工具栏（.toolbar：上下描边、70% 便签底、全出血、按钮间距 1px）
 class _Toolbar extends StatelessWidget {
-  const _Toolbar();
+  const _Toolbar({required this.scheme});
+
+  final StickyScheme scheme;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = _noteScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 7),
       decoration: BoxDecoration(
-        color: _mixNoteBg(70),
+        color: mixNoteBg(scheme, 70),
         border: Border(
           top: BorderSide(color: scheme.line),
           bottom: BorderSide(color: scheme.line),
         ),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          _ToolBtn(label: 'B'),
-          SizedBox(width: 1),
-          _ToolBtn(label: 'I', italic: true),
-          SizedBox(width: 1),
-          _ToolBtn(label: 'U', underline: true),
-          SizedBox(width: 1),
-          _ToolBtn(label: 'S', strike: true),
-          _ToolSep(),
-          _ToolBtn(label: 'H1', fontSize: PinFontSize.xs2),
-          SizedBox(width: 1),
-          _ToolBtn(label: 'H2', fontSize: PinFontSize.xs2),
-          _ToolSep(),
-          _ToolBtn(icon: PinIcons.listCheck, on: true),
-          SizedBox(width: 1),
-          _ToolBtn(icon: PinIcons.listBullet),
-          _ToolSep(),
-          _ToolBtn(icon: PinIcons.highlight),
-          SizedBox(width: 1),
-          _ToolBtn(icon: PinIcons.image),
-          _ToolSep(),
-          _ToolBtn(icon: PinIcons.more),
+          _ToolBtn(label: 'B', scheme: scheme),
+          const SizedBox(width: 1),
+          _ToolBtn(label: 'I', italic: true, scheme: scheme),
+          const SizedBox(width: 1),
+          _ToolBtn(label: 'U', underline: true, scheme: scheme),
+          const SizedBox(width: 1),
+          _ToolBtn(label: 'S', strike: true, scheme: scheme),
+          _ToolSep(scheme: scheme),
+          _ToolBtn(label: 'H1', fontSize: PinFontSize.xs2, scheme: scheme),
+          const SizedBox(width: 1),
+          _ToolBtn(label: 'H2', fontSize: PinFontSize.xs2, scheme: scheme),
+          _ToolSep(scheme: scheme),
+          _ToolBtn(icon: PinIcons.listCheck, on: true, scheme: scheme),
+          const SizedBox(width: 1),
+          _ToolBtn(icon: PinIcons.listBullet, scheme: scheme),
+          _ToolSep(scheme: scheme),
+          _ToolBtn(icon: PinIcons.highlight, scheme: scheme),
+          const SizedBox(width: 1),
+          _ToolBtn(icon: PinIcons.image, scheme: scheme),
+          _ToolSep(scheme: scheme),
+          _ToolBtn(icon: PinIcons.more, scheme: scheme),
         ],
       ),
     );
@@ -327,6 +375,7 @@ class _ToolBtn extends StatelessWidget {
     this.underline = false,
     this.strike = false,
     this.on = false,
+    required this.scheme,
   });
 
   final String? label;
@@ -336,15 +385,15 @@ class _ToolBtn extends StatelessWidget {
   final bool underline;
   final bool strike;
   final bool on;
+  final StickyScheme scheme;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = _noteScheme;
     return HoverBuilder(
       builder: (context, hover, _) {
         final bg = on
-            ? _mixNoteBg(25)
-            : (hover ? _mixNoteBg(38) : Colors.transparent);
+            ? mixNoteBg(scheme, 25)
+            : (hover ? mixNoteBg(scheme, 38) : Colors.transparent);
         final fg = on || hover ? scheme.ink : scheme.ink2;
         return GestureDetector(
           onTap: () {},
@@ -357,21 +406,120 @@ class _ToolBtn extends StatelessWidget {
               borderRadius: BorderRadius.circular(7),
             ),
             child: Center(
-              child: icon != null
-                  ? PinIcon(icon!, size: 15, color: fg)
-                  : Text(
-                      label!,
-                      style: TextStyle(
-                        fontSize: fontSize ?? PinFontSize.sm,
-                        fontWeight: FontWeight.w700,
-                        fontStyle: italic ? FontStyle.italic : FontStyle.normal,
-                        decoration: underline
-                            ? TextDecoration.underline
-                            : (strike ? TextDecoration.lineThrough : null),
-                        color: fg,
-                        fontFamilyFallback: PinFont.sans,
-                      ),
+              child: _glyph(fg),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _glyph(Color fg) {
+    if (icon != null) {
+      return PinIcon(icon!, size: 15, color: fg);
+    }
+    return Text(
+      label!,
+      style: TextStyle(
+        fontSize: fontSize ?? PinFontSize.sm,
+        fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+        decoration: TextDecoration.combine([
+          if (underline) TextDecoration.underline,
+          if (strike) TextDecoration.lineThrough,
+        ]),
+        color: fg,
+        fontFamilyFallback: PinFont.sans,
+      ),
+    );
+  }
+}
+
+/// 工具栏分隔线（.tb-sep：1×16、margin 0 6）
+class _ToolSep extends StatelessWidget {
+  const _ToolSep({required this.scheme});
+
+  final StickyScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 16,
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      color: scheme.line,
+    );
+  }
+}
+
+/// 清单项行（.ed-check：勾选可点、hover 显示删除叉）
+class _CheckRow extends StatelessWidget {
+  const _CheckRow(
+    this.label, {
+    required this.done,
+    required this.scheme,
+    this.onTap,
+    this.onRemove,
+  });
+
+  final String label;
+  final bool done;
+  final StickyScheme scheme;
+  final VoidCallback? onTap;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return HoverBuilder(
+      builder: (context, hover, _) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 13),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: Row(
+              children: [
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: done ? scheme.ink : Colors.transparent,
+                    border: Border.all(
+                      // border-color: color-mix(in srgb, var(--note-ink) 42%, var(--note-bg))
+                      color: Color.lerp(scheme.bg, scheme.ink, 0.42)!,
+                      width: 1.5,
                     ),
+                  ),
+                  child: done
+                      ? Center(
+                          // 勾的颜色为便签底色（.ed-check .cb color: var(--note-bg)）
+                          child:
+                              PinIcon(PinIcons.check, size: 10, color: scheme.bg),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: PinSpace.s3),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: context.pin.tsm.copyWith(
+                      color: scheme.ink,
+                      decoration: done ? TextDecoration.lineThrough : null,
+                      // text-decoration-color: color-mix(in srgb, var(--note-ink) 55%, var(--note-bg))
+                      decorationColor: Color.lerp(scheme.bg, scheme.ink, 0.55),
+                    ),
+                  ),
+                ),
+                if (hover)
+                  GestureDetector(
+                    onTap: onRemove,
+                    child: PinIcon(
+                      PinIcons.close,
+                      size: 9,
+                      color: scheme.ink2,
+                    ),
+                  ),
+              ],
             ),
           ),
         );
@@ -380,77 +528,57 @@ class _ToolBtn extends StatelessWidget {
   }
 }
 
-/// 工具栏分隔线（.tb-sep：1×16、margin 0 6）
-class _ToolSep extends StatelessWidget {
-  const _ToolSep();
+/// 添加清单项行（勾选清单的「+ 新建清单项」）
+class _AddCheckRow extends StatelessWidget {
+  const _AddCheckRow({required this.noteId});
+
+  final String noteId;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 16,
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      color: _noteScheme.line,
-    );
-  }
-}
-
-/// 清单行（.ed-check：16px 圆形复选框 + 13px 文本；done 划线）
-class _CheckRow extends StatelessWidget {
-  const _CheckRow(this.label, {this.done = false});
-
-  final String label;
-  final bool done;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = _noteScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 13),
-      child: Row(
-        children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: done ? scheme.ink : Colors.transparent,
-              border: Border.all(
-                // border-color: color-mix(in srgb, var(--note-ink) 42%, var(--note-bg))
-                color: Color.lerp(scheme.bg, scheme.ink, 0.42)!,
-                width: 1.5,
-              ),
-            ),
-            child: done
-                ? Center(
-                    // 勾的颜色为便签底色（.ed-check .cb color: var(--note-bg)）
-                    child: PinIcon(PinIcons.check, size: 10, color: scheme.bg),
-                  )
-                : null,
-          ),
-          const SizedBox(width: PinSpace.s3),
-          Text(
-            label,
-            style: context.pin.tsm.copyWith(
-              color: scheme.ink,
-              decoration: done ? TextDecoration.lineThrough : null,
-              // text-decoration-color: color-mix(in srgb, var(--note-ink) 55%, var(--note-bg))
-              decorationColor: Color.lerp(scheme.bg, scheme.ink, 0.55),
+    final scheme = noteSchemeOf(kStickySchemes.keys.first); // 占位，实际由父级传入
+    final repo = NoteScope.of(context);
+    return HoverBuilder(
+      builder: (context, hover, _) {
+        final color = hover ? scheme.ink : scheme.ink2;
+        return Padding(
+          padding: const EdgeInsets.only(top: 13),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () =>
+                repo.addCheck(noteId, '清单项 ${repo.selected?.checks.length ?? 0}'),
+            child: Row(
+              children: [
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Color.lerp(scheme.bg, scheme.ink, 0.42)!,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: PinSpace.s3),
+                Text('新建清单项', style: context.pin.tsm.copyWith(color: color)),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
 /// 标签（.ed-tag：高 22、radius full、42% 便签底 + 8px 关闭叉）
 class _NoteTag extends StatelessWidget {
-  const _NoteTag();
+  const _NoteTag({required this.scheme});
+
+  final StickyScheme scheme;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = _noteScheme;
     return HoverBuilder(
       builder: (context, _, _) => GestureDetector(
         onTap: () {},
@@ -458,7 +586,7 @@ class _NoteTag extends StatelessWidget {
           height: 22,
           padding: const EdgeInsets.fromLTRB(11, 0, 10, 0),
           decoration: BoxDecoration(
-            color: _mixNoteBg(42),
+            color: mixNoteBg(scheme, 42),
             borderRadius: BorderRadius.circular(PinRadius.full),
           ),
           child: Row(
@@ -477,11 +605,28 @@ class _NoteTag extends StatelessWidget {
 
 /// 右侧列（.side-col：两行标注 + 颜色面板卡）
 class _SideColumn extends StatelessWidget {
-  const _SideColumn();
+  const _SideColumn({required this.note});
+
+  final DemoNote note;
 
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
+    final repo = NoteScope.of(context);
+    Widget swatchRow(List<StickyColor> colors) => Row(
+          children: [
+            for (var i = 0; i < colors.length; i++) ...[
+              if (i > 0) const SizedBox(width: 10),
+              _SwatchCell(
+                colors[i],
+                on: note.color == colors[i],
+                onTap: () =>
+                    repo.update(note.id ?? note.title, color: colors[i]),
+              ),
+            ],
+          ],
+        );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,29 +649,19 @@ class _SideColumn extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               // 色板网格（.sw-grid：4 列 × 48、间距 10）
-              const Row(
-                children: [
-                  _SwatchCell(StickyColor.lemon, on: true),
-                  SizedBox(width: 10),
-                  _SwatchCell(StickyColor.apricot),
-                  SizedBox(width: 10),
-                  _SwatchCell(StickyColor.cherry),
-                  SizedBox(width: 10),
-                  _SwatchCell(StickyColor.mint),
-                ],
-              ),
+              swatchRow(const [
+                StickyColor.lemon,
+                StickyColor.apricot,
+                StickyColor.cherry,
+                StickyColor.mint,
+              ]),
               const SizedBox(height: 10),
-              const Row(
-                children: [
-                  _SwatchCell(StickyColor.sky),
-                  SizedBox(width: 10),
-                  _SwatchCell(StickyColor.lavender),
-                  SizedBox(width: 10),
-                  _SwatchCell(StickyColor.paper),
-                  SizedBox(width: 10),
-                  _SwatchCell(StickyColor.night),
-                ],
-              ),
+              swatchRow(const [
+                StickyColor.sky,
+                StickyColor.lavender,
+                StickyColor.paper,
+                StickyColor.night,
+              ]),
               const SizedBox(height: 10),
               const _CustomSwatch(),
               const SizedBox(height: 14),
@@ -580,69 +715,84 @@ class _Anno extends StatelessWidget {
 
 /// 色板格（.sw：40×40、圆角 10；on 态 outline 2px primary + 右下 16px 圆点）
 class _SwatchCell extends StatelessWidget {
-  const _SwatchCell(this.color, {this.on = false});
+  const _SwatchCell(this.color, {this.on = false, this.onTap});
 
   final StickyColor color;
   final bool on;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
-    final scheme = kStickySchemes[color]!;
-    // HTML .sw-grid 单元 48px（4×48+3×10=222 会溢出 252 卡片内宽 216，
-    // CSS 中表现为静默溢出）；Flutter 取 46 使网格恰好放下
-    return SizedBox(
-      width: 46,
-      height: 40,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: scheme.bg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: scheme.line),
-            ),
+    final scheme = noteSchemeOf(color);
+    return HoverBuilder(
+      builder: (context, hover, _) => GestureDetector(
+        onTap: onTap,
+        // HTML .sw-grid 单元 48px 会溢出 252 卡片内宽 216；取 46 恰好放下
+        child: Container(
+          width: 46,
+          height: 40,
+          alignment: Alignment.center,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: scheme.bg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: scheme.line),
+                ),
+              ),
+              if (on)
+                // outline 2px + offset 2.5px → 外扩 49 圆角描边（圆角随偏移放大）
+                Positioned(
+                  left: -4.5,
+                  top: -4.5,
+                  child: Container(
+                    width: 49,
+                    height: 49,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.5),
+                      border: Border.all(color: spec.primary, width: 2),
+                    ),
+                  ),
+                ),
+              if (on)
+                const Positioned(
+                  right: -4,
+                  bottom: -4,
+                  child: _SelectedDot(),
+                ),
+            ],
           ),
-          if (on)
-            // outline 2px + offset 2.5px → 外扩 49 的圆角描边（圆角随偏移放大）
-            Positioned(
-              left: -4.5,
-              top: -4.5,
-              child: Container(
-                width: 49,
-                height: 49,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: spec.primary, width: 2),
-                ),
-              ),
-            ),
-          if (on)
-            // .sw.on::after：right/bottom -4 的 16px 主色圆点
-            Positioned(
-              left: 28,
-              top: 28,
-              child: Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: spec.primary,
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// 自定义色格（.sw-custom：虚线描边 + 加号；默认 40，底部入口 34）
+/// 选中态右下主色圆点（.sw.on::after）
+class _SelectedDot extends StatelessWidget {
+  const _SelectedDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 16,
+      height: 16,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: context.pin.primary,
+      ),
+    );
+  }
+}
+
+/// 自定义颜色入口（.sw-custom：34×26 虚线 + 加号 / 大格）
 class _CustomSwatch extends StatelessWidget {
-  const _CustomSwatch({this.size = 40, this.iconSize = 16});
+  const _CustomSwatch({this.size = 40, this.iconSize = 11});
 
   final double size;
   final double iconSize;
@@ -651,67 +801,26 @@ class _CustomSwatch extends StatelessWidget {
   Widget build(BuildContext context) {
     final spec = context.pin;
     return HoverBuilder(
-      builder: (context, _, _) => GestureDetector(
-        onTap: () {},
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: CustomPaint(
-            painter: _DashedRectPainter(
-              size: size,
-              color: spec.lineStrong,
-              width: 1.5,
+      builder: (context, hover, _) {
+        final color = hover ? spec.primaryStrong : spec.faint;
+        return GestureDetector(
+          onTap: () {},
+          child: Container(
+            width: size,
+            height: size * 26 / 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: hover ? spec.primary : spec.lineStrong,
+                width: 1.3,
+              ),
             ),
             child: Center(
-              child: PinIcon(PinIcons.plus, size: iconSize, color: spec.faint),
+              child: PinIcon(PinIcons.plus, size: iconSize, color: color),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
-}
-
-/// 虚线圆角描边画笔（Flutter Border 不支持 dashed，按 CSS `dashed` 视觉复刻）
-class _DashedRectPainter extends CustomPainter {
-  const _DashedRectPainter({
-    required this.size,
-    required this.color,
-    required this.width,
-  });
-
-  final double size;
-  final Color color;
-  final double width;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width
-      ..color = color;
-    final inset = width / 2;
-    final rect = Rect.fromLTWH(
-      inset,
-      inset,
-      size.width - inset * 2,
-      size.height - inset * 2,
-    );
-    final path = Path()
-      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(10 - inset)));
-    for (final metric in path.computeMetrics()) {
-      var start = 0.0;
-      while (start < metric.length) {
-        final end = start + 4 > metric.length ? metric.length : start + 4;
-        canvas.drawPath(metric.extractPath(start, end), p);
-        start = end + 3;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedRectPainter oldDelegate) =>
-      oldDelegate.size != size ||
-      oldDelegate.color != color ||
-      oldDelegate.width != width;
 }

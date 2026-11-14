@@ -10,6 +10,9 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'app/app.dart';
 import 'app/desktop_window.dart';
+import 'data/note_repository.dart';
+import 'data/preferences.dart';
+import 'data/task_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +20,14 @@ Future<void> main() async {
   if (kIsWeb) {
     usePathUrlStrategy();
   }
+  await PreferencesService.init();
+  final taskRepo = TaskRepository();
+  final noteRepo = NoteRepository();
+  // 桌面端从偏好恢复数据（web 端跳过，保持演示态）
+  if (!kIsWeb) {
+    await taskRepo.load();
+    await noteRepo.load();
+  }
   await DesktopWindow.ensureInitialized();
-  runApp(const PinNoteApp());
+  runApp(PinNoteApp(taskRepo: taskRepo, noteRepo: noteRepo));
 }

@@ -9,6 +9,8 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../app/app_scope.dart';
+import '../../data/capture_parser.dart';
+import '../../data/demo.dart';
 import '../../app/navigation.dart';
 import '../../design/icons.dart';
 import '../../design/theme.dart';
@@ -30,7 +32,24 @@ class QuickCaptureCard extends StatefulWidget {
 
 class _QuickCaptureCardState extends State<QuickCaptureCard> {
   late final TextEditingController _title =
-      TextEditingController(text: '提交周报');
+      TextEditingController(text: '提交周报 #工作 !!');
+  late CaptureParse _parse = parseCapture(_title.text);
+
+  @override
+  void initState() {
+    super.initState();
+    _title.addListener(_onChanged);
+  }
+
+  void _onChanged() {
+    final p = parseCapture(_title.text);
+    if (p.title != _parse.title ||
+        p.dateLabel != _parse.dateLabel ||
+        p.priority != _parse.priority ||
+        p.tags.toString() != _parse.tags.toString()) {
+      setState(() => _parse = p);
+    }
+  }
 
   @override
   void dispose() {
@@ -217,13 +236,14 @@ class _QuickCaptureCardState extends State<QuickCaptureCard> {
                 '添加待办',
                 trailingIcon: PinIcons.enter,
                 onTap: () {
-                  final title = _title.text.trim();
-                  if (title.isEmpty) return;
-                  TaskScope.of(context).addQuickTask(title);
+                  if (_parse.title.isEmpty) return;
+                  final repo = TaskScope.of(context);
+                  repo.addFromCapture(_parse);
                   showPinToast(
                     context,
-                    title: '已添加待办「$title」',
-                    subtitle: '明天 9:00 · 收件箱',
+                    title: '已添加待办「${_parse.title}」',
+                    subtitle:
+                        '${_parse.dateLabel ?? '无日期'} · 收件箱${_parse.priority == PinPriority.high ? ' · 高优先级' : ''}',
                   );
                   Navigator.pop(context);
                 },

@@ -11,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:pin_note/app/app.dart';
 import 'package:pin_note/app/desktop_window.dart';
+import 'package:pin_note/data/note_repository.dart';
+import 'package:pin_note/data/task_repository.dart';
 import 'package:pin_note/widgets/controls.dart';
 import 'package:pin_note/widgets/task_views.dart';
 
@@ -23,7 +25,11 @@ void main() {
     // 真实桌面窗口（无边框 + 自绘标题栏）
     await DesktopWindow.ensureInitialized();
 
-    await tester.pumpWidget(const PinNoteApp());
+    final taskRepo = TaskRepository();
+    final noteRepo = NoteRepository();
+    await tester.pumpWidget(
+      PinNoteApp(taskRepo: taskRepo, noteRepo: noteRepo),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     // 首启引导（会话级标记）：点「开始使用」进入主界面
@@ -33,6 +39,10 @@ void main() {
       await tester.pumpAndSettle();
       debugPrint('[走查] ✅ 首启引导 → 「开始使用」→ 主界面');
     }
+    // 重置演示数据（持久化会让跨次运行状态漂移，走查需要确定性）
+    await taskRepo.reset();
+    await noteRepo.reset();
+    await tester.pumpAndSettle();
 
     void mark(bool ok, String what) {
       debugPrint('[走查] ${ok ? "✅" : "❌"} $what');
@@ -85,8 +95,8 @@ void main() {
     await settle('C0 进入便签库');
     await tester.tap(find.text('新建便签').first, warnIfMissed: false);
     await settle('C1 新建便签');
-    mark(find.text('已自动保存 · 上次编辑 2 分钟前').evaluate().isNotEmpty,
-        'C1 便签库「新建便签」→ 便签编辑器');
+    mark(find.text('已自动保存 · 2 小时前').evaluate().isNotEmpty,
+        'C1 便签库「新建便签」→ 便签编辑器（footer 时间来自便签数据）');
 
     await tester.tap(find.text('贴到桌面'), warnIfMissed: false);
     await settle('C2 贴到桌面');
@@ -113,8 +123,14 @@ void main() {
             .evaluate()
             .isNotEmpty,
         'D1 今日「快速添加」→ 快速捕获');
+    debugPrint('[诊断] D2 前 捕获浮层=${find.text('快速捕获').evaluate().length} '
+        '添加待办按钮=${find.text('添加待办').evaluate().length} '
+        '输入框=${find.byType(TextField).evaluate().length}');
     await tester.tap(find.text('添加待办'), warnIfMissed: false);
     await settle('D2 添加待办');
+    debugPrint('[诊断] D2 后 toast=${find.text('已添加待办「提交周报」').evaluate().length} '
+        '新任务=${find.text('提交周报').evaluate().length} '
+        '今日页=${find.text('已逾期').evaluate().length}');
     mark(find.text('已逾期').evaluate().isNotEmpty, 'D2 「添加待办」→ 回今日页');
     mark(find.text('已添加待办「提交周报」').evaluate().isNotEmpty,
         'D2 添加反馈 Toast 出现');

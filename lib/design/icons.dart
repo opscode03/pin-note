@@ -390,6 +390,55 @@ abstract final class PinIcons {
   ]);
 }
 
+/// 按名称反查图标（持久化序列化用）
+PinIconData? pinIconByName(String name) => _iconByName[name];
+
+const Map<String, PinIconData> _iconByName = {
+  'plus': PinIcons.plus,
+  'minus': PinIcons.minus,
+  'close': PinIcons.close,
+  'check': PinIcons.check,
+  'chevronDown': PinIcons.chevronDown,
+  'chevronUp': PinIcons.chevronUp,
+  'chevronRight': PinIcons.chevronRight,
+  'chevronLeft': PinIcons.chevronLeft,
+  'search': PinIcons.search,
+  'calendar': PinIcons.calendar,
+  'clock': PinIcons.clock,
+  'bell': PinIcons.bell,
+  'flag': PinIcons.flag,
+  'tag': PinIcons.tag,
+  'pin': PinIcons.pin,
+  'tack': PinIcons.tack,
+  'layers': PinIcons.layers,
+  'note': PinIcons.note,
+  'gear': PinIcons.gear,
+  'theme': PinIcons.theme,
+  'sync': PinIcons.sync,
+  'trash': PinIcons.trash,
+  'more': PinIcons.more,
+  'palette': PinIcons.palette,
+  'opacity': PinIcons.opacity,
+  'image': PinIcons.image,
+  'enter': PinIcons.enter,
+  'start': PinIcons.start,
+  'wifi': PinIcons.wifi,
+  'volume': PinIcons.volume,
+  'battery': PinIcons.battery,
+  'gridView': PinIcons.gridView,
+  'listView': PinIcons.listView,
+  'highlight': PinIcons.highlight,
+  'listCheck': PinIcons.listCheck,
+  'listBullet': PinIcons.listBullet,
+  'lock': PinIcons.lock,
+  'zap': PinIcons.zap,
+  'folder': PinIcons.folder,
+  'person': PinIcons.person,
+  'keyboard': PinIcons.keyboard,
+  'info': PinIcons.info,
+  'drag': PinIcons.drag,
+};
+
 /// 图标绘制器：把 24×24 viewBox 缩放到 [PinIcon.size]
 class _IconPainter extends CustomPainter {
   _IconPainter(this.data, this.color, this.surfaceColor);

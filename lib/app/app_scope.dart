@@ -4,18 +4,25 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import '../data/note_repository.dart';
+import '../data/preferences.dart';
 import '../data/task_repository.dart';
 
 /// 全局应用控制器：浅 / 深色切换（对应设计稿 titlebar 的主题按钮）
 class AppController extends ChangeNotifier {
-  ThemeMode _mode = ThemeMode.light;
+  AppController()
+      : _mode = PreferencesService.themeMode,
+        onboardingSeen = PreferencesService.onboardingSeen;
 
-  // 首启引导标记（会话级；持久化在 P2 用 shared_preferences）
-  bool onboardingSeen = false;
+  ThemeMode _mode;
+
+  // 首启引导标记（持久化）
+  bool onboardingSeen;
 
   void markOnboardingSeen() {
     if (onboardingSeen) return;
     onboardingSeen = true;
+    PreferencesService.setOnboardingSeen();
     notifyListeners();
   }
 
@@ -23,14 +30,12 @@ class AppController extends ChangeNotifier {
 
   bool get isDark => _mode == ThemeMode.dark;
 
-  void toggle() {
-    _mode = isDark ? ThemeMode.light : ThemeMode.dark;
-    notifyListeners();
-  }
+  void toggle() => setMode(isDark ? ThemeMode.light : ThemeMode.dark);
 
   void setMode(ThemeMode mode) {
     if (mode == _mode) return;
     _mode = mode;
+    PreferencesService.setThemeMode(mode);
     notifyListeners();
   }
 }
@@ -61,6 +66,21 @@ class TaskScope extends InheritedNotifier<TaskRepository> {
   static TaskRepository of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<TaskScope>();
     assert(scope != null && scope.notifier != null, 'TaskScope 未挂载');
+    return scope!.notifier!;
+  }
+}
+
+/// 便签状态作用域：`NoteScope.of(context)` 读写便签仓库
+class NoteScope extends InheritedNotifier<NoteRepository> {
+  const NoteScope({
+    required NoteRepository super.notifier,
+    required super.child,
+    super.key,
+  });
+
+  static NoteRepository of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<NoteScope>();
+    assert(scope != null && scope.notifier != null, 'NoteScope 未挂载');
     return scope!.notifier!;
   }
 }

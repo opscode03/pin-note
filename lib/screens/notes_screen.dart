@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../app/app_scope.dart';
 import '../data/demo.dart';
 import '../app/navigation.dart';
 import '../design/icons.dart';
@@ -20,14 +21,19 @@ class NotesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PinAppWindow(
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          PinSidebar(items: _navItems(context)),
-          Expanded(child: _NotesContent()),
-        ],
-      ),
+    return ListenableBuilder(
+      listenable: NoteScope.of(context),
+      builder: (context, _) {
+        return PinAppWindow(
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PinSidebar(items: _navItems(context)),
+              Expanded(child: _NotesContent()),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -52,7 +58,12 @@ List<Object> _navItems(BuildContext context) {
       icon: PinIcons.check,
       onTap: () => AppNav.go(context, '/empty-states'),
     ),
-    const SidebarEntry('便签库', icon: PinIcons.pin, badge: '8', selected: true),
+    SidebarEntry(
+      '便签库',
+      icon: PinIcons.pin,
+      badge: '${NoteScope.of(context).notes.length}',
+      selected: true,
+    ),
     const SidebarHeader('清单'),
     const SidebarEntry('收件箱', dotColor: PinListDots.inbox, badge: '3'),
     const SidebarEntry('工作', dotColor: PinListDots.work, badge: '12'),
@@ -79,7 +90,8 @@ class _NotesContent extends StatelessWidget {
           children: [
             PageHead(
               title: '便签库',
-              subtitle: '8 张便签 · 3 张贴在桌面',
+              subtitle:
+                  '${NoteScope.of(context).notes.length} 张便签 · ${NoteScope.of(context).pinnedCount} 张贴在桌面',
               actions: [
                 // 网格 / 列表切换（.seg 内嵌 icon-btn）
                 Container(
@@ -128,7 +140,7 @@ class _NotesContent extends StatelessWidget {
                     spacing: gap,
                     runSpacing: gap,
                     children: [
-                      for (final note in kDemoNotes)
+                      for (final note in NoteScope.of(context).notes)
                         SizedBox(
                           width: cardWidth,
                           child: _NoteCard(note: note),

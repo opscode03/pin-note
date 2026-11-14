@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 
 import '../app/dialogs.dart';
 import '../app/navigation.dart';
+import 'package:flutter/services.dart';
+
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -16,10 +18,25 @@ import '../widgets/buttons.dart';
 import '../widgets/interactive.dart';
 import '../widgets/menu.dart';
 import '../widgets/scene.dart';
+import '../widgets/toast.dart';
 import '../widgets/sticky_note.dart';
 
-class PinControlsScreen extends StatelessWidget {
+/// 右键菜单开关状态（会话级）
+class _MenuToggles {
+  bool pinned = true; // 置顶显示（默认开）
+  bool clickThrough = false;
+  bool locked = false;
+}
+
+class PinControlsScreen extends StatefulWidget {
   const PinControlsScreen({super.key});
+
+  @override
+  State<PinControlsScreen> createState() => _PinControlsScreenState();
+}
+
+class _PinControlsScreenState extends State<PinControlsScreen> {
+  final _MenuToggles _toggles = _MenuToggles();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +59,14 @@ class PinControlsScreen extends StatelessWidget {
             child: _BigNote(),
           ),
           // 右键菜单
-          _ScenePosition(leftPct: 0.57, topPct: 0.19, child: _ContextMenu()),
+          _ScenePosition(
+            leftPct: 0.57,
+            topPct: 0.19,
+            child: _ContextMenu(
+              toggles: _toggles,
+              onChanged: () => setState(() {}),
+            ),
+          ),
           const PinTaskbar(activeAppIndex: 2),
         ],
       ),
@@ -248,34 +272,85 @@ class _NoteStatus extends StatelessWidget {
 }
 
 /// 右键菜单（对应 .menu）
+/// 右键菜单（对应 .menu）：置顶/穿透/锁定为开关项，动作项接真实行为
 class _ContextMenu extends StatelessWidget {
+  const _ContextMenu({required this.toggles, required this.onChanged});
+
+  final _MenuToggles toggles;
+  final VoidCallback onChanged;
+
   @override
   Widget build(BuildContext context) {
+    final spec = context.pin;
     return PinMenu(
       width: 262,
       dividersAfter: const [2, 5, 8],
       items: [
-        const PinMenuItem(label: '置顶显示', icon: PinIcons.check, showCheck: true),
-        const PinMenuItem(label: '点击穿透', icon: PinIcons.opacity),
-        const PinMenuItem(label: '锁定位置', icon: PinIcons.lock),
-        const PinMenuItem(
-          label: '更换颜色',
-          icon: PinIcons.palette,
-          hasSubmenu: true,
+        PinMenuItem(
+          label: '置顶显示',
+          icon: PinIcons.check,
+          showCheck: toggles.pinned,
+          onTap: () {
+            toggles.pinned = !toggles.pinned;
+            onChanged();
+          },
         ),
-        const PinMenuItem(
-          label: '透明度',
+        PinMenuItem(
+          label: '点击穿透',
           icon: PinIcons.opacity,
-          hasSubmenu: true,
+          showCheck: toggles.clickThrough,
+          onTap: () {
+            toggles.clickThrough = !toggles.clickThrough;
+            onChanged();
+          },
         ),
+        PinMenuItem(
+          label: '锁定位置',
+          icon: PinIcons.lock,
+          showCheck: toggles.locked,
+          onTap: () {
+            toggles.locked = !toggles.locked;
+            onChanged();
+          },
+        ),
+        const PinMenuItem(
+            label: '更换颜色', icon: PinIcons.palette, hasSubmenu: true),
+        const PinMenuItem(
+            label: '透明度', icon: PinIcons.opacity, hasSubmenu: true),
         const PinMenuItem(label: '文字大小', icon: PinIcons.note, hasSubmenu: true),
         PinMenuItem(
           label: '转为任务',
           icon: PinIcons.check,
           onTap: () => showTaskEditDialog<void>(context),
         ),
-        const PinMenuItem(label: '复制内容', icon: PinIcons.note),
-        const PinMenuItem(label: '另存为图片', icon: PinIcons.image),
+        PinMenuItem(
+          label: '复制内容',
+          icon: PinIcons.note,
+          onTap: () {
+            Clipboard.setData(const ClipboardData(text: '设计评审准备'));
+            showPinToast(
+              context,
+              title: '已复制到剪贴板',
+              icon: PinIcons.note,
+              iconBg: spec.primaryTint,
+              iconColor: spec.primaryStrong,
+            );
+          },
+        ),
+        PinMenuItem(
+          label: '另存为图片',
+          icon: PinIcons.image,
+          onTap: () {
+            showPinToast(
+              context,
+              title: '已另存为图片',
+              subtitle: '保存到桌面 · pin_note.png',
+              icon: PinIcons.image,
+              iconBg: spec.primaryTint,
+              iconColor: spec.primaryStrong,
+            );
+          },
+        ),
         PinMenuItem(
           label: '取消贴附',
           icon: PinIcons.pin,

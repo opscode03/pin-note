@@ -57,6 +57,7 @@ class DesktopPinsScreen extends StatelessWidget {
             topPct: 0.12,
             width: 280,
             rotateDeg: -2,
+            draggable: true,
             child: _BirthdayNote(),
           ),
           // 今日待办卡
@@ -105,7 +106,7 @@ class DesktopPinsScreen extends StatelessWidget {
   }
 }
 
-/// 按百分比定位 + 可旋转的场景元素
+/// 按百分比定位 + 可旋转的场景元素（[draggable] 时可拖拽移动）
 class _ScenePosition extends StatelessWidget {
   const _ScenePosition({
     required this.leftPct,
@@ -113,6 +114,7 @@ class _ScenePosition extends StatelessWidget {
     required this.width,
     required this.child,
     this.rotateDeg,
+    this.draggable = false,
   });
 
   final double leftPct;
@@ -120,6 +122,7 @@ class _ScenePosition extends StatelessWidget {
   final double width;
   final double? rotateDeg;
   final Widget child;
+  final bool draggable;
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +134,9 @@ class _ScenePosition extends StatelessWidget {
         child: w,
       );
     }
+    if (draggable) {
+      w = _DraggableSceneElement(child: w);
+    }
     return Positioned.fill(
       child: Align(
         alignment: Alignment.topLeft,
@@ -141,6 +147,31 @@ class _ScenePosition extends StatelessWidget {
           ),
           child: w,
         ),
+      ),
+    );
+  }
+}
+
+/// 可拖拽场景元素：Pan 手势累积偏移，move 光标
+class _DraggableSceneElement extends StatefulWidget {
+  const _DraggableSceneElement({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_DraggableSceneElement> createState() => _DraggableSceneElementState();
+}
+
+class _DraggableSceneElementState extends State<_DraggableSceneElement> {
+  Offset _offset = Offset.zero;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.move,
+      child: GestureDetector(
+        onPanUpdate: (d) => setState(() => _offset += d.delta),
+        child: Transform.translate(offset: _offset, child: widget.child),
       ),
     );
   }

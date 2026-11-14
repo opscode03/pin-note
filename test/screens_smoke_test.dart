@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pin_note/app/app.dart';
 import 'package:pin_note/app/app_scope.dart';
+import 'package:pin_note/data/note_repository.dart';
+import 'package:pin_note/data/capture_parser.dart';
 import 'package:pin_note/data/task_repository.dart';
 import 'package:pin_note/design/icons.dart';
 import 'package:pin_note/design/tokens.dart';
@@ -37,7 +39,10 @@ Widget _wrap(Widget child, {Brightness brightness = Brightness.light}) {
     ),
     home: TaskScope(
       notifier: TaskRepository(),
-      child: Scaffold(body: child),
+      child: NoteScope(
+        notifier: NoteRepository(),
+        child: Scaffold(body: child),
+      ),
     ),
   );
 }
@@ -159,7 +164,9 @@ void main() {
 
   group('页面冒烟', () {
     testWidgets('应用可挂载（浅色）', (tester) async {
-      await tester.pumpWidget(const PinNoteApp());
+      await tester.pumpWidget(
+        PinNoteApp(taskRepo: TaskRepository(), noteRepo: NoteRepository()),
+      );
       await tester.pump();
       expect(find.byType(MaterialApp), findsOneWidget);
     });
@@ -229,7 +236,7 @@ void main() {
       repo.toggleDone(task.id!); // 撤销 → 回原分组
       expect(repo.today.length, today0);
       expect(repo.done.length, done0);
-      repo.addQuickTask('测试任务');
+      repo.addFromCapture(parseCapture('测试任务'));
       expect(repo.today.any((t) => t.title == '测试任务'), isTrue);
     });
 

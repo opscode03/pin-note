@@ -49,8 +49,12 @@ class PinSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
+    // HTML 断点：@media (max-width: 900px) → 190px
+    final width = MediaQuery.sizeOf(context).width < 900
+        ? 190.0
+        : PinSize.sidebar;
     return Container(
-      width: PinSize.sidebar,
+      width: width,
       decoration: BoxDecoration(
         color: spec.surface2,
         border: Border(right: BorderSide(color: spec.line)),

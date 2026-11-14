@@ -1,14 +1,15 @@
-/// 任务仓库（P0：勾选完成 / 快速添加的最小状态层）
+/// 任务仓库（P0：勾选完成 / 快速添加；P2：持久化）
 ///
 /// ChangeNotifier 持有演示任务；UI 层通过 [TaskScope.of] 读写。
 /// 真实数据接入后由 Repository 接口替代，变更方法签名保持稳定。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../design/icons.dart';
-import '../design/tokens.dart';
-
+import 'capture_parser.dart';
 import 'demo.dart';
 
 /// 任务状态仓库
@@ -24,6 +25,8 @@ class TaskRepository extends ChangeNotifier {
   /// 完成前的来源分组（撤销时精确恢复）
   final Map<String, TaskGroup> _originGroups = {};
 
+  String? _selectedId;
+
   List<DemoTask> get overdue =>
       _tasks.where((t) => t.group == TaskGroup.overdue).toList();
   List<DemoTask> get today =>
@@ -36,7 +39,6 @@ class TaskRepository extends ChangeNotifier {
 
   /// 当前选中（详情面板展示的任务；打开编辑弹层时自动选中）
   String? get selectedId => _selectedId;
-  String? _selectedId;
 
   void select(String id) {
     if (_selectedId == id) return;
@@ -63,11 +65,14 @@ class TaskRepository extends ChangeNotifier {
   }
 
   /// 保存编辑（标题 / 优先级 / 标签）
-  void updateTask(String id, {String? title, PinPriority? priority, List<String>? tags}) {
+  void updateTask(String id,
+      {String? title, PinPriority? priority, List<String>? tags}) {
     final i = _tasks.indexWhere((t) => t.id == id);
     if (i == -1) return;
-    _tasks[i] = _tasks[i].copyWith(title: title, priority: priority, tags: tags);
+    _tasks[i] =
+        _tasks[i].copyWith(title: title, priority: priority, tags: tags);
     notifyListeners();
+    unawaited(save());
   }
 
   /// 删除（返回可撤销句柄：调用 restore 恢复到原位置）
@@ -78,10 +83,12 @@ class TaskRepository extends ChangeNotifier {
     _tasks.removeAt(i);
     if (_selectedId == id) _selectedId = null;
     notifyListeners();
+    unawaited(save());
     return (
       restore: () {
         _tasks.insert(i.clamp(0, _tasks.length), removed);
         notifyListeners();
+        unawaited(save());
       },
     );
   }
@@ -100,23 +107,60 @@ class TaskRepository extends ChangeNotifier {
       _tasks[i] = t.copyWith(done: false, group: origin);
     }
     notifyListeners();
+    unawaited(save());
   }
 
-  /// 快速捕获添加待办（P0 最小联动：标题 + 默认明天 9:00）
-  void addQuickTask(String title) {
-    _tasks.insert(
-      0,
-      DemoTask(
-        title: title,
-        meta: const [
-          PinChipMeta('明天 9:00', icon: PinIcons.clock),
-        ],
-        listName: '收件箱',
-        listColor: PinListDots.inbox,
-        group: TaskGroup.today,
-        id: '$title#${DateTime.now().millisecondsSinceEpoch}',
-      ),
-    );
+  /// 快速捕获添加待办（P2：自然语言解析结果落库）
+  void addFromCapture(CaptureParse parse) {
+    _tasks.insert(0, captureToTask(parse));
+    notifyListeners();
+    unawaited(save());
+  }
+
+  // ---------- 持久化 ----------
+
+  Future<void> load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString('tasks');
+      if (raw == null || raw.isEmpty) return;
+      final list = DemoTask.listFromJson(raw);
+      if (list.isNotEmpty) {
+        _tasks
+          ..clear()
+          ..addAll(list);
+        _selectedId = null;
+        notifyListeners();
+      }
+    } catch (_) {
+      // 测试环境无插件实现或数据损坏：回退到种子数据
+    }
+  }
+
+  Future<void> save() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('tasks', DemoTask.listToJson(_tasks));
+    } catch (_) {
+      // 测试环境无插件实现：跳过持久化
+    }
+  }
+
+  /// 走查/调试用：恢复种子数据并清空持久化
+  Future<void> reset() async {
+    _tasks
+      ..clear()
+      ..addAll([
+        for (final t in [...kOverdueTasks, ...kTodayTasks, ...kDoneTasks])
+          t.copyWith(id: t.title),
+      ]);
+    _selectedId = null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('tasks');
+    } catch (_) {
+      // 测试环境无插件实现：跳过
+    }
     notifyListeners();
   }
 }

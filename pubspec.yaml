@@ -39,6 +39,8 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
 
+  shared_preferences: 2.2.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -51,6 +53,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+# Xcode 15.4 兼容：foundation 2.6.2 的 Swift 生成代码需要更高版本工具链
+dependency_overrides:
+  shared_preferences_foundation: 2.5.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -4,6 +4,8 @@
 /// 真实数据接入后此文件由 Repository 层替代，仅用于第一阶段视觉还原。
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../design/icons.dart';
@@ -61,6 +63,92 @@ class DemoTask {
 
   /// 标签（#xxx；任务编辑可增删）
   final List<String> tags;
+
+  // ---------- JSON（shared_preferences 持久化） ----------
+
+  Map<String, dynamic> toJson() => {
+        'id': id ?? title,
+        'title': title,
+        'meta': [
+          for (final m in meta)
+            {
+              'label': m.label,
+              'style': m.style.name,
+              'icon': m.icon?.name,
+            },
+        ],
+        'listName': listName,
+        'listDot': _dotName(listColor),
+        'done': done,
+        'selected': selected,
+        'flagHigh': flagHigh,
+        'progress': progress == null ? null : [progress!.$1, progress!.$2],
+        'group': group.name,
+        'priority': priority.name,
+        'tags': tags,
+      };
+
+  static DemoTask fromJson(Map<String, dynamic> j) => DemoTask(
+        id: j['id'] as String?,
+        title: j['title'] as String? ?? '任务',
+        meta: [
+          for (final m in (j['meta'] as List<dynamic>? ?? []))
+            PinChipMeta(
+              (m as Map<String, dynamic>)['label'] as String,
+              style: PinChipStyle.values.firstWhere(
+                (st) => st.name == m['style'],
+                orElse: () => PinChipStyle.accent,
+              ),
+              icon: m['icon'] == null ? null : pinIconByName(m['icon'] as String),
+            ),
+        ],
+        listName: j['listName'] as String?,
+        listColor: _dotByName(j['listDot'] as String?),
+        done: j['done'] as bool? ?? false,
+        selected: j['selected'] as bool? ?? false,
+        flagHigh: j['flagHigh'] as bool? ?? false,
+        progress: j['progress'] == null
+            ? null
+            : (
+                (j['progress'] as List<dynamic>)[0] as int,
+                (j['progress'] as List<dynamic>)[1] as int,
+              ),
+        group: TaskGroup.values.firstWhere(
+          (g) => g.name == j['group'],
+          orElse: () => TaskGroup.today,
+        ),
+        priority: PinPriority.values.firstWhere(
+          (p) => p.name == j['priority'],
+          orElse: () => PinPriority.none,
+        ),
+        tags: [for (final t in (j['tags'] as List<dynamic>? ?? [])) t as String],
+      );
+
+  static String? _dotName(Color? c) {
+    if (c == const Color(0xFF4A7DFF)) return 'inbox';
+    if (c == PinListDots.work) return 'work';
+    if (c == PinListDots.life) return 'life';
+    if (c == PinListDots.study) return 'study';
+    if (c == PinListDots.read) return 'read';
+    return null;
+  }
+
+  static Color? _dotByName(String? name) => switch (name) {
+        'inbox' => PinListDots.inbox,
+        'work' => PinListDots.work,
+        'life' => PinListDots.life,
+        'study' => PinListDots.study,
+        'read' => PinListDots.read,
+        _ => null,
+      };
+
+  static String listToJson(List<DemoTask> tasks) =>
+      jsonEncode([for (final t in tasks) t.toJson()]);
+
+  static List<DemoTask> listFromJson(String raw) => [
+        for (final m in (jsonDecode(raw) as List<dynamic>))
+          DemoTask.fromJson(m as Map<String, dynamic>),
+      ];
 
   DemoTask copyWith({
     String? title,
@@ -176,6 +264,7 @@ class DemoNote {
     this.tag,
     this.checks = const <(String, bool)>[],
     this.lines = const <String>[],
+    this.id,
   });
 
   final String title;
@@ -186,10 +275,81 @@ class DemoNote {
   final String? tag;
   final List<(String, bool)> checks;
   final List<String> lines;
+
+  /// 稳定标识（仓库内唯一）
+  final String? id;
+
+  DemoNote copyWith({
+    String? title,
+    StickyColor? color,
+    String? time,
+    bool? pinned,
+    bool? locked,
+    String? tag,
+    List<(String, bool)>? checks,
+    List<String>? lines,
+    String? id,
+  }) {
+    return DemoNote(
+      title: title ?? this.title,
+      color: color ?? this.color,
+      time: time ?? this.time,
+      pinned: pinned ?? this.pinned,
+      locked: locked ?? this.locked,
+      tag: tag ?? this.tag,
+      checks: checks ?? this.checks,
+      lines: lines ?? this.lines,
+      id: id ?? this.id,
+    );
+  }
+
+  // ---------- JSON（shared_preferences 持久化） ----------
+
+  Map<String, dynamic> toJson() => {
+        'id': id ?? title,
+        'title': title,
+        'color': color.name,
+        'time': time,
+        'pinned': pinned,
+        'locked': locked,
+        'tag': tag,
+        'checks': [for (final (l, d) in checks) {'label': l, 'done': d}],
+        'lines': lines,
+      };
+
+  static DemoNote fromJson(Map<String, dynamic> j) => DemoNote(
+        id: j['id'] as String?,
+        title: j['title'] as String? ?? '便签',
+        color: StickyColor.values.firstWhere(
+          (c) => c.name == j['color'],
+          orElse: () => StickyColor.lemon,
+        ),
+        time: j['time'] as String? ?? '',
+        pinned: j['pinned'] as bool? ?? false,
+        locked: j['locked'] as bool? ?? false,
+        tag: j['tag'] as String?,
+        checks: [
+          for (final c in (j['checks'] as List<dynamic>? ?? []))
+            (
+              (c as Map<String, dynamic>)['label'] as String,
+              c['done'] as bool? ?? false,
+            ),
+        ],
+        lines: [for (final l in (j['lines'] as List<dynamic>? ?? [])) l as String],
+      );
+
+  static String listToJson(List<DemoNote> notes) =>
+      jsonEncode([for (final n in notes) n.toJson()]);
+
+  static List<DemoNote> listFromJson(String raw) => [
+        for (final m in (jsonDecode(raw) as List<dynamic>))
+          DemoNote.fromJson(m as Map<String, dynamic>),
+      ];
 }
 
 const kDemoNotes = <DemoNote>[
   DemoNote(
+    id: '周报要点',
     title: '周报要点',
     color: StickyColor.lemon,
     time: '2 小时前',
@@ -198,6 +358,7 @@ const kDemoNotes = <DemoNote>[
     checks: [('竞品动态梳理', true), ('数据指标核对', true), ('Q4 目标对齐', false)],
   ),
   DemoNote(
+    id: '书单',
     title: '书单',
     color: StickyColor.sky,
     time: '3 天前',
@@ -205,6 +366,7 @@ const kDemoNotes = <DemoNote>[
     checks: [('《卡片笔记写作法》', false), ('《认知觉醒》', false), ('《瞬间之美》', false)],
   ),
   DemoNote(
+    id: '健身计划',
     title: '健身计划',
     color: StickyColor.mint,
     time: '昨天',
@@ -212,6 +374,7 @@ const kDemoNotes = <DemoNote>[
     checks: [('跑步 3 公里', true), ('力量训练', false), ('拉伸 10 分钟', false)],
   ),
   DemoNote(
+    id: '灵感',
     title: '灵感',
     color: StickyColor.cherry,
     time: '11月6日',
@@ -219,6 +382,7 @@ const kDemoNotes = <DemoNote>[
     checks: [('把提醒做成可选的', false), ('『贴纸边角』样式？', false)],
   ),
   DemoNote(
+    id: 'Wi-Fi 密码',
     title: 'Wi-Fi 密码',
     color: StickyColor.lavender,
     time: '10月28日',
@@ -227,6 +391,7 @@ const kDemoNotes = <DemoNote>[
     lines: ['客厅：pinnote2026', '客房：hello888'],
   ),
   DemoNote(
+    id: '购物清单',
     title: '购物清单',
     color: StickyColor.paper,
     time: '11月8日',
