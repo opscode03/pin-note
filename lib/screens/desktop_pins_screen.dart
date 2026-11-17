@@ -204,13 +204,9 @@ class _DraggableSceneElementState extends State<_DraggableSceneElement> {
     return MouseRegion(
       cursor: SystemMouseCursors.move,
       child: GestureDetector(
-        onPanStart: (_) {
-          _interacted = true;
-          debugPrint('[探针] ${widget.id} onPanStart');
-        },
+        onPanStart: (_) => _interacted = true,
         onPanUpdate: (d) {
           _interacted = true;
-          debugPrint('[探针] ${widget.id} onPanUpdate ${d.delta}');
           setState(() => _offset += d.delta);
         },
         onPanEnd: (_) {
