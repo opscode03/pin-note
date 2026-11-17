@@ -39,6 +39,7 @@ class DemoTask {
     this.id,
     this.priority = PinPriority.none,
     this.tags = const <String>[],
+    this.dueAt,
   });
 
   final String title;
@@ -64,6 +65,9 @@ class DemoTask {
   /// 标签（#xxx；任务编辑可增删）
   final List<String> tags;
 
+  /// 真实截止日期时间（可空；与编辑器和快速捕获共享）
+  final DateTime? dueAt;
+
   // ---------- JSON（shared_preferences 持久化） ----------
 
   Map<String, dynamic> toJson() => {
@@ -86,6 +90,7 @@ class DemoTask {
         'group': group.name,
         'priority': priority.name,
         'tags': tags,
+        'dueAt': dueAt?.toIso8601String(),
       };
 
   static DemoTask fromJson(Map<String, dynamic> j) => DemoTask(
@@ -122,6 +127,9 @@ class DemoTask {
           orElse: () => PinPriority.none,
         ),
         tags: [for (final t in (j['tags'] as List<dynamic>? ?? [])) t as String],
+        dueAt: j['dueAt'] == null
+            ? null
+            : DateTime.tryParse(j['dueAt'] as String),
       );
 
   static String? _dotName(Color? c) {
@@ -163,6 +171,7 @@ class DemoTask {
     String? id,
     PinPriority? priority,
     List<String>? tags,
+    DateTime? dueAt,
   }) {
     return DemoTask(
       title: title ?? this.title,
@@ -177,6 +186,7 @@ class DemoTask {
       id: id ?? this.id,
       priority: priority ?? this.priority,
       tags: tags ?? this.tags,
+      dueAt: dueAt ?? this.dueAt,
     );
   }
 }
@@ -193,11 +203,11 @@ class PinChipMeta {
   final PinIconData? icon;
 }
 
-const kOverdueTasks = <DemoTask>[
+final kOverdueTasks = <DemoTask>[
   DemoTask(
     title: '回复客户张总的报价邮件',
     meta: [
-      PinChipMeta(
+      const PinChipMeta(
         '昨天 9:30 · 已逾期',
         style: PinChipStyle.red,
         icon: PinIcons.clock,
@@ -207,14 +217,15 @@ const kOverdueTasks = <DemoTask>[
     listName: '工作',
     listColor: PinListDots.work,
     group: TaskGroup.overdue,
+    dueAt: DateTime(2026, 11, 8, 9, 30),
   ),
 ];
 
-const kTodayTasks = <DemoTask>[
+final kTodayTasks = <DemoTask>[
   DemoTask(
     title: '设计评审材料准备',
     meta: [
-      PinChipMeta('14:00', icon: PinIcons.clock),
+      const PinChipMeta('14:00', icon: PinIcons.clock),
     ],
     tags: ['#设计'],
     priority: PinPriority.high,
@@ -222,29 +233,32 @@ const kTodayTasks = <DemoTask>[
     listName: '工作',
     listColor: PinListDots.work,
     selected: true,
+    dueAt: DateTime(2026, 11, 9, 14),
   ),
   DemoTask(
     title: '整理 Q4 用户反馈',
     meta: [
-      PinChipMeta('16:30', icon: PinIcons.clock),
+      const PinChipMeta('16:30', icon: PinIcons.clock),
     ],
     tags: ['#复盘'],
     listName: '工作',
     listColor: PinListDots.work,
+    dueAt: DateTime(2026, 11, 9, 16, 30),
   ),
   DemoTask(
     title: '预约牙医复诊',
-    meta: [PinChipMeta('18:00', icon: PinIcons.clock)],
+    meta: [const PinChipMeta('18:00', icon: PinIcons.clock)],
     listName: '生活',
     listColor: PinListDots.life,
+    dueAt: DateTime(2026, 11, 9, 18),
   ),
-  DemoTask(
+  const DemoTask(
     title: '背 50 个单词',
     meta: [PinChipMeta('每天', style: PinChipStyle.teal, icon: PinIcons.repeat)],
     listName: '学习',
     listColor: PinListDots.study,
   ),
-  DemoTask(title: '买猫粮', listName: '生活', listColor: PinListDots.life),
+  const DemoTask(title: '买猫粮', listName: '生活', listColor: PinListDots.life),
 ];
 
 const kDoneTasks = <DemoTask>[

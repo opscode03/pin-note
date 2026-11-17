@@ -3,9 +3,12 @@
 /// 模拟 Windows 桌面：壁纸 + 桌面贴（胶带/图钉便签、待办卡、倒计时）+ 任务栏。
 library;
 
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+
+import '../data/pin_positions.dart';
 
 import '../app/navigation.dart';
 import '../design/icons.dart';
@@ -58,6 +61,7 @@ class DesktopPinsScreen extends StatelessWidget {
             width: 280,
             rotateDeg: -2,
             draggable: true,
+            dragId: 'birthday',
             child: _BirthdayNote(),
           ),
           // 今日待办卡
@@ -65,6 +69,8 @@ class DesktopPinsScreen extends StatelessWidget {
             leftPct: 0.29,
             topPct: 0.085,
             width: 296,
+            draggable: true,
+            dragId: 'today',
             child: _TodayCard(),
           ),
           // 樱花粉 · 图钉便签（品牌口号）
@@ -73,6 +79,8 @@ class DesktopPinsScreen extends StatelessWidget {
             topPct: 0.11,
             width: 248,
             rotateDeg: 3,
+            draggable: true,
+            dragId: 'quote',
             child: _QuoteNote(),
           ),
           // 倒计时卡
@@ -80,6 +88,8 @@ class DesktopPinsScreen extends StatelessWidget {
             leftPct: 0.765,
             topPct: 0.12,
             width: 212,
+            draggable: true,
+            dragId: 'countdown',
             child: _CountdownCard(),
           ),
           // 薄荷绿 · 图钉便签（健身打卡）
@@ -88,6 +98,8 @@ class DesktopPinsScreen extends StatelessWidget {
             topPct: 0.55,
             width: 280,
             rotateDeg: -1.5,
+            draggable: true,
+            dragId: 'fitness',
             child: _FitnessNote(),
           ),
           // 柠檬黄 · 胶带便签（午饭灵感，悬浮）
@@ -96,6 +108,8 @@ class DesktopPinsScreen extends StatelessWidget {
             topPct: 0.52,
             width: 235,
             rotateDeg: 4,
+            draggable: true,
+            dragId: 'lunch',
             child: _LunchNote(),
           ),
           // 任务栏
@@ -115,6 +129,7 @@ class _ScenePosition extends StatelessWidget {
     required this.child,
     this.rotateDeg,
     this.draggable = false,
+    this.dragId,
   });
 
   final double leftPct;
@@ -123,6 +138,9 @@ class _ScenePosition extends StatelessWidget {
   final double? rotateDeg;
   final Widget child;
   final bool draggable;
+
+  /// 位置持久化 ID（拖拽时建议必填）
+  final String? dragId;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +153,7 @@ class _ScenePosition extends StatelessWidget {
       );
     }
     if (draggable) {
-      w = _DraggableSceneElement(child: w);
+      w = _DraggableSceneElement(id: dragId, child: w);
     }
     return Positioned.fill(
       child: Align(
@@ -154,9 +172,10 @@ class _ScenePosition extends StatelessWidget {
 
 /// 可拖拽场景元素：Pan 手势累积偏移，move 光标
 class _DraggableSceneElement extends StatefulWidget {
-  const _DraggableSceneElement({required this.child});
+  const _DraggableSceneElement({required this.child, this.id});
 
   final Widget child;
+  final String? id;
 
   @override
   State<_DraggableSceneElement> createState() => _DraggableSceneElementState();
@@ -164,13 +183,42 @@ class _DraggableSceneElement extends StatefulWidget {
 
 class _DraggableSceneElementState extends State<_DraggableSceneElement> {
   Offset _offset = Offset.zero;
+  bool _interacted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.id;
+    if (id != null) {
+      unawaited(PinPositionStore.load(id).then((offset) {
+        // 用户已经开始拖动时，不能用稍晚到达的持久化值覆盖本次操作
+        if (mounted && offset != Offset.zero && !_interacted) {
+          setState(() => _offset = offset);
+        }
+      }));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.move,
       child: GestureDetector(
-        onPanUpdate: (d) => setState(() => _offset += d.delta),
+        onPanStart: (_) {
+          _interacted = true;
+          debugPrint('[探针] ${widget.id} onPanStart');
+        },
+        onPanUpdate: (d) {
+          _interacted = true;
+          debugPrint('[探针] ${widget.id} onPanUpdate ${d.delta}');
+          setState(() => _offset += d.delta);
+        },
+        onPanEnd: (_) {
+          final id = widget.id;
+          if (id != null) {
+            unawaited(PinPositionStore.save(id, _offset));
+          }
+        },
         child: Transform.translate(offset: _offset, child: widget.child),
       ),
     );

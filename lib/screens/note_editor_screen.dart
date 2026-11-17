@@ -15,6 +15,7 @@ import '../design/tokens.dart';
 import '../widgets/app_window.dart';
 import '../widgets/interactive.dart';
 import '../widgets/sticky_note.dart';
+import '../widgets/toast.dart';
 
 /// 便签色 → scheme
 StickyScheme noteSchemeOf(StickyColor c) => kStickySchemes[c]!;
@@ -67,10 +68,37 @@ class NoteEditorScreen extends StatelessWidget {
 }
 
 /// 编辑窗便签窗体（.sticky.note-win：宽 470、圆角 14、远阴影）
-class _NoteWindow extends StatelessWidget {
+class _NoteWindow extends StatefulWidget {
   const _NoteWindow({required this.note});
 
   final DemoNote note;
+
+  @override
+  State<_NoteWindow> createState() => _NoteWindowState();
+}
+
+class _NoteWindowState extends State<_NoteWindow> {
+  late final TextEditingController _title =
+      TextEditingController(text: widget.note.title);
+
+  DemoNote get note => widget.note;
+
+  @override
+  void didUpdateWidget(covariant _NoteWindow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 只有切换便签时才重置标题；当前便签每次输入都触发仓库更新，
+    // 控制器保持稳定，避免逐字输入时丢失光标/选中区。
+    if (oldWidget.note.id != widget.note.id) {
+      _title.text = widget.note.title;
+      _title.selection = TextSelection.collapsed(offset: _title.text.length);
+    }
+  }
+
+  @override
+  void dispose() {
+    _title.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +135,7 @@ class _NoteWindow extends StatelessWidget {
                       child: Material(
                         type: MaterialType.transparency,
                         child: TextField(
-                          controller: TextEditingController(text: note.title),
+                          controller: _title,
                           onChanged: (v) =>
                               repo.update(note.id ?? note.title, title: v),
                           style: context.pin.txl.copyWith(
@@ -134,7 +162,10 @@ class _NoteWindow extends StatelessWidget {
                           repo.removeCheck(note.id ?? note.title, i),
                     ),
                   // 添加清单项
-                  _AddCheckRow(noteId: note.id ?? note.title),
+                  _AddCheckRow(
+                    noteId: note.id ?? note.title,
+                    scheme: scheme,
+                  ),
                   // 高亮块（.ed-hl：margin-top 16、padding 3 9、圆角 6）
                   Padding(
                     padding: const EdgeInsets.only(top: PinSpace.s4),
@@ -207,7 +238,7 @@ class _NoteHead extends StatelessWidget {
         const SizedBox(width: PinSpace.s2),
         // pill-primary：贴到桌面（→ desktop-pins.html）
         _NotePill(
-          onTap: () => AppNav.go(context, '/desktop-pins'),
+          onTap: () => showDesktopPinsDeferredToast(context),
           icon: PinIcons.pin,
           label: '贴到桌面',
           scheme: scheme,
@@ -215,7 +246,7 @@ class _NoteHead extends StatelessWidget {
         const SizedBox(width: PinSpace.s2),
         // pill-outline：置顶（→ pin-controls.html）
         _NotePill(
-          onTap: () => AppNav.go(context, '/pin-controls'),
+          onTap: () => showDesktopPinsDeferredToast(context),
           icon: PinIcons.layers,
           label: '置顶',
           outline: true,
@@ -530,13 +561,13 @@ class _CheckRow extends StatelessWidget {
 
 /// 添加清单项行（勾选清单的「+ 新建清单项」）
 class _AddCheckRow extends StatelessWidget {
-  const _AddCheckRow({required this.noteId});
+  const _AddCheckRow({required this.noteId, required this.scheme});
 
   final String noteId;
+  final StickyScheme scheme;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = noteSchemeOf(kStickySchemes.keys.first); // 占位，实际由父级传入
     final repo = NoteScope.of(context);
     return HoverBuilder(
       builder: (context, hover, _) {
@@ -545,8 +576,10 @@ class _AddCheckRow extends StatelessWidget {
           padding: const EdgeInsets.only(top: 13),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () =>
-                repo.addCheck(noteId, '清单项 ${repo.selected?.checks.length ?? 0}'),
+            onTap: () => repo.addCheck(
+              noteId,
+              '清单项 ${(repo.selected?.checks.length ?? 0) + 1}',
+            ),
             child: Row(
               children: [
                 Container(

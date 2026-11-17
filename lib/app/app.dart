@@ -8,14 +8,12 @@ import '../data/note_repository.dart';
 import '../data/task_repository.dart';
 import '../design/theme.dart';
 import '../screens/account_screen.dart';
-import '../screens/desktop_pins_screen.dart';
 import '../screens/design_language_screen.dart';
 import '../screens/empty_states_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/note_editor_screen.dart';
 import '../screens/notes_screen.dart';
 import '../screens/onboarding_screen.dart';
-import '../screens/pin_controls_screen.dart';
 import '../screens/quick_capture_screen.dart';
 import '../screens/search_screen.dart';
 import '../screens/settings_screen.dart';
@@ -59,7 +57,7 @@ class _PinNoteAppState extends State<PinNoteApp> {
   void _newTask() {
     final ctx = _navigatorKey.currentContext;
     if (ctx == null) return;
-    showTaskEditDialog<void>(ctx);
+    showTaskEditDialog<void>(ctx, createNew: true);
   }
 
   @override
@@ -109,12 +107,6 @@ class _PinNoteAppState extends State<PinNoteApp> {
                 alt: true,
               ):
                   () => _go('/notes'),
-              const SingleActivator(
-                LogicalKeyboardKey.keyD,
-                control: true,
-                alt: true,
-              ):
-                  () => _go('/desktop-pins'),
             },
             child: MaterialApp(
               title: '贴记 PinNote',
@@ -138,8 +130,6 @@ class _PinNoteAppState extends State<PinNoteApp> {
                 '/home': (_) => const HomeScreen(),
                 '/notes': (_) => const NotesScreen(),
                 '/note-editor': (_) => const NoteEditorScreen(),
-                '/desktop-pins': (_) => const DesktopPinsScreen(),
-                '/pin-controls': (_) => const PinControlsScreen(),
                 '/quick-capture': (_) => const QuickCaptureScreen(),
                 '/search': (_) => const SearchScreen(),
                 '/task-edit': (_) => const TaskEditScreen(),

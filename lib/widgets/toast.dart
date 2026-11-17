@@ -11,6 +11,16 @@ import 'package:flutter/material.dart';
 import '../design/icons.dart';
 import 'menu.dart';
 
+/// 桌面贴功能已从当前版本移除时的统一提示
+void showDesktopPinsDeferredToast(BuildContext context) {
+  showPinToast(
+    context,
+    title: '桌面贴功能暂缓开放',
+    subtitle: '当前版本已移除该流程，任务与便签可在库中管理',
+    icon: PinIcons.pin,
+  );
+}
+
 /// 展示一条操作反馈 Toast；返回用于提前关闭的控制器
 ToastHandle showPinToast(
   BuildContext context, {

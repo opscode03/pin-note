@@ -44,9 +44,16 @@ Future<T?> showPinDialog<T>({
 /// 任务编辑浮层（对应 task-edit.html 的 .edit-pop）
 ///
 /// [task] 缺省时依次取：当前选中 → 今天第一条 → 逾期第一条；无可编辑任务则不打开。
-Future<T?> showTaskEditDialog<T>(BuildContext context, {DemoTask? task}) {
+/// [createNew] = true 时打开空白新任务，保存调用 TaskRepository.createTask。
+Future<T?> showTaskEditDialog<T>(
+  BuildContext context, {
+  DemoTask? task,
+  bool createNew = false,
+}) {
   final repo = TaskScope.of(context);
-  final target = task ?? repo.resolveEditable();
+  final target = createNew
+      ? const DemoTask(title: '新任务')
+      : (task ?? repo.resolveEditable());
   if (target == null) {
     showPinToast(
       context,
@@ -58,7 +65,7 @@ Future<T?> showTaskEditDialog<T>(BuildContext context, {DemoTask? task}) {
     );
     return Future<T?>.value();
   }
-  repo.select(target.id ?? target.title);
+  if (!createNew) repo.select(target.id ?? target.title);
   return showPinDialog<T>(
     context: context,
     builder: (ctx) => EscHandler(
@@ -66,6 +73,7 @@ Future<T?> showTaskEditDialog<T>(BuildContext context, {DemoTask? task}) {
       child: Center(
         child: TaskEditPopover(
           task: target,
+          createNew: createNew,
           width: MediaQuery.sizeOf(ctx).width * 0.9 < 408
               ? MediaQuery.sizeOf(ctx).width * 0.9
               : 408,

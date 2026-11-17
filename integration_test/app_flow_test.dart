@@ -14,6 +14,7 @@ import 'package:pin_note/app/app_scope.dart';
 import 'package:pin_note/app/desktop_window.dart';
 import 'package:pin_note/data/note_repository.dart';
 import 'package:pin_note/data/task_repository.dart';
+import 'package:pin_note/design/icons.dart';
 import 'package:pin_note/widgets/controls.dart';
 import 'package:pin_note/widgets/task_views.dart';
 
@@ -96,20 +97,20 @@ void main() {
     await settle('C0 进入便签库');
     await tester.tap(find.text('新建便签').first, warnIfMissed: false);
     await settle('C1 新建便签');
-    mark(find.text('已自动保存 · 2 小时前').evaluate().isNotEmpty,
+    mark(find.textContaining('已自动保存').evaluate().isNotEmpty,
         'C1 便签库「新建便签」→ 便签编辑器（footer 时间来自便签数据）');
 
-    await tester.tap(find.text('贴到桌面'), warnIfMissed: false);
-    await settle('C2 贴到桌面');
-    mark(find.text('产品发布会').evaluate().isNotEmpty, 'C2 编辑器「贴到桌面」→ 桌面贴总览');
-
-    await tester.tap(find.text('贴在眼前。』'), warnIfMissed: false);
-    await settle('C3 点品牌口号便签');
-    mark(find.text('点击穿透').evaluate().isNotEmpty, 'C3 点桌面贴便签 → 控制菜单');
-
-    await tester.tap(find.text('取消贴附'), warnIfMissed: false);
-    await settle('C4 取消贴附');
-    mark(find.text('新建便签').evaluate().isNotEmpty, 'C4 菜单「取消贴附」→ 便签库');
+    // 桌面贴流程已从产品移除：不再进入相关路由，直接关闭编辑器回便签库
+    await tester.tap(
+      find
+          .byWidgetPredicate(
+            (w) => w is PinIcon && w.data == PinIcons.close,
+          )
+          .first,
+      warnIfMissed: false,
+    );
+    await settle('C2 桌面贴流程已移除，关闭编辑器回便签库');
+    mark(find.text('新建便签').evaluate().isNotEmpty, 'C2 编辑器关闭后回到便签库');
 
     // ---------- 流程 D：快速捕获 ----------
     debugPrint('===== 流程 D：快速捕获 =====');

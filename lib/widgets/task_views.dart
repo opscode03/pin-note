@@ -22,6 +22,34 @@ class PageHead extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
+    final titleBlock = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          title,
+          style: spec.t2xl.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.22,
+          ),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(width: PinSpace.s3),
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              subtitle!,
+              style: spec.txs.copyWith(color: spec.text2),
+            ),
+          ),
+        ],
+      ],
+    );
+    final actionsBlock = Wrap(
+      spacing: PinSpace.s3,
+      runSpacing: PinSpace.s2,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: actions ?? const [],
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         PinSpace.s6,
@@ -29,34 +57,28 @@ class PageHead extends StatelessWidget {
         PinSpace.s6,
         4,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: spec.t2xl.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.22,
-            ),
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(width: PinSpace.s3),
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                subtitle!,
-                style: spec.txs.copyWith(color: spec.text2),
-              ),
-            ),
-          ],
-          const Spacer(),
-          if (actions != null) ...[
-            for (var i = 0; i < actions!.length; i++) ...[
-              if (i > 0) const SizedBox(width: PinSpace.s3),
-              actions![i],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // 窄内容区（含详情栏被挤出的场景）：页头动作换到下一行，避免溢出
+          if (constraints.maxWidth < 520 && actions != null) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                titleBlock,
+                const SizedBox(height: PinSpace.s3),
+                actionsBlock,
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              titleBlock,
+              const Spacer(),
+              actionsBlock,
             ],
-          ],
-        ],
+          );
+        },
       ),
     );
   }

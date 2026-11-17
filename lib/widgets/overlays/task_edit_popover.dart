@@ -9,14 +9,17 @@ library;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import 'package:table_calendar/table_calendar.dart';
 
 import '../../app/app_scope.dart';
 import '../../data/demo.dart';
+import '../../data/task_dates.dart';
 import '../../design/icons.dart';
 import '../../design/theme.dart';
 import '../../design/tokens.dart';
 import '../buttons.dart';
-import '../calendar.dart';
 import '../chips.dart';
 import '../interactive.dart';
 import '../toast.dart';
@@ -26,10 +29,18 @@ const List<String> kTagPool = ['#重要', '#设计', '#复盘', '#Q4', '#Q3'];
 
 /// 任务编辑弹层内容
 class TaskEditPopover extends StatefulWidget {
-  const TaskEditPopover({super.key, required this.task, required this.width});
+  const TaskEditPopover({
+    super.key,
+    required this.task,
+    required this.width,
+    this.createNew = false,
+  });
 
   final DemoTask task;
   final double width;
+
+  /// true = 保存时创建新任务；false = 编辑已有任务
+  final bool createNew;
 
   @override
   State<TaskEditPopover> createState() => _TaskEditPopoverState();
@@ -39,7 +50,9 @@ class _TaskEditPopoverState extends State<TaskEditPopover> {
   late final TextEditingController _title;
   late PinPriority _priority;
   late List<String> _tags;
-  int _dateIndex = 0;
+  late DateTime? _dueAt;
+  late DateTime _focusedDay;
+  late int _dateIndex;
 
   @override
   void initState() {
@@ -47,6 +60,9 @@ class _TaskEditPopoverState extends State<TaskEditPopover> {
     _title = TextEditingController(text: widget.task.title);
     _priority = widget.task.priority;
     _tags = List.of(widget.task.tags);
+    _dueAt = widget.task.dueAt;
+    _focusedDay = _dueAt ?? DateTime.now();
+    _dateIndex = _quickDateIndex(_dueAt);
   }
 
   @override
@@ -55,15 +71,106 @@ class _TaskEditPopoverState extends State<TaskEditPopover> {
     super.dispose();
   }
 
+  int _quickDateIndex(DateTime? due) {
+    if (due == null) return -1;
+    final today = dateOnly(DateTime.now());
+    final diff = dateOnly(due).difference(today).inDays;
+    if (diff == 0) return 0;
+    if (diff == 1) return 1;
+    if (diff == 2) return 2;
+    if (due.weekday == DateTime.monday && diff > 0) return 3;
+    return -1;
+  }
+
+  void _setQuickDate(int index) {
+    final today = dateOnly(DateTime.now());
+    var day = today;
+    if (index == 1) day = today.add(const Duration(days: 1));
+    if (index == 2) day = today.add(const Duration(days: 2));
+    if (index == 3) {
+      var delta = (DateTime.monday - today.weekday) % 7;
+      if (delta == 0) delta = 7;
+      day = today.add(Duration(days: delta));
+    }
+    setState(() {
+      _dueAt = withTimeOfDay(day, _dueAt?.hour ?? 9, _dueAt?.minute ?? 0);
+      _focusedDay = day;
+      _dateIndex = index;
+    });
+  }
+
+  void _selectDay(DateTime selected, DateTime focused) {
+    setState(() {
+      _dueAt = withTimeOfDay(
+        selected,
+        _dueAt?.hour ?? 9,
+        _dueAt?.minute ?? 0,
+      );
+      _focusedDay = focused;
+      _dateIndex = _quickDateIndex(_dueAt);
+    });
+  }
+
+  Future<void> _pickTime() async {
+    final spec = context.pin;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: _dueAt?.hour ?? 9,
+        minute: _dueAt?.minute ?? 0,
+      ),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: Theme.of(context).colorScheme.copyWith(
+                primary: spec.primary,
+                surface: spec.surface,
+                onSurface: spec.text,
+              ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked == null) return;
+    final day = _dueAt ?? DateTime.now();
+    setState(() {
+      _dueAt = withTimeOfDay(day, picked.hour, picked.minute);
+      _focusedDay = day;
+      _dateIndex = _quickDateIndex(_dueAt);
+    });
+  }
+
+  String get _timeLabel {
+    final due = _dueAt;
+    if (due == null) return '设置时间';
+    final hh = due.hour.toString().padLeft(2, '0');
+    final mm = due.minute.toString().padLeft(2, '0');
+    return '${formatDueDay(due)} $hh:$mm';
+  }
+
   void _save(BuildContext context) {
     final title = _title.text.trim();
-    TaskScope.of(context).updateTask(
-      widget.task.id ?? widget.task.title,
-      title: title.isEmpty ? widget.task.title : title,
-      priority: _priority,
-      tags: _tags,
+    final repo = TaskScope.of(context);
+    if (widget.createNew) {
+      repo.createTask(
+        title: title.isEmpty ? '新任务' : title,
+        priority: _priority,
+        tags: _tags,
+        dueAt: _dueAt,
+      );
+    } else {
+      repo.updateTask(
+        widget.task.id ?? widget.task.title,
+        title: title.isEmpty ? widget.task.title : title,
+        priority: _priority,
+        tags: _tags,
+        dueAt: _dueAt,
+      );
+    }
+    showPinToast(
+      context,
+      title: widget.createNew ? '已创建任务' : '已保存修改',
+      subtitle: title.isEmpty ? widget.task.title : title,
     );
-    showPinToast(context, title: '已保存修改', subtitle: title.isEmpty ? widget.task.title : title);
     Navigator.pop(context);
   }
 
@@ -149,37 +256,95 @@ class _TaskEditPopoverState extends State<TaskEditPopover> {
                 children: [
                   for (var i = 0; i < kDateChips.length; i++) ...[
                     if (i > 0) const SizedBox(width: PinSpace.s2),
-                    EditQChip(kDateChips[i], on: _dateIndex == i,
-                        onTap: () => setState(() => _dateIndex = i)),
+                    EditQChip(
+                      kDateChips[i],
+                      on: _dateIndex == i,
+                      onTap: () => _setQuickDate(i),
+                    ),
                   ],
                 ],
               ),
-              // 迷你月历（.cal，2026 年 11 月：前置 10 月 26-31、今天 9 日）
+              // table_calendar：真实选择日期，视觉变量沿用 PinSpec
               const SizedBox(height: PinSpace.s3),
-              const MiniCalendar(
-                year: 2026,
-                month: 11,
-                leadingBlanks: 6,
-                dayCount: 30,
-                today: 9,
+              TableCalendar<void>(
+                firstDay: DateTime.utc(2020),
+                lastDay: DateTime.utc(2035),
+                focusedDay: _focusedDay,
+                selectedDayPredicate: (day) =>
+                    _dueAt != null && isSameDay(_dueAt, day),
+                startingDayOfWeek: StartingDayOfWeek.monday,
+                calendarFormat: CalendarFormat.month,
+                availableGestures: AvailableGestures.horizontalSwipe,
+                rowHeight: 30,
+                daysOfWeekHeight: 22,
+                headerStyle: HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                  titleTextFormatter: (date, _) =>
+                      DateFormat('yyyy 年 M 月').format(date),
+                  titleTextStyle: spec.txs.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  leftChevronIcon: PinIcon(
+                    PinIcons.chevronLeft,
+                    size: 13,
+                    color: spec.text2,
+                  ),
+                  rightChevronIcon: PinIcon(
+                    PinIcons.chevronRight,
+                    size: 13,
+                    color: spec.text2,
+                  ),
+                ),
+                daysOfWeekStyle: DaysOfWeekStyle(
+                  dowTextFormatter: (date, _) =>
+                      ['一', '二', '三', '四', '五', '六', '日'][date.weekday - 1],
+                  weekdayStyle: spec.t2xs.copyWith(color: spec.text2),
+                  weekendStyle: spec.t2xs.copyWith(color: spec.text2),
+                ),
+                calendarStyle: CalendarStyle(
+                  cellMargin: const EdgeInsets.all(2),
+                  cellPadding: EdgeInsets.zero,
+                  defaultTextStyle: spec.t2xs,
+                  weekendTextStyle: spec.t2xs,
+                  outsideTextStyle: spec.t2xs.copyWith(color: spec.faint),
+                  todayDecoration: BoxDecoration(
+                    color: spec.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  todayTextStyle: spec.t2xs.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  selectedDecoration: BoxDecoration(
+                    color: spec.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  selectedTextStyle: spec.t2xs.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                onDaySelected: _selectDay,
               ),
               // 时间 / 提醒 / 重复（.time-row：flex-wrap，窄弹层内自动换行）
               const SizedBox(height: 10),
-              const Wrap(
+              Wrap(
                 spacing: PinSpace.s2,
                 runSpacing: PinSpace.s2,
                 children: [
                   PinChip(
-                    '14:00 - 15:00',
+                    _timeLabel,
                     icon: PinIcons.clock,
                     size: PinChipSize.lg,
+                    onTap: _pickTime,
                   ),
-                  PinChip(
+                  const PinChip(
                     '提前 30 分钟',
                     icon: PinIcons.bell,
                     size: PinChipSize.lg,
                   ),
-                  PinChip(
+                  const PinChip(
                     '每天',
                     icon: PinIcons.repeat,
                     style: PinChipStyle.teal,
@@ -226,7 +391,8 @@ class _TaskEditPopoverState extends State<TaskEditPopover> {
                 ),
                 child: Row(
                   children: [
-                    EditDeleteButton(onTap: () => _delete(context)),
+                    if (!widget.createNew)
+                      EditDeleteButton(onTap: () => _delete(context)),
                     const Spacer(),
                     PinButton(
                       '取消',

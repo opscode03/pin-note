@@ -9,8 +9,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../design/icons.dart';
+import '../design/tokens.dart';
+
 import 'capture_parser.dart';
 import 'demo.dart';
+import 'task_dates.dart';
 
 /// 任务状态仓库
 class TaskRepository extends ChangeNotifier {
@@ -64,13 +68,61 @@ class TaskRepository extends ChangeNotifier {
     return i == -1 ? null : _tasks[i];
   }
 
-  /// 保存编辑（标题 / 优先级 / 标签）
-  void updateTask(String id,
-      {String? title, PinPriority? priority, List<String>? tags}) {
+  /// 真正新建任务（新建任务按钮 / Ctrl+Shift+T）
+  DemoTask createTask({
+    required String title,
+    PinPriority priority = PinPriority.none,
+    List<String> tags = const [],
+    DateTime? dueAt,
+  }) {
+    final task = DemoTask(
+      id: 'task-${DateTime.now().microsecondsSinceEpoch}',
+      title: title,
+      meta: [
+        if (dueAt != null)
+          PinChipMeta(formatTaskDue(dueAt), icon: PinIcons.clock),
+      ],
+      tags: tags,
+      priority: priority,
+      listName: '收件箱',
+      listColor: PinListDots.inbox,
+      group: TaskGroup.today,
+      dueAt: dueAt,
+    );
+    _tasks.insert(0, task);
+    _selectedId = task.id;
+    notifyListeners();
+    unawaited(save());
+    return task;
+  }
+
+  /// 保存编辑（标题 / 优先级 / 标签 / 真实截止日期时间）
+  void updateTask(
+    String id, {
+    String? title,
+    PinPriority? priority,
+    List<String>? tags,
+    DateTime? dueAt,
+  }) {
     final i = _tasks.indexWhere((t) => t.id == id);
     if (i == -1) return;
-    _tasks[i] =
-        _tasks[i].copyWith(title: title, priority: priority, tags: tags);
+    final old = _tasks[i];
+    final nextDueAt = dueAt ?? old.dueAt;
+    // 只有显式改日期时才重建日期 Chip，其他编辑保留原 meta
+    final nextMeta = dueAt == null
+        ? old.meta
+        : <PinChipMeta>[
+            if (nextDueAt != null)
+              PinChipMeta(formatTaskDue(nextDueAt), icon: PinIcons.clock),
+            ...old.meta.where((m) => m.icon != PinIcons.clock),
+          ];
+    _tasks[i] = old.copyWith(
+      title: title,
+      priority: priority,
+      tags: tags,
+      dueAt: nextDueAt,
+      meta: nextMeta,
+    );
     notifyListeners();
     unawaited(save());
   }

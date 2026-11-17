@@ -17,6 +17,7 @@ import '../widgets/buttons.dart';
 import '../widgets/controls.dart';
 import '../widgets/interactive.dart';
 import '../widgets/task_views.dart';
+import '../widgets/toast.dart';
 
 /// 设置页（settings.html：自定义侧栏 + 外观内容区）
 class SettingsScreen extends StatelessWidget {
@@ -77,7 +78,11 @@ class _SettingsSidebar extends StatelessWidget {
                     icon: PinIcons.person,
                     onTap: () => AppNav.go(context, '/account'),
                   ),
-                  const _SettingsNavItem('关于', icon: PinIcons.info),
+                  _SettingsNavItem(
+                    '关于',
+                    icon: PinIcons.info,
+                    onTap: () => AppNav.go(context, '/design-language'),
+                  ),
                 ],
               ),
             ),
@@ -380,7 +385,7 @@ class _ThemeCard extends StatelessWidget {
                 _ThemeTile(
                   on: true,
                   label: '浅色',
-                  onTap: () => AppNav.go(context, '/settings'),
+                  onTap: () => AppScope.of(context).setMode(ThemeMode.light),
                   preview: const _ThemePreview(
                     canvas: Color(0xFFFFFFFF), // 浅色画布 #fff
                     side: Color(0xFFF5F6F8), // 浅色侧栏 --color-surface-2
@@ -390,8 +395,7 @@ class _ThemeCard extends StatelessWidget {
                 const SizedBox(width: 26),
                 _ThemeTile(
                   label: '深色',
-                  onTap: () =>
-                      AppScope.of(context).toggle(), // dark.html → 主题切换
+                  onTap: () => AppScope.of(context).setMode(ThemeMode.dark),
                   preview: const _ThemePreview(
                     canvas: Color(0xFF1E1F27), // 深色画布 --color-bg(dark)
                     side: Color(0xFF191A20), // 深色侧栏 --color-surface-2(dark)
@@ -401,7 +405,7 @@ class _ThemeCard extends StatelessWidget {
                 const SizedBox(width: 26),
                 _ThemeTile(
                   label: '跟随系统',
-                  onTap: () => AppNav.go(context, '/settings'),
+                  onTap: () => AppScope.of(context).setMode(ThemeMode.system),
                   preview: const _ThemePreview.split(),
                 ),
               ],
@@ -724,7 +728,7 @@ class _PinModeCard extends StatelessWidget {
             child: PinLink(
               '两种模式可在桌面贴右键菜单中随时切换 →',
               fontSize: PinFontSize.xs,
-              onTap: () => AppNav.go(context, '/pin-controls'),
+              onTap: () => showDesktopPinsDeferredToast(context),
             ),
           ),
         ],

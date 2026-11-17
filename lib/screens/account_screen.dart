@@ -3,7 +3,10 @@
 /// 画布页：欢迎卡（460 宽，本地 / 同步双选项）+ 登录卡（460 宽）。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../app/navigation.dart';
 import '../design/icons.dart';
@@ -14,6 +17,7 @@ import '../widgets/buttons.dart';
 import '../widgets/chips.dart';
 import '../widgets/controls.dart';
 import '../widgets/interactive.dart';
+import '../widgets/toast.dart';
 
 /// 账户画布页：欢迎卡 + 登录卡
 class AccountScreen extends StatelessWidget {
@@ -168,8 +172,86 @@ class _AccountOption extends StatelessWidget {
 }
 
 /// 登录卡（.login：分段切换 + 两个输入框 + 主按钮 + 社交登录 + 协议行）
-class _LoginCard extends StatelessWidget {
+class _LoginCard extends StatefulWidget {
   const _LoginCard();
+
+  @override
+  State<_LoginCard> createState() => _LoginCardState();
+}
+
+class _LoginCardState extends State<_LoginCard> {
+  final TextEditingController _phone =
+      TextEditingController(text: '13800138000');
+  final TextEditingController _code = TextEditingController();
+  Timer? _timer;
+  int _countdown = 0;
+  String? _error;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _phone.dispose();
+    _code.dispose();
+    super.dispose();
+  }
+
+  bool _validPhone() {
+    return RegExp(r'^1\d{10}$').hasMatch(_phone.text.trim());
+  }
+
+  void _sendCode() {
+    if (!_validPhone()) {
+      setState(() => _error = '请输入 11 位手机号');
+      return;
+    }
+    setState(() {
+      _error = null;
+      _countdown = 60;
+    });
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdown <= 1) {
+        timer.cancel();
+        setState(() => _countdown = 0);
+      } else {
+        setState(() => _countdown -= 1);
+      }
+    });
+    showPinToast(
+      context,
+      title: '验证码已发送（本地演示）',
+      subtitle: '演示验证码：123456；尚未接入短信服务',
+      icon: PinIcons.bell,
+    );
+  }
+
+  void _submit() {
+    if (!_validPhone()) {
+      setState(() => _error = '请输入 11 位手机号');
+      return;
+    }
+    if (_code.text.trim() != '123456') {
+      setState(() => _error = '请输入本地演示验证码 123456');
+      return;
+    }
+    setState(() => _error = null);
+    showPinToast(
+      context,
+      title: '输入校验通过',
+      subtitle: '同步服务尚未接入，本次未创建云端账户',
+      icon: PinIcons.info,
+    );
+    AppNav.go(context, '/');
+  }
+
+  void _thirdParty(String provider) {
+    showPinToast(
+      context,
+      title: '$provider 尚未接入',
+      subtitle: '当前版本仅支持本地数据模式',
+      icon: PinIcons.info,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,31 +268,48 @@ class _LoginCard extends StatelessWidget {
         // .tabs：登录页分段控件（选中项在设计稿中为主色浅底）
         const Center(child: PinSeg(items: ['手机号', '邮箱'], onIndex: 0)),
         const SizedBox(height: 22),
-        const _LoginField(
+        _LoginField(
           icon: PinIcons.person,
-          text: '138 0013 8000',
-          caret: true,
+          controller: _phone,
+          hint: '手机号',
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(11),
+          ],
         ),
         const SizedBox(height: 12),
         _LoginField(
           icon: PinIcons.lock,
-          text: '输入 6 位验证码',
-          placeholder: true,
+          controller: _code,
+          hint: '输入 6 位验证码',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(6),
+          ],
           trailing: Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: PinLink(
-              '获取验证码',
+              _countdown > 0 ? '${_countdown}s 后重发' : '获取验证码',
               fontSize: PinFontSize.xs,
-              onTap: () => AppNav.go(context, '/'),
+              onTap: _countdown == 0 ? _sendCode : null,
             ),
           ),
         ),
+        if (_error != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _error!,
+            style: spec.txs.copyWith(color: spec.dangerStrong),
+          ),
+        ],
         const SizedBox(height: 20),
         PinButton(
           '登录 / 注册',
           size: PinButtonSize.xl,
           expand: true,
-          onTap: () => AppNav.go(context, '/'),
+          onTap: _submit,
         ),
         const SizedBox(height: 22),
         // 「或」分隔（.divider：两侧细线）
@@ -237,7 +336,7 @@ class _LoginCard extends StatelessWidget {
               child: _SocialButton(
                 label: '微信登录',
                 dot: const Color(0xFF58BE6C), // 微信绿（设计稿固定色）
-                onTap: () => AppNav.go(context, '/'),
+                onTap: () => _thirdParty('微信登录'),
               ),
             ),
             const SizedBox(width: 12),
@@ -245,7 +344,7 @@ class _LoginCard extends StatelessWidget {
               child: _SocialButton(
                 label: 'Apple 登录',
                 dot: const Color(0xFF383A42), // Apple 黑（设计稿固定色）
-                onTap: () => AppNav.go(context, '/'),
+                onTap: () => _thirdParty('Apple 登录'),
               ),
             ),
           ],
@@ -288,20 +387,22 @@ class _LoginCard extends StatelessWidget {
   }
 }
 
-/// 登录输入框（.field 42 高：图标 + 文本 + 光标；[trailing] 右侧动作）
+/// 登录输入框（.field 42 高：图标 + 真实输入 + 可选右侧动作）
 class _LoginField extends StatelessWidget {
   const _LoginField({
     required this.icon,
-    required this.text,
-    this.placeholder = false,
-    this.caret = false,
+    required this.controller,
+    required this.hint,
+    this.keyboardType,
+    this.inputFormatters,
     this.trailing,
   });
 
   final PinIconData icon;
-  final String text;
-  final bool placeholder;
-  final bool caret;
+  final TextEditingController controller;
+  final String hint;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
   final Widget? trailing;
 
   @override
@@ -319,17 +420,28 @@ class _LoginField extends StatelessWidget {
         children: [
           PinIcon(icon, size: 16, color: spec.faint),
           const SizedBox(width: PinSpace.s2),
-          Text(
-            text,
-            style: placeholder
-                ? spec.tsm.copyWith(color: spec.faint)
-                : spec.tsm,
+          Expanded(
+            child: Material(
+              type: MaterialType.transparency,
+              child: TextField(
+                controller: controller,
+                keyboardType: keyboardType,
+                inputFormatters: inputFormatters,
+                style: spec.tsm,
+                cursorColor: spec.primary,
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                  hintText: hint,
+                  hintStyle: spec.tsm.copyWith(color: spec.faint),
+                ),
+              ),
+            ),
           ),
-          if (caret) ...[
+          if (trailing != null) ...[
             const SizedBox(width: PinSpace.s2),
-            Container(width: 1.5, height: 16, color: spec.primary),
+            trailing!,
           ],
-          if (trailing != null) ...[const Spacer(), trailing!],
         ],
       ),
     );

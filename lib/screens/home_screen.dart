@@ -141,7 +141,8 @@ class _Content extends StatelessWidget {
                 PinButton(
                   '新建任务',
                   icon: PinIcons.plus,
-                  onTap: () => showTaskEditDialog<void>(context),
+                  onTap: () =>
+                      showTaskEditDialog<void>(context, createNew: true),
                 ),
               ],
             ),

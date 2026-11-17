@@ -15,13 +15,11 @@ import 'package:pin_note/design/tokens.dart';
 import 'package:pin_note/design/theme.dart';
 import 'package:pin_note/screens/account_screen.dart';
 import 'package:pin_note/screens/design_language_screen.dart';
-import 'package:pin_note/screens/desktop_pins_screen.dart';
 import 'package:pin_note/screens/empty_states_screen.dart';
 import 'package:pin_note/screens/home_screen.dart';
 import 'package:pin_note/screens/note_editor_screen.dart';
 import 'package:pin_note/screens/notes_screen.dart';
 import 'package:pin_note/screens/onboarding_screen.dart';
-import 'package:pin_note/screens/pin_controls_screen.dart';
 import 'package:pin_note/screens/quick_capture_screen.dart';
 import 'package:pin_note/screens/search_screen.dart';
 import 'package:pin_note/screens/settings_screen.dart';
@@ -207,14 +205,6 @@ void main() {
       );
       await tester.pump();
       expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('桌面贴总览（1440×900）', (tester) async {
-      await _desktop(tester, const DesktopPinsScreen());
-    });
-
-    testWidgets('桌面贴控制（1440×900）', (tester) async {
-      await _desktop(tester, const PinControlsScreen());
     });
 
     testWidgets('快速捕获（1440×900）', (tester) async {

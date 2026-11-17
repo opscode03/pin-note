@@ -27,6 +27,31 @@ class NoteRepository extends ChangeNotifier {
     return _notes.isEmpty ? null : _notes.first;
   }
 
+  /// 真正新建一张便签并选中（「新建便签」按钮与快速捕获共用）
+  DemoNote create({
+    String title = '新便签',
+    StickyColor color = StickyColor.lemon,
+    String? tag,
+    List<String> lines = const [],
+    List<(String, bool)> checks = const [],
+  }) {
+    final id = 'note-${DateTime.now().microsecondsSinceEpoch}';
+    final note = DemoNote(
+      id: id,
+      title: title,
+      color: color,
+      time: '刚刚',
+      tag: tag,
+      lines: lines,
+      checks: checks,
+    );
+    _notes.insert(0, note);
+    _selectedId = id;
+    notifyListeners();
+    unawaited(save());
+    return note;
+  }
+
   void select(String id) {
     if (_selectedId == id) return;
     _selectedId = id;

@@ -40,6 +40,8 @@ dependencies:
     sdk: flutter
 
   shared_preferences: 2.2.3
+  table_calendar: ^3.3.0
+  intl: ^0.20.3
 
 dev_dependencies:
   flutter_test:

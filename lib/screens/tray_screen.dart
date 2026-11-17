@@ -15,6 +15,7 @@ import '../widgets/buttons.dart';
 import '../widgets/interactive.dart';
 import '../widgets/menu.dart';
 import '../widgets/scene.dart';
+import '../widgets/toast.dart';
 
 class TrayScreen extends StatelessWidget {
   const TrayScreen({super.key});
@@ -185,7 +186,7 @@ class _TrayMenu extends StatelessWidget {
           label: '显示桌面贴',
           icon: PinIcons.pin,
           kbd: 'Ctrl+Alt+D',
-          onTap: () => AppNav.go(context, '/desktop-pins'),
+          onTap: () => showDesktopPinsDeferredToast(context),
         ),
         PinMenuItem(
           label: '打开贴记',

@@ -122,6 +122,8 @@ class _SearchScreenState extends State<SearchScreen> {
       case _HitKind.task:
         showTaskEditDialog<void>(context, task: hit.task);
       case _HitKind.note:
+        final note = hit.note!;
+        NoteScope.of(context).select(note.id ?? note.title);
         AppNav.go(context, '/note-editor');
       case _HitKind.tag:
         AppNav.go(context, '/notes');

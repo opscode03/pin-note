@@ -113,25 +113,26 @@ class _QuickCaptureCardState extends State<QuickCaptureCard> {
               spacing: 6,
               runSpacing: 6,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: spec.primaryTint,
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: Text(
-                    '明天9:00',
-                    style: TextStyle(
-                      fontSize: PinFontSize.lg,
-                      fontWeight: FontWeight.w700,
-                      color: spec.primaryStrong,
-                      fontFamilyFallback: PinFont.sans,
+                if (_parse.dateLabel != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: spec.primaryTint,
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Text(
+                      _parse.dateLabel!,
+                      style: TextStyle(
+                        fontSize: PinFontSize.lg,
+                        fontWeight: FontWeight.w700,
+                        color: spec.primaryStrong,
+                        fontFamilyFallback: PinFont.sans,
+                      ),
                     ),
                   ),
-                ),
                 // Wrap 内不可用 Expanded：标题输入用固定宽（设计稿识别段占位）
                 SizedBox(
                   width: 220,
@@ -154,55 +155,62 @@ class _QuickCaptureCardState extends State<QuickCaptureCard> {
                     ),
                   ),
                 ),
-                Text(
-                  '#工作',
-                  style: TextStyle(
-                    fontSize: PinFontSize.lg,
-                    fontWeight: FontWeight.w700,
-                    color: spec.violetStrong,
-                    fontFamilyFallback: PinFont.sans,
+                for (final tag in _parse.tags)
+                  Text(
+                    tag,
+                    style: TextStyle(
+                      fontSize: PinFontSize.lg,
+                      fontWeight: FontWeight.w700,
+                      color: spec.violetStrong,
+                      fontFamilyFallback: PinFont.sans,
+                    ),
                   ),
-                ),
-                Text(
-                  '!!',
-                  style: TextStyle(
-                    fontSize: PinFontSize.lg,
-                    fontWeight: FontWeight.w700,
-                    color: spec.dangerStrong,
-                    fontFamilyFallback: PinFont.sans,
+                if (_parse.priority != PinPriority.none)
+                  Text(
+                    _parse.priority == PinPriority.high ? '!!' : '!',
+                    style: TextStyle(
+                      fontSize: PinFontSize.lg,
+                      fontWeight: FontWeight.w700,
+                      color: spec.dangerStrong,
+                      fontFamilyFallback: PinFont.sans,
+                    ),
                   ),
-                ),
                 Container(width: 2, height: 20, color: spec.primary),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          // 识别结果 chips
-          const Wrap(
+          // 识别结果 chips：与当前输入的解析结果保持一致
+          Wrap(
             spacing: 10,
             runSpacing: 8,
             children: [
-              PinChip(
-                '11月10日 周二 09:00',
-                style: PinChipStyle.accent,
-                size: PinChipSize.lg,
-                icon: PinIcons.calendar,
-                bold: true,
-              ),
-              PinChip(
-                '#工作',
-                style: PinChipStyle.violet,
-                size: PinChipSize.lg,
-                icon: PinIcons.tag,
-              ),
-              PinChip(
-                '高优先级',
-                style: PinChipStyle.red,
-                size: PinChipSize.lg,
-                icon: PinIcons.flag,
-              ),
-              PinChip(
-                '清单 · 工作',
+              if (_parse.dateLabel != null)
+                PinChip(
+                  _parse.dateLabel!,
+                  style: PinChipStyle.accent,
+                  size: PinChipSize.lg,
+                  icon: PinIcons.calendar,
+                  bold: true,
+                ),
+              for (final tag in _parse.tags)
+                PinChip(
+                  tag,
+                  style: PinChipStyle.violet,
+                  size: PinChipSize.lg,
+                  icon: PinIcons.tag,
+                ),
+              if (_parse.priority != PinPriority.none)
+                PinChip(
+                  '${_parse.priority.label}优先级',
+                  style: _parse.priority == PinPriority.high
+                      ? PinChipStyle.red
+                      : PinChipStyle.amber,
+                  size: PinChipSize.lg,
+                  icon: PinIcons.flag,
+                ),
+              const PinChip(
+                '清单 · 收件箱',
                 size: PinChipSize.lg,
                 trailingIcon: PinIcons.chevronDown,
               ),
@@ -227,6 +235,22 @@ class _QuickCaptureCardState extends State<QuickCaptureCard> {
                 '存为便签',
                 variant: PinButtonVariant.secondary,
                 onTap: () {
+                  if (_parse.title.isEmpty) return;
+                  final note = NoteScope.of(context).create(
+                    title: _parse.title,
+                    tag: _parse.tags.isEmpty ? null : _parse.tags.first,
+                    lines: [
+                      '来自快速捕获',
+                      if (_parse.dateLabel != null)
+                        '时间：${_parse.dateLabel}',
+                    ],
+                  );
+                  showPinToast(
+                    context,
+                    title: '已存为便签「${note.title}」',
+                    subtitle: '便签库中可继续编辑',
+                    icon: PinIcons.note,
+                  );
                   Navigator.pop(context);
                   AppNav.go(context, '/notes');
                 },

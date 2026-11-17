@@ -19,7 +19,6 @@ import 'package:pin_note/data/task_repository.dart';
 import 'package:pin_note/design/icons.dart';
 import 'package:pin_note/design/tokens.dart';
 import 'package:pin_note/widgets/app_window.dart';
-import 'package:pin_note/widgets/menu.dart';
 import 'package:pin_note/widgets/overlays/task_edit_popover.dart';
 import 'package:pin_note/widgets/sidebar.dart';
 
@@ -150,8 +149,8 @@ void main() {
         '新建便签按钮=${find.text('新建便签').evaluate().length} '
         '周报要点=${find.text('周报要点').evaluate().length} '
         '输入框=${find.byType(TextField).evaluate().length}');
-    // 「新建便签」实际打开并改名了第一张「周报要点」，按真实状态继续
-    await tester.tap(find.text('新便签·真正创建').first);
+    // 新建已修复，原「周报要点」仍保留；继续编辑这张已有便签
+    await tester.tap(find.text('周报要点').first);
     await settle('5e. 打开「周报要点」');
     await tester.enterText(find.byType(TextField).first, '周报要点·终稿');
     await tester.tap(find.text('新建清单项'));
@@ -183,47 +182,17 @@ void main() {
         persistedNote.first.color == StickyColor.mint,
         '5m. 重启读回：便签标题与颜色保持');
 
-    // ---------- 6. 桌面贴拖拽与菜单 ----------
-    await tester.tap(find.text('贴到桌面'));
-    await settle('6. 桌面贴总览');
-    final beforeDrag = tester.getRect(find.text('健身打卡'));
-    await tester.drag(find.text('健身打卡'), const Offset(70, 40));
-    await settle('6a. 拖动「健身打卡」便签');
-    final afterDrag = tester.getRect(find.text('健身打卡'));
-    debugPrint('[诊断] 拖拽前=${beforeDrag.topLeft} 后=${afterDrag.topLeft} '
-        '位移=${afterDrag.topLeft - beforeDrag.topLeft}');
-    final fitnessMoved =
-        (afterDrag.topLeft - beforeDrag.topLeft).distance > 40;
-    check(fitnessMoved, '6b. 健身打卡便签可拖动',
-        issue: '除生日便签外，其他桌面贴未启用拖拽（draggable 未接线）');
-    if (!fitnessMoved) {
-      final birthdayBefore = tester.getRect(find.text('给妈妈订生日蛋糕'));
-      await tester.drag(find.text('给妈妈订生日蛋糕'), const Offset(70, 40));
-      await settle('6b2. 拖动「给妈妈订生日蛋糕」');
-      final birthdayAfter = tester.getRect(find.text('给妈妈订生日蛋糕'));
-      check((birthdayAfter.topLeft - birthdayBefore.topLeft).distance > 40,
-          '6b2. 已接线的生日便签可拖动');
-    }
-
-    await tester.tap(find.text('贴在眼前。』'));
-    await settle('6c. 打开右键菜单');
-    await tester.tap(find.text('点击穿透'));
-    await tester.tap(find.text('锁定位置'));
-    await settle('6d. 切换穿透与锁定');
-    final menuItems =
-        tester.widget<PinMenu>(find.byType(PinMenu)).items;
-    check(menuItems.any((i) => i.label == '点击穿透' && i.showCheck) &&
-        menuItems.any((i) => i.label == '锁定位置' && i.showCheck),
-        '6e. 菜单开关状态切换');
-    await tester.tap(find.text('复制内容'));
-    await settle('6f. 复制内容');
-    final clip = await Clipboard.getData(Clipboard.kTextPlain);
-    check(clip?.text == '设计评审准备', '6g. 内容真实写入剪贴板');
-
     // ---------- 7. 设置 / 窄窗口 / 账户 ----------
-    // 控制屏先「取消贴附」回便签库，再回今日并进入设置
-    await tester.tap(find.text('取消贴附'));
-    await settle('7. 取消贴附回便签库');
+    // 桌面贴流程已移除：关闭编辑器回便签库，再回今日进入设置
+    await tester.tap(
+      find
+          .byWidgetPredicate(
+            (w) => w is PinIcon && w.data == PinIcons.close,
+          )
+          .first,
+      warnIfMissed: false,
+    );
+    await settle('7. 关闭编辑器回便签库');
     await tester.tap(find.text('今日').first);
     await settle('7a. 回主窗口今日页');
     await tester.tap(find.byTooltip('设置'));
@@ -241,16 +210,34 @@ void main() {
     check(find.byType(TextField).evaluate().isNotEmpty,
         '7e. 手机号与验证码可输入',
         issue: '账户登录页输入框为静态展示，无法输入手机号/验证码');
+    await tester.enterText(find.byType(TextField).first, '13800138000');
+    await tester.enterText(find.byType(TextField).last, '123456');
+    await tester.tap(find.text('获取验证码'));
+    await settle('7e1. 获取演示验证码');
+    check(find.text('验证码已发送（本地演示）').evaluate().isNotEmpty,
+        '7e1. 验证码发送反馈与倒计时');
+    await tester.tap(find.text('登录 / 注册'));
+    await settle('7e2. 登录校验并返回主界面');
+    check(find.text('输入校验通过').evaluate().isNotEmpty,
+        '7e2. 表单校验通过并提示同步服务未接入');
 
-    await tester.tap(find.text('开始使用').first);
-    await settle('7e2. 账户页「开始使用」回主界面');
     await tester.tap(find.byTooltip('设置'));
     await settle('7f. 回设置，点击「关于」');
     await tester.tap(find.text('关于'));
+    await settle('7f2. 点击设置「关于」');
+    debugPrint('[诊断] 关于后路由=${AppNav.observer.current} '
+        '设计语言规范=${find.text('设计语言规范').evaluate().length}');
     check(find.text('设计语言规范').evaluate().isNotEmpty,
         '7g. 关于可进入设计语言页',
         issue: '设置「关于」没有 onTap，点击无响应');
 
+    // 「关于」已进入设计语言页后，先回设置（测试导航），再走页面返回链接
+    if (find.text('设计语言规范').evaluate().isNotEmpty) {
+      tester
+          .state<NavigatorState>(find.byType(Navigator).first)
+          .pushReplacementNamed('/settings');
+      await settle('7g2. 设计语言页返回设置');
+    }
     await tester.tap(find.text('返回'));
     await settle('7h. 设置返回今日');
     await tester.binding.setSurfaceSize(const Size(850, 900));

@@ -116,7 +116,7 @@ class _NotesContent extends StatelessWidget {
                 PinButton(
                   '新建便签',
                   icon: PinIcons.plus,
-                  onTap: () => AppNav.go(context, '/note-editor'),
+                  onTap: () => _createAndOpen(context),
                 ),
               ],
             ),
@@ -158,6 +158,12 @@ class _NotesContent extends StatelessWidget {
   }
 }
 
+/// 新建便签：创建独立 ID 并选中，再进入编辑器
+void _createAndOpen(BuildContext context) {
+  NoteScope.of(context).create();
+  AppNav.go(context, '/note-editor');
+}
+
 /// 便签卡片（对应 .ncard）
 class _NoteCard extends StatelessWidget {
   const _NoteCard({required this.note});
@@ -171,7 +177,10 @@ class _NoteCard extends StatelessWidget {
     return HoverBuilder(
       builder: (context, hover, _) {
         return GestureDetector(
-          onTap: () => AppNav.go(context, '/note-editor'),
+          onTap: () {
+            NoteScope.of(context).select(note.id ?? note.title);
+            AppNav.go(context, '/note-editor');
+          },
           child: AnimatedContainer(
             duration: PinMotion.dur,
             curve: PinMotion.ease,
@@ -254,7 +263,7 @@ class _AddCard extends StatelessWidget {
       builder: (context, hover, _) {
         final color = hover ? spec.primaryStrong : spec.faint;
         return GestureDetector(
-          onTap: () => AppNav.go(context, '/note-editor'),
+          onTap: () => _createAndOpen(context),
           child: Container(
             height: 188,
             decoration: BoxDecoration(
