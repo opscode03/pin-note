@@ -26,8 +26,12 @@
    布局尺寸用 `PinSize`。不在集合内的数值（如 12.5px 正文）允许字面量，但须与设计稿一致。
 3. **深色模式不可忽略**：任何新增界面的深色效果来自 PinSpec 的取值，
    不允许 `Colors.black/Colors.white` 硬编码前景背景（图标白色高光等设计稿固定色除外）。
-4. **组件优先**：按钮/Chip/复选框/便签/菜单/Toast 等必须用 `lib/widgets/` 里的组件，
-   不重复造轮子；需要新组件时先在设计系统层补齐再使用。
+4. **组件优先（forui 优先）**：通用控件一律优先使用 forui 成熟组件
+   （`FButton/FSwitch/FCheckbox/FToast/FDivider/FProgress` 等），配色经
+   `lib/design/forui_theme.dart` 适配 PinSpec，保证与设计语言一致；
+   forui 无对应组件、或需 1:1 还原设计稿特殊视觉（便签 8 色/胶带/折角、
+   任务行勾选、日历列表等）时，才使用或扩展 `lib/widgets/` 自绘组件，
+   并在交付说明注明原因。禁止在自绘与 forui 可用之间重复造轮子。
 5. **文案、结构、数值与设计稿一致**：改 UI 前先读对应 `ui/*.html`，样式数值以
    `ui/app.css` 与 `ui/tokens.css` 为准。
 
@@ -41,8 +45,9 @@
 2. **静态分析必须零告警**：`flutter analyze` 通过是提交前置条件。
 3. **测试**：新页面加进 `test/screens_smoke_test.dart` 的冒烟用例；
    新组件至少一个渲染测试。
-4. **依赖克制**：新增第三方包需在 PR/变更说明里给出理由；UI 一律不引 Material 风格
-   组件（ElevatedButton/Card/InkWell 视觉体系）。
+4. **依赖克制**：`forui` 是本项目基础 UI 组件库（优先使用）；除此之外新增第三方包
+   需在 PR/变更说明里给出理由；UI 一律不引 Material 风格组件
+   （ElevatedButton/Card/InkWell 视觉体系）。
 
 ## 3. 工作流
 

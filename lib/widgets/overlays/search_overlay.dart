@@ -122,27 +122,33 @@ class _SearchOverlayPanelState extends State<_SearchOverlayPanel> {
   Widget build(BuildContext context) {
     final spec = context.pin;
     final width = MediaQuery.sizeOf(context).width;
-    // .search-drop { width: min(600px, 62vw); top: 60px; 水平居中 }
+    // 输入框定位 = 标题栏搜索胶囊原位：
+    // 胶囊高 28 在标题栏（PinSize.titlebar=44）内垂直居中，宽 min(40vw, 380)，
+    // 水平居中 —— 与 PinTitleBar._SearchPillIdle 的几何完全一致；
+    // 下拉列表紧贴输入框下方展开。
+    final pillWidth = width * 0.4 < 380 ? width * 0.4 : 380.0;
     final dropWidth = width * 0.62 < 600 ? width * 0.62 : 600.0;
 
     return Material(
       type: MaterialType.transparency,
-      child: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 输入胶囊（.tb-search 输入态样式：主色描边 + tint 光晕）
-                Focus(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 占住标题栏高度，让输入胶囊精确落在原位
+            SizedBox(
+              height: PinSize.titlebar,
+              width: dropWidth,
+              child: Align(
+                alignment: Alignment.center,
+                child: Focus(
                   focusNode: _keyScope,
                   onKeyEvent: _onKey,
                   child: Container(
-                    width: dropWidth,
-                    height: 34,
+                    width: pillWidth,
+                    height: 28,
                     padding:
                         const EdgeInsets.symmetric(horizontal: PinSpace.s3),
                     decoration: BoxDecoration(
@@ -167,7 +173,7 @@ class _SearchOverlayPanelState extends State<_SearchOverlayPanel> {
                             focusNode: _focus,
                             autofocus: true,
                             style: TextStyle(
-                              fontSize: PinFontSize.sm,
+                              fontSize: PinFontSize.xs,
                               fontWeight: FontWeight.w600,
                               color: spec.text,
                               fontFamilyFallback: PinFont.sans,
@@ -185,17 +191,17 @@ class _SearchOverlayPanelState extends State<_SearchOverlayPanel> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                SearchDrop(
-                  width: dropWidth,
-                  hits: _hits,
-                  selected: _selected,
-                  query: _query.text.trim(),
-                  onOpen: _open,
-                ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(height: 10),
+            SearchDrop(
+              width: dropWidth,
+              hits: _hits,
+              selected: _selected,
+              query: _query.text.trim(),
+              onOpen: _open,
+            ),
+          ],
         ),
       ),
     );
