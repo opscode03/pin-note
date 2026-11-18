@@ -23,7 +23,7 @@ flutter run -d windows
 | `/` | 今日（三栏：侧栏 / 任务列表 / 详情） | home.html |
 | `/notes` | 便签库（8 色便签卡墙） | notes.html |
 | `/quick-capture` | 快速捕获（全局捕获窗） | quick-capture.html |
-| `/search` | 搜索（Ctrl+K 浮层） | search.html |
+| `/search`（已注释，页面保留） | 搜索页 | search.html |
 | `/task-edit` | 任务编辑（弹层 + `table_calendar` 真实日期选择） | task-edit.html |
 | `/settings` | 设置 · 外观 | settings.html |
 | `/tray` | 托盘与通知 | tray.html |
@@ -55,6 +55,8 @@ flutter test      # 冒烟 + 组件测试
   与系统 `showTimePicker`，快速捕获同步计算实际日期并持久化。
 - 成熟组件：按钮/开关/进度条/Toast/分割线由 [forui](https://pub.dev/packages/forui)
   提供，主题经 `lib/design/forui_theme.dart` 映射 PinSpec 配色，保持设计语言一致。
+- 搜索交互：Ctrl+K / 标题栏搜索胶囊直接弹出搜索下拉浮层（不跳页）；
+  ↑↓ 选择、Enter 打开任务编辑（浮层保持）、Esc / 点蒙层关闭。
 - 流程精简：首启引导 / 登录账户 / 便签库 / 便签编辑 / 桌面贴的路由已注释
   （页面文件保留在 `lib/screens/`，需要时取消注释即可恢复）。
 - 桌面场景：壁纸四款（wp-a~d）+ 毛玻璃任务栏（BackdropFilter）。

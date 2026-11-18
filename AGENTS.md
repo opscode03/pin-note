@@ -72,5 +72,5 @@
 | （状态）任务勾选 / 快速添加 | `TaskScope.of(context)` → `TaskRepository` |
 | （反馈）操作 Toast | `showPinToast`（5 秒消失，可撤销） |
 | （快捷键）Ctrl/Cmd+K、Ctrl+Shift+Space 等 | `app.dart` CallbackShortcuts 表 |
-| （搜索）实时过滤 + ↑↓/Enter/Esc | `SearchScreen`（标题栏真输入框） |
+| （搜索）实时过滤 + ↑↓/Enter/Esc | `showSearchOverlay` 搜索下拉浮层（Ctrl+K / 标题栏胶囊直接触发；Enter 打开任务编辑后浮层保持） |
 | （forui 主题）PinSpec → FThemeData | `lib/design/forui_theme.dart`（按钮/开关/进度/Toast 用 forui 组件） |

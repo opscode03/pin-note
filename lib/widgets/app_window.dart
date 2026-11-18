@@ -10,6 +10,7 @@ import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
 import 'buttons.dart';
+import 'overlays/search_overlay.dart';
 import 'chips.dart';
 import 'interactive.dart';
 
@@ -246,7 +247,8 @@ class _SearchPillIdle extends StatelessWidget {
     final spec = context.pin;
     return HoverBuilder(
       builder: (context, hover, _) => GestureDetector(
-        onTap: () => AppNav.go(context, '/search'),
+        // 交互优化：直接弹出搜索下拉浮层，不再跳转搜索页
+        onTap: () => showSearchOverlay<void>(context),
         child: Container(
           width: width,
           height: 28,
@@ -262,7 +264,7 @@ class _SearchPillIdle extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '搜索任务与便签…',
+                  '搜索任务…',
                   style: TextStyle(
                     fontSize: PinFontSize.xs,
                     color: spec.faint,

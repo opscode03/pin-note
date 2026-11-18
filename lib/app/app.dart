@@ -10,6 +10,7 @@ import 'package:forui/forui.dart';
 
 import '../design/forui_theme.dart';
 import '../design/theme.dart';
+import '../widgets/overlays/search_overlay.dart';
 import '../screens/design_language_screen.dart';
 import '../screens/empty_states_screen.dart';
 import '../screens/home_screen.dart';
@@ -39,13 +40,11 @@ class _PinNoteAppState extends State<PinNoteApp> {
   late final NoteRepository _noteRepo = widget.noteRepo;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-  void _go(String route) {
+  void _openSearch() {
     final ctx = _navigatorKey.currentContext;
     if (ctx == null) return;
-    Navigator.pushReplacementNamed(ctx, route);
+    showSearchOverlay<void>(ctx); // 直接弹搜索下拉，不再跳搜索页
   }
-
-  void _openSearch() => _go('/search');
 
   void _quickCapture() {
     final ctx = _navigatorKey.currentContext;

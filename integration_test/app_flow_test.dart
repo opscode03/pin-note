@@ -15,6 +15,7 @@ import 'package:pin_note/app/desktop_window.dart';
 import 'package:pin_note/data/note_repository.dart';
 import 'package:pin_note/data/task_repository.dart';
 import 'package:pin_note/widgets/controls.dart';
+import 'package:pin_note/widgets/search_drop.dart';
 import 'package:pin_note/widgets/task_views.dart';
 
 void main() {
@@ -62,14 +63,20 @@ void main() {
     await settle('今日页（起点）');
     expect(find.text('已逾期'), findsWidgets);
 
-    await tester.tap(find.text('搜索任务与便签…'), warnIfMissed: false);
+    await tester.tap(find.text('搜索任务…'), warnIfMissed: false);
     await settle('A2 标题栏搜索胶囊');
     mark(find.byType(TextField).evaluate().isNotEmpty,
         'A2 标题栏搜索 → 搜索页（真输入框 + 空态提示）');
 
     // ---------- 流程 B：搜索结果 → 任务编辑 ----------
     debugPrint('===== 流程 B：搜索 → 任务编辑 =====');
-    await tester.tap(find.text('设计评审材料准备').first, warnIfMissed: false);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(SearchDrop),
+        matching: find.text('设计评审材料准备'),
+      ),
+      warnIfMissed: false,
+    );
     await settle('B1 打开任务编辑弹层');
     mark(find.text('日期与时间').evaluate().isNotEmpty, 'B1 搜索结果行 → 任务编辑弹层');
     mark(find.text('2026 年 11 月').evaluate().isNotEmpty, 'B2 弹层含迷你月历');
@@ -82,9 +89,9 @@ void main() {
     await settle('B3 点「确定」');
     final canPopAfter = navForPopCheck.canPop();
     debugPrint('[走查] ℹ️ 弹层「确定」= pop：canPop $canPopBefore → $canPopAfter'
-        '（false = 弹层关闭且栈深不变 ✓）');
-    mark(!canPopAfter, 'B3 弹层「确定」→ 关闭弹层（栈深不变）');
-    mark(find.byType(TextField).evaluate().isNotEmpty, 'B3 回到搜索页（输入框在）');
+        '（true = 编辑弹层已关、搜索浮层保持 ✓）');
+    mark(canPopAfter, 'B3 弹层「确定」→ 关闭编辑、回搜索浮层（浮层保持）');
+    mark(find.byType(TextField).evaluate().isNotEmpty, 'B3 回到搜索浮层（输入框在）');
 
     // ---------- 流程 D：快速捕获 ----------
     debugPrint('===== 流程 D：快速捕获 =====');
@@ -207,13 +214,13 @@ void main() {
 
     // Esc 关搜索 → 回今日
     debugPrint('[诊断] G5 前 hits=${find.byType(TextField).evaluate().length} '
-        'hint=${find.text('输入关键词，搜索任务与便签…').evaluate().length} '
+        'hint=${find.text('输入关键词，搜索任务…').evaluate().length} '
         'result行=${find.text('设计评审材料准备').evaluate().length}');
     await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
     await settle('G5 Esc 关搜索');
     debugPrint('[诊断] G5 后 TextField=${find.byType(TextField).evaluate().length} '
         '已逾期=${find.text('已逾期').evaluate().length} '
-        'hint=${find.text('输入关键词，搜索任务与便签…').evaluate().length}');
+        'hint=${find.text('输入关键词，搜索任务…').evaluate().length}');
     mark(find.text('已逾期').evaluate().isNotEmpty, 'G5 Esc → 回今日页');
 
     // Ctrl+Shift+Space → 快速捕获
