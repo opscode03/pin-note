@@ -42,6 +42,7 @@ dependencies:
   shared_preferences: 2.2.3
   table_calendar: ^3.3.0
   intl: ^0.20.3
+  forui: ^0.27.7
 
 dev_dependencies:
   flutter_test:

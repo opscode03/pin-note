@@ -53,6 +53,8 @@ flutter test      # 冒烟 + 组件测试
   右下折角，见 `lib/widgets/sticky_note.dart`。
 - 任务日期：`DemoTask.dueAt` 为真实 `DateTime`，编辑器使用成熟 `table_calendar`
   与系统 `showTimePicker`，快速捕获同步计算实际日期并持久化。
+- 成熟组件：按钮/开关/进度条/Toast/分割线由 [forui](https://pub.dev/packages/forui)
+  提供，主题经 `lib/design/forui_theme.dart` 映射 PinSpec 配色，保持设计语言一致。
 - 流程精简：首启引导 / 登录账户 / 便签库 / 便签编辑 / 桌面贴的路由已注释
   （页面文件保留在 `lib/screens/`，需要时取消注释即可恢复）。
 - 桌面场景：壁纸四款（wp-a~d）+ 毛玻璃任务栏（BackdropFilter）。

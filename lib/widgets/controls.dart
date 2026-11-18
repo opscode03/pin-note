@@ -4,6 +4,9 @@ library;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
+
+import '../design/forui_theme.dart';
 
 import '../design/icons.dart';
 import '../design/theme.dart';
@@ -82,7 +85,7 @@ class PinRadio extends StatelessWidget {
   }
 }
 
-/// 开关（对应 .switch，40×22）
+/// 开关（对应 .switch，40×22）——内部为 forui [FSwitch]，样式经 FTheme 适配
 class PinSwitch extends StatelessWidget {
   const PinSwitch({this.on = false, super.key});
 
@@ -90,34 +93,15 @@ class PinSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spec = context.pin;
-    return AnimatedContainer(
-      duration: PinMotion.dur,
-      curve: PinMotion.ease,
-      width: 40,
-      height: 22,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(PinRadius.full),
-        color: on ? spec.primary : spec.lineStrong,
-      ),
-      child: AnimatedAlign(
-        duration: PinMotion.dur,
-        curve: PinMotion.ease,
-        alignment: on ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          margin: const EdgeInsets.all(3),
-          width: 16,
-          height: 16,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0, 1),
-                blurRadius: 2,
-                color: Color(0x33000000),
-              ),
-            ],
+    return FTheme(
+      data: buildForuiTheme(context.pin),
+      child: SizedBox(
+        width: 40,
+        height: 22,
+        child: Center(
+          child: Transform.scale(
+            scale: 0.8,
+            child: FSwitch(value: on, onChange: (_) {}),
           ),
         ),
       ),
@@ -140,25 +124,13 @@ class PinProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spec = context.pin;
-    return Container(
-      width: width ?? (lg ? 120 : 44),
-      height: lg ? 6 : 4,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(2),
-        color: spec.line,
-      ),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FractionallySizedBox(
-          widthFactor: value.clamp(0.0, 1.0),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(2),
-              color: spec.primary,
-            ),
-          ),
-        ),
+    // forui FDeterminateProgress：成熟进度组件，动画由库内维护
+    return FTheme(
+      data: buildForuiTheme(context.pin),
+      child: SizedBox(
+        width: width ?? (lg ? 120 : 44),
+        height: lg ? 6 : 4,
+        child: FDeterminateProgress(value: value.clamp(0.0, 1.0)),
       ),
     );
   }

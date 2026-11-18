@@ -86,4 +86,7 @@ flutter test       # 冒烟测试 + 组件测试
    桌面贴路由已移除，不再投入
 5. 编辑器工具栏 B/I/U/S 为样式开关演示，未接富文本引擎（后续接成熟富文本组件）
 6. 账户同步服务未接入：当前为本地演示表单 + 校验，不创建云端账户
-7. `PinButton` hover 深化用 sRGB lerp 近似 color-mix
+7. forui 组件替换（P3 已完成）：`PinButton`→FButton、`PinSwitch`→FSwitch、
+   `PinProgressBar`→FDeterminateProgress、`PinToast` 内容→FToast、菜单分割线→FDivider，
+   主题经 `lib/design/forui_theme.dart` 适配 PinSpec；`PinCheckbox/PinRadio/PinRing/
+   PinSeg/PinChip` 保留自绘（forui 无对应组件或视觉需 1:1 还原设计稿）

@@ -7,8 +7,13 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 
+import '../design/forui_theme.dart';
 import '../design/icons.dart';
+import '../design/theme.dart';
+import '../design/tokens.dart';
+
 import 'menu.dart';
 
 /// 桌面贴功能已从当前版本移除时的统一提示
@@ -128,22 +133,35 @@ class _ToastEntryState extends State<_ToastEntry> {
       left: 0,
       right: 0,
       bottom: 32,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Material(
-          color: Colors.transparent,
-          child: PinToast(
-            title: widget.title,
-            subtitle: widget.subtitle,
-            icon: widget.icon ?? PinIcons.check,
-            iconBg: widget.iconBg,
-            iconColor: widget.iconColor,
-            action: widget.actionLabel,
-            onAction: () {
-              widget.onAction?.call();
-              _close(); // 点动作后立即收起
-            },
-            minWidth: 360,
+      child: FTheme(
+        data: buildForuiTheme(context.pin),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: FToast(
+              title: Text(widget.title),
+              description: widget.subtitle == null
+                  ? null
+                  : Text(widget.subtitle!),
+              icon: PinIcon(widget.icon ?? PinIcons.check),
+              suffix: widget.actionLabel == null
+                  ? null
+                  : GestureDetector(
+                      onTap: () {
+                        widget.onAction?.call();
+                        _close(); // 点动作后立即收起
+                      },
+                      child: Text(
+                        widget.actionLabel!,
+                        style: TextStyle(
+                          fontSize: PinFontSize.xs,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+            ),
           ),
         ),
       ),

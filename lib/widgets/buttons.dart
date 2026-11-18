@@ -2,7 +2,9 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 
+import '../design/forui_theme.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
@@ -39,130 +41,64 @@ class PinButton extends StatefulWidget {
 }
 
 class _PinButtonState extends State<PinButton> {
-  bool _hover = false;
-  bool _down = false;
+  FButtonVariant _foruiVariant() => switch (widget.variant) {
+        PinButtonVariant.primary => FButtonVariant.primary,
+        PinButtonVariant.secondary => FButtonVariant.outline,
+        PinButtonVariant.danger => FButtonVariant.destructive,
+        PinButtonVariant.ghost => FButtonVariant.ghost,
+        PinButtonVariant.disabled => FButtonVariant.outline,
+      };
+
+  Color _fg(PinSpec spec) => switch (widget.variant) {
+        PinButtonVariant.primary => Colors.white,
+        PinButtonVariant.secondary => spec.text2,
+        PinButtonVariant.danger => spec.dangerStrong,
+        PinButtonVariant.ghost => spec.primaryStrong,
+        PinButtonVariant.disabled => spec.faint,
+      };
 
   @override
   Widget build(BuildContext context) {
     final spec = context.pin;
-    final isDisabled =
-        widget.variant == PinButtonVariant.disabled ||
-        widget.onTap == null && widget.variant == PinButtonVariant.disabled;
+    final isDisabled = widget.variant == PinButtonVariant.disabled;
+    final fg = _fg(spec);
+    const gap = SizedBox(width: 7);
 
-    final double height;
-    final double hPadding;
-    final double fontSize;
-    final double radius;
-    switch (widget.size) {
-      case PinButtonSize.md:
-        height = PinSize.button;
-        hPadding = 14;
-        fontSize = PinFontSize.sm;
-        radius = PinRadius.sm;
-      case PinButtonSize.lg:
-        height = PinSize.buttonLg;
-        hPadding = 24;
-        fontSize = PinFontSize.md;
-        radius = PinRadius.md;
-      case PinButtonSize.xl:
-        height = PinSize.buttonXl;
-        hPadding = 28;
-        fontSize = PinFontSize.md;
-        radius = PinRadius.md;
-    }
-
-    Color bg;
-    Color fg;
-    Border? border;
-    switch (widget.variant) {
-      case PinButtonVariant.primary:
-        bg = _hover
-            ? _darken(spec.primary, 0.2)
-            : spec.primary; // hover: color-mix 80% primary + 20% black
-        fg = Colors.white;
-      case PinButtonVariant.secondary:
-        bg = spec.surface;
-        fg = _hover ? spec.text : spec.text2;
-        border = Border.fromBorderSide(
-          BorderSide(color: _hover ? spec.faint : spec.lineStrong),
-        );
-      case PinButtonVariant.danger:
-        bg = spec.dangerTint;
-        fg = spec.dangerStrong;
-      case PinButtonVariant.ghost:
-        bg = Colors.transparent;
-        fg = spec.primaryStrong;
-      case PinButtonVariant.disabled:
-        bg = spec.surface3;
-        fg = spec.faint;
-    }
-    if (isDisabled) {
-      bg = spec.surface3;
-      fg = spec.faint;
-    }
-
-    return MouseRegion(
-      cursor: isDisabled ? MouseCursor.defer : SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _down = true),
-        onTapUp: (_) => setState(() => _down = false),
-        onTapCancel: () => setState(() => _down = false),
-        onTap: isDisabled ? null : widget.onTap,
-        child: AnimatedScale(
-          scale: _down && !isDisabled ? 0.97 : 1,
-          duration: PinMotion.dur,
-          curve: PinMotion.ease,
-          child: AnimatedContainer(
-            duration: PinMotion.dur,
-            curve: PinMotion.ease,
-            height: height,
-            padding: EdgeInsets.symmetric(horizontal: hPadding),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(radius),
-              border: border,
+    // forui FButton：成熟按钮组件，hover / 按压 / 禁用态由库内处理；
+    // 颜色经 FTheme 适配层与 PinSpec 对齐
+    return FTheme(
+      data: buildForuiTheme(spec),
+      child: FButton(
+        onPress: isDisabled ? null : widget.onTap,
+        variant: _foruiVariant(),
+        size: widget.size == PinButtonSize.md ? FButtonSizeVariant.md : FButtonSizeVariant.lg,
+        mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (widget.icon != null) PinIcon(widget.icon!, size: 13, color: fg),
+            if (widget.icon != null) gap,
+            Text(
+              widget.label,
+              style: TextStyle(
+                fontSize: widget.size == PinButtonSize.md
+                    ? PinFontSize.sm
+                    : PinFontSize.md,
+                fontWeight: FontWeight.w600,
+                color: fg,
+                fontFamilyFallback: PinFont.sans,
+              ),
             ),
-            child: widget.expand
-                ? Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: _content(fg, fontSize),
-                    ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: _content(fg, fontSize),
-                  ),
-          ),
+            if (widget.trailingIcon != null) gap,
+            if (widget.trailingIcon != null)
+              PinIcon(widget.trailingIcon!, size: 13, color: fg),
+          ],
         ),
       ),
     );
   }
-
-  List<Widget> _content(Color fg, double fontSize) {
-    const gap = SizedBox(width: 7);
-    return [
-      if (widget.icon != null) PinIcon(widget.icon!, size: 13, color: fg),
-      if (widget.icon != null) gap,
-      Text(
-        widget.label,
-        style: TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.w600,
-          color: fg,
-          fontFamilyFallback: PinFont.sans,
-        ),
-      ),
-      if (widget.trailingIcon != null) gap,
-      if (widget.trailingIcon != null)
-        PinIcon(widget.trailingIcon!, size: 13, color: fg),
-    ];
-  }
 }
-
-Color _darken(Color c, double amount) => Color.lerp(c, Colors.black, amount)!;
 
 /// 图标按钮（对应 .icon-btn，激活态 .active）
 class PinIconButton extends StatefulWidget {

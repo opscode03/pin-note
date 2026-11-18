@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 
 import '../design/icons.dart';
 import '../design/theme.dart';
@@ -146,11 +147,9 @@ class MenuDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spec = context.pin;
-    return Container(
-      height: 1,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      color: spec.line,
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: FDivider(),
     );
   }
 }

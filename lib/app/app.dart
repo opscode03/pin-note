@@ -6,6 +6,9 @@ import 'package:flutter/services.dart';
 
 import '../data/note_repository.dart';
 import '../data/task_repository.dart';
+import 'package:forui/forui.dart';
+
+import '../design/forui_theme.dart';
 import '../design/theme.dart';
 import '../screens/design_language_screen.dart';
 import '../screens/empty_states_screen.dart';
@@ -73,7 +76,12 @@ class _PinNoteAppState extends State<PinNoteApp> {
 
   @override
   Widget build(BuildContext context) {
-    return AppScope(
+    // forui 组件的主题适配层：PinSpec → FThemeData
+    final spec =
+        _controller.mode == ThemeMode.dark ? pinSpecDark : pinSpecLight;
+    return FTheme(
+      data: buildForuiDesktopTheme(spec),
+      child: AppScope(
       notifier: _controller,
       child: TaskScope(
         notifier: _taskRepo,
@@ -114,8 +122,12 @@ class _PinNoteAppState extends State<PinNoteApp> {
                 child: child ?? const SizedBox.shrink(),
               ),
               home: const HomeScreen(),
+              // 首启、登录、便签库与便签编辑已精简出主流程（页面保留，路由注释）
+
               routes: {
                 '/home': (_) => const HomeScreen(),
+                // '/notes': (_) => const NotesScreen(),
+                // '/note-editor': (_) => const NoteEditorScreen(),
                 // 首启、登录、便签库与便签编辑已精简出主流程；
                 // 页面文件保留，但路由不再注册：
                 // '/onboarding': (_) => const OnboardingScreen(),
@@ -130,11 +142,14 @@ class _PinNoteAppState extends State<PinNoteApp> {
                 '/empty-states': (_) => const EmptyStatesScreen(),
                 // '/onboarding': (_) => const OnboardingScreen(),
                 // '/account': (_) => const AccountScreen(),
+                // '/onboarding': (_) => const OnboardingScreen(),
+                // '/account': (_) => const AccountScreen(),
                 '/design-language': (_) => const DesignLanguageScreen(),
               },
             ),
           ),
         ),
+      ),
       ),
     );
   }
