@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import '../../app/app_scope.dart';
 import '../../data/capture_parser.dart';
 import '../../data/demo.dart';
-import '../../app/navigation.dart';
 import '../../design/icons.dart';
 import '../../design/theme.dart';
 import '../../design/tokens.dart';
@@ -231,31 +230,6 @@ class _QuickCaptureCardState extends State<QuickCaptureCard> {
                 ),
               ),
               const SizedBox(width: PinSpace.s3),
-              PinButton(
-                '存为便签',
-                variant: PinButtonVariant.secondary,
-                onTap: () {
-                  if (_parse.title.isEmpty) return;
-                  final note = NoteScope.of(context).create(
-                    title: _parse.title,
-                    tag: _parse.tags.isEmpty ? null : _parse.tags.first,
-                    lines: [
-                      '来自快速捕获',
-                      if (_parse.dateLabel != null)
-                        '时间：${_parse.dateLabel}',
-                    ],
-                  );
-                  showPinToast(
-                    context,
-                    title: '已存为便签「${note.title}」',
-                    subtitle: '便签库中可继续编辑',
-                    icon: PinIcons.note,
-                  );
-                  Navigator.pop(context);
-                  AppNav.go(context, '/notes');
-                },
-              ),
-              const SizedBox(width: 10),
               PinButton(
                 '添加待办',
                 trailingIcon: PinIcons.enter,

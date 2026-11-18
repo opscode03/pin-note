@@ -69,12 +69,6 @@ List<Object> _navItems(BuildContext context) {
       badge: '${repo.done.length}',
       onTap: () => AppNav.go(context, '/empty-states'),
     ),
-    SidebarEntry(
-      '便签库',
-      icon: PinIcons.pin,
-      badge: '8',
-      onTap: () => AppNav.go(context, '/notes'),
-    ),
     const SidebarHeader('清单'),
     const SidebarEntry('收件箱', dotColor: PinListDots.inbox, badge: '3'),
     const SidebarEntry('工作', dotColor: PinListDots.work, badge: '12'),

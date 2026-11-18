@@ -98,12 +98,6 @@ class _SearchScreenState extends State<SearchScreen> {
         hits.add(_SearchHit.task(t));
       }
     }
-    // 便签（演示数据）
-    for (final n in kDemoNotes) {
-      if (q.isEmpty || n.title.toLowerCase().contains(q)) {
-        hits.add(_SearchHit.note(n));
-      }
-    }
     // 标签（任务标签聚合）
     final tagSet = <String>{for (final t in repo.tasks) ...t.tags};
     for (final tag in tagSet) {
@@ -121,12 +115,9 @@ class _SearchScreenState extends State<SearchScreen> {
     switch (hit.kind) {
       case _HitKind.task:
         showTaskEditDialog<void>(context, task: hit.task);
-      case _HitKind.note:
-        final note = hit.note!;
-        NoteScope.of(context).select(note.id ?? note.title);
-        AppNav.go(context, '/note-editor');
       case _HitKind.tag:
-        AppNav.go(context, '/notes');
+        // 只保留任务主流程：标签结果回到今日任务列表
+        AppNav.go(context, '/');
     }
   }
 
@@ -174,22 +165,11 @@ class _SearchScreenState extends State<SearchScreen> {
 }
 
 class _SearchHit {
-  const _SearchHit.task(this.task)
-    : kind = _HitKind.task,
-      note = null,
-      tag = null;
-  const _SearchHit.note(this.note)
-    : kind = _HitKind.note,
-      task = null,
-      tag = null;
-  const _SearchHit.tag(this.tag)
-    : kind = _HitKind.tag,
-      task = null,
-      note = null;
+  const _SearchHit.task(this.task) : kind = _HitKind.task, tag = null;
+  const _SearchHit.tag(this.tag) : kind = _HitKind.tag, task = null;
 
   final _HitKind kind;
   final DemoTask? task;
-  final DemoNote? note;
   final String? tag;
 }
 
@@ -216,12 +196,6 @@ List<Object> _navItems(BuildContext context) {
       icon: PinIcons.check,
       onTap: () => AppNav.go(context, '/empty-states'),
     ),
-    SidebarEntry(
-      '便签库',
-      icon: PinIcons.pin,
-      badge: '8',
-      onTap: () => AppNav.go(context, '/notes'),
-    ),
     const SidebarHeader('清单'),
     const SidebarEntry('收件箱', dotColor: PinListDots.inbox, badge: '3'),
     const SidebarEntry('工作', dotColor: PinListDots.work, badge: '12'),
@@ -244,7 +218,7 @@ class _EmptyContent extends StatelessWidget {
 }
 
 /// 搜索命中
-enum _HitKind { task, note, tag }
+enum _HitKind { task, tag }
 
 /// 搜索结果浮层（.search-drop：padding 10）
 class _SearchDrop extends StatelessWidget {
@@ -315,10 +289,9 @@ class _SearchDrop extends StatelessWidget {
     var lastKind = _HitKind.task;
     var groupCount = 0;
 
-    // 分组渲染：任务 / 便签 / 清单与标签
+    // 分组渲染：任务 / 清单与标签
     String labelFor(_HitKind k) => switch (k) {
       _HitKind.task => '任务',
-      _HitKind.note => '便签',
       _HitKind.tag => '清单与标签',
     };
 
@@ -359,22 +332,6 @@ class _SearchDrop extends StatelessWidget {
             '${t.done ? '已完成' : (t.listName ?? '任务')} · ${t.priority.label}',
           ),
         );
-      case _HitKind.note:
-        final n = hit.note!;
-        return _ResultRow(
-          focus: focus,
-          onTap: () => onOpen(hit),
-          leading: PinIcon(PinIcons.note, size: 16, color: spec.text2),
-          title: PinHighlightText(n.title, query: query),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PinNoteChipOf(n.color),
-              const SizedBox(width: PinSpace.s2),
-              _MetaText(n.time),
-            ],
-          ),
-        );
       case _HitKind.tag:
         final tag = hit.tag!;
         return _ResultRow(
@@ -395,18 +352,6 @@ class _SearchDrop extends StatelessWidget {
           trailing: const _MetaText('标签'),
         );
     }
-  }
-}
-
-/// 按便签色渲染的色名 Chip（搜索结果里的「桌面贴」胶囊）
-class PinNoteChipOf extends StatelessWidget {
-  const PinNoteChipOf(this.color, {super.key});
-
-  final StickyColor color;
-
-  @override
-  Widget build(BuildContext context) {
-    return const PinChip('桌面贴', icon: PinIcons.pin, style: PinChipStyle.accent);
   }
 }
 

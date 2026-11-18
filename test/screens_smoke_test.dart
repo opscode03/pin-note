@@ -17,8 +17,9 @@ import 'package:pin_note/screens/account_screen.dart';
 import 'package:pin_note/screens/design_language_screen.dart';
 import 'package:pin_note/screens/empty_states_screen.dart';
 import 'package:pin_note/screens/home_screen.dart';
-import 'package:pin_note/screens/note_editor_screen.dart';
-import 'package:pin_note/screens/notes_screen.dart';
+// 便签库 / 便签编辑已精简出主流程：页面保留，路由未注册
+// import 'package:pin_note/screens/note_editor_screen.dart';
+// import 'package:pin_note/screens/notes_screen.dart';
 import 'package:pin_note/screens/onboarding_screen.dart';
 import 'package:pin_note/screens/quick_capture_screen.dart';
 import 'package:pin_note/screens/search_screen.dart';
@@ -172,11 +173,9 @@ void main() {
     testWidgets('主窗口屏：今日 / 便签库 / 任务编辑 / 设置 / 搜索 / 便签编辑（浅色）', (tester) async {
       for (final screen in const [
         HomeScreen(),
-        NotesScreen(),
         TaskEditScreen(),
         SettingsScreen(),
         SearchScreen(),
-        NoteEditorScreen(),
       ]) {
         await tester.pumpWidget(_wrap(screen));
         await tester.pump();

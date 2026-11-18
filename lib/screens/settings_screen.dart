@@ -74,11 +74,6 @@ class _SettingsSidebar extends StatelessWidget {
                   ),
                   const _SettingsNavItem('数据', icon: PinIcons.folder),
                   _SettingsNavItem(
-                    '账户',
-                    icon: PinIcons.person,
-                    onTap: () => AppNav.go(context, '/account'),
-                  ),
-                  _SettingsNavItem(
                     '关于',
                     icon: PinIcons.info,
                     onTap: () => AppNav.go(context, '/design-language'),

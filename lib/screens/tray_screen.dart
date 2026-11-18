@@ -171,12 +171,6 @@ class _TrayMenu extends StatelessWidget {
           onTap: () => showQuickCaptureDialog<void>(context),
         ),
         PinMenuItem(
-          label: '新建便签',
-          icon: PinIcons.note,
-          kbd: 'Ctrl+Alt+N',
-          onTap: () => AppNav.go(context, '/note-editor'),
-        ),
-        PinMenuItem(
           label: '新建待办',
           icon: PinIcons.plus,
           kbd: 'Ctrl+Shift+T',

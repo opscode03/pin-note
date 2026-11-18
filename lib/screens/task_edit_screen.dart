@@ -81,12 +81,6 @@ List<Object> _navItems(BuildContext context) {
       icon: PinIcons.check,
       onTap: () => Navigator.pushNamed(context, '/empty-states'),
     ),
-    SidebarEntry(
-      '便签库',
-      icon: PinIcons.pin,
-      badge: '8',
-      onTap: () => Navigator.pushNamed(context, '/notes'),
-    ),
     const SidebarHeader('清单'),
     const SidebarEntry('工作', dotColor: PinListDots.work, badge: '12'),
     const SidebarEntry('生活', dotColor: PinListDots.life, badge: '9'),

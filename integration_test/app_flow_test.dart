@@ -14,7 +14,6 @@ import 'package:pin_note/app/app_scope.dart';
 import 'package:pin_note/app/desktop_window.dart';
 import 'package:pin_note/data/note_repository.dart';
 import 'package:pin_note/data/task_repository.dart';
-import 'package:pin_note/design/icons.dart';
 import 'package:pin_note/widgets/controls.dart';
 import 'package:pin_note/widgets/task_views.dart';
 
@@ -63,10 +62,6 @@ void main() {
     await settle('今日页（起点）');
     expect(find.text('已逾期'), findsWidgets);
 
-    await tester.tap(find.text('便签库').first, warnIfMissed: false);
-    await settle('A1 侧栏「便签库」');
-    mark(find.text('新建便签').evaluate().isNotEmpty, 'A1 侧栏「便签库」→ 便签库页');
-
     await tester.tap(find.text('搜索任务与便签…'), warnIfMissed: false);
     await settle('A2 标题栏搜索胶囊');
     mark(find.byType(TextField).evaluate().isNotEmpty,
@@ -90,27 +85,6 @@ void main() {
         '（false = 弹层关闭且栈深不变 ✓）');
     mark(!canPopAfter, 'B3 弹层「确定」→ 关闭弹层（栈深不变）');
     mark(find.byType(TextField).evaluate().isNotEmpty, 'B3 回到搜索页（输入框在）');
-
-    // ---------- 流程 C：便签链路 ----------
-    debugPrint('===== 流程 C：便签链路 =====');
-    await tester.tap(find.text('便签库').first, warnIfMissed: false);
-    await settle('C0 进入便签库');
-    await tester.tap(find.text('新建便签').first, warnIfMissed: false);
-    await settle('C1 新建便签');
-    mark(find.textContaining('已自动保存').evaluate().isNotEmpty,
-        'C1 便签库「新建便签」→ 便签编辑器（footer 时间来自便签数据）');
-
-    // 桌面贴流程已从产品移除：不再进入相关路由，直接关闭编辑器回便签库
-    await tester.tap(
-      find
-          .byWidgetPredicate(
-            (w) => w is PinIcon && w.data == PinIcons.close,
-          )
-          .first,
-      warnIfMissed: false,
-    );
-    await settle('C2 桌面贴流程已移除，关闭编辑器回便签库');
-    mark(find.text('新建便签').evaluate().isNotEmpty, 'C2 编辑器关闭后回到便签库');
 
     // ---------- 流程 D：快速捕获 ----------
     debugPrint('===== 流程 D：快速捕获 =====');

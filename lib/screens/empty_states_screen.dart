@@ -7,6 +7,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../app/dialogs.dart';
 import '../app/navigation.dart';
 import '../design/icons.dart';
 import '../design/theme.dart';
@@ -154,9 +155,9 @@ class _TodayBody extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             PinButton(
-              '从便签创建',
+              '新建任务',
               variant: PinButtonVariant.secondary,
-              onTap: () => AppNav.go(context, '/notes'),
+              onTap: () => showTaskEditDialog<void>(context, createNew: true),
             ),
           ],
         ),
@@ -222,9 +223,9 @@ class _NotesBody extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             PinButton(
-              '新建便签',
+              '快速捕获',
               icon: PinIcons.plus,
-              onTap: () => AppNav.go(context, '/note-editor'),
+              onTap: () => showQuickCaptureDialog<void>(context),
             ),
             const SizedBox(width: 12),
             PinButton(

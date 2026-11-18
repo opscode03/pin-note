@@ -16,9 +16,6 @@ import 'package:pin_note/app/navigation.dart';
 import 'package:pin_note/data/demo.dart';
 import 'package:pin_note/data/note_repository.dart';
 import 'package:pin_note/data/task_repository.dart';
-import 'package:pin_note/design/icons.dart';
-import 'package:pin_note/design/tokens.dart';
-import 'package:pin_note/widgets/app_window.dart';
 import 'package:pin_note/widgets/overlays/task_edit_popover.dart';
 import 'package:pin_note/widgets/sidebar.dart';
 
@@ -124,78 +121,9 @@ void main() {
     await settle('4e. Esc 关搜索');
     check(find.text('已逾期').evaluate().isNotEmpty, '4f. 返回今日且栈未异常');
 
-    // ---------- 5. 新建便签与编辑 ----------
-    await tester.tap(find.text('便签库').first);
-    await settle('5. 便签库');
-    final notesBefore = noteRepo.notes.length;
-    await tester.tap(find.text('新建便签').first);
-    await settle('5a. 点击「新建便签」');
-    await tester.enterText(find.byType(TextField).first, '新便签·真正创建');
-    await settle('5b. 在新便签编辑器输入标题');
-    final newNoteCreated = noteRepo.notes.any((n) => n.title == '新便签·真正创建');
-    check(newNoteCreated && noteRepo.notes.length == notesBefore + 1,
-        '5c. 新建便签真正创建并保存',
-        issue: '「新建便签」仅打开编辑器，不会创建新便签；标题输入不会落库');
-
-    // 返回便签库：编辑器没有侧栏，像用户一样点右上角关闭
-    final closeFinder = find.byWidgetPredicate(
-      (w) => w is PinIcon && w.data == PinIcons.close,
-    );
-    debugPrint('[诊断] 编辑器关闭按钮数=${closeFinder.evaluate().length} '
-        '首个位置=${tester.getRect(closeFinder.first)}');
-    await tester.tap(closeFinder.first, warnIfMissed: false);
-    await settle('5d. 关闭编辑器回便签库，选择已有便签');
-    debugPrint('[诊断] 关闭后路由=${AppNav.observer.current} '
-        '新建便签按钮=${find.text('新建便签').evaluate().length} '
-        '周报要点=${find.text('周报要点').evaluate().length} '
-        '输入框=${find.byType(TextField).evaluate().length}');
-    // 新建已修复，原「周报要点」仍保留；继续编辑这张已有便签
-    await tester.tap(find.text('周报要点').first);
-    await settle('5e. 打开「周报要点」');
-    await tester.enterText(find.byType(TextField).first, '周报要点·终稿');
-    await tester.tap(find.text('新建清单项'));
-    await settle('5f. 改标题并新增清单项');
-    final editedNote = noteRepo.notes.firstWhere((n) => n.id == '周报要点');
-    check(editedNote.title == '周报要点·终稿', '5g. 已有便签标题保存');
-    check(editedNote.checks.length == 4, '5h. 清单项由 3 条增加到 4 条');
-    await tester.tap(find.text('Q4 目标对齐'));
-    await settle('5i. 勾选清单项');
-    check(noteRepo.notes.firstWhere((n) => n.id == '周报要点').checks[2].$2,
-        '5j. 清单项可勾选完成');
-
-    // 通过颜色面板真实坐标点击薄荷绿（第 4 格）
-    final panel = tester.getRect(find.byType(Artboard));
-    await tester.tapAt(Offset(
-      panel.left + 18 + 3 * 56 + 23,
-      panel.top + 18 + 14 + 14 + 20,
-    ));
-    await settle('5k. 切换便签色为薄荷绿');
-    check(noteRepo.notes.firstWhere((n) => n.id == '周报要点').color ==
-        StickyColor.mint, '5l. 便签色切换并保存');
-
-    final freshNotes = NoteRepository();
-    await freshNotes.load();
-    final persistedNote =
-        freshNotes.notes.where((n) => n.id == '周报要点').toList();
-    check(persistedNote.isNotEmpty &&
-        persistedNote.first.title == '周报要点·终稿' &&
-        persistedNote.first.color == StickyColor.mint,
-        '5m. 重启读回：便签标题与颜色保持');
-
     // ---------- 7. 设置 / 窄窗口 / 账户 ----------
-    // 桌面贴流程已移除：关闭编辑器回便签库，再回今日进入设置
-    await tester.tap(
-      find
-          .byWidgetPredicate(
-            (w) => w is PinIcon && w.data == PinIcons.close,
-          )
-          .first,
-      warnIfMissed: false,
-    );
-    await settle('7. 关闭编辑器回便签库');
-    await tester.tap(find.text('今日').first);
-    await settle('7a. 回主窗口今日页');
     await tester.tap(find.byTooltip('设置'));
+    await settle('7. 设置外观');
     await settle('7. 设置外观');
     await tester.tap(find.text('跟随系统'));
     await settle('7a. 点击跟随系统');
@@ -205,39 +133,21 @@ void main() {
         issue: '设置「跟随系统」只是跳转当前页，不改变 ThemeMode');
     check(find.text('浅色').evaluate().isNotEmpty, '7c. 设置页视觉正常');
 
-    await tester.tap(find.text('账户'));
-    await settle('7d. 账户与登录');
-    check(find.byType(TextField).evaluate().isNotEmpty,
-        '7e. 手机号与验证码可输入',
-        issue: '账户登录页输入框为静态展示，无法输入手机号/验证码');
-    await tester.enterText(find.byType(TextField).first, '13800138000');
-    await tester.enterText(find.byType(TextField).last, '123456');
-    await tester.tap(find.text('获取验证码'));
-    await settle('7e1. 获取演示验证码');
-    check(find.text('验证码已发送（本地演示）').evaluate().isNotEmpty,
-        '7e1. 验证码发送反馈与倒计时');
-    await tester.tap(find.text('登录 / 注册'));
-    await settle('7e2. 登录校验并返回主界面');
-    check(find.text('输入校验通过').evaluate().isNotEmpty,
-        '7e2. 表单校验通过并提示同步服务未接入');
+    // 登录 / 账户流程已精简出主流程，不再走查
 
-    await tester.tap(find.byTooltip('设置'));
-    await settle('7f. 回设置，点击「关于」');
+    // 「关于」入口保留（进入设计语言规范页）
     await tester.tap(find.text('关于'));
-    await settle('7f2. 点击设置「关于」');
+    await settle('7f. 点击设置「关于」');
     debugPrint('[诊断] 关于后路由=${AppNav.observer.current} '
         '设计语言规范=${find.text('设计语言规范').evaluate().length}');
     check(find.text('设计语言规范').evaluate().isNotEmpty,
-        '7g. 关于可进入设计语言页',
-        issue: '设置「关于」没有 onTap，点击无响应');
+        '7g. 关于可进入设计语言页');
 
-    // 「关于」已进入设计语言页后，先回设置（测试导航），再走页面返回链接
-    if (find.text('设计语言规范').evaluate().isNotEmpty) {
-      tester
-          .state<NavigatorState>(find.byType(Navigator).first)
-          .pushReplacementNamed('/settings');
-      await settle('7g2. 设计语言页返回设置');
-    }
+    // 返回设置（测试导航），再走页面返回链接
+    tester
+        .state<NavigatorState>(find.byType(Navigator).first)
+        .pushReplacementNamed('/settings');
+    await settle('7g2. 设计语言页返回设置');
     await tester.tap(find.text('返回'));
     await settle('7h. 设置返回今日');
     await tester.binding.setSurfaceSize(const Size(850, 900));

@@ -22,15 +22,12 @@ flutter run -d windows
 | --- | --- | --- |
 | `/` | 今日（三栏：侧栏 / 任务列表 / 详情） | home.html |
 | `/notes` | 便签库（8 色便签卡墙） | notes.html |
-| `/note-editor` | 便签编辑（画布页） | note-editor.html |
 | `/quick-capture` | 快速捕获（全局捕获窗） | quick-capture.html |
 | `/search` | 搜索（Ctrl+K 浮层） | search.html |
 | `/task-edit` | 任务编辑（弹层 + `table_calendar` 真实日期选择） | task-edit.html |
 | `/settings` | 设置 · 外观 | settings.html |
 | `/tray` | 托盘与通知 | tray.html |
 | `/empty-states` | 空状态与反馈 | empty-states.html |
-| `/onboarding` | 首次启动引导 | onboarding.html |
-| `/account` | 登录与账户 | account.html |
 | `/design-language` | 设计语言规范（活文档页） | design-language.html |
 | 深色 | 标题栏主题按钮切换 | dark.html |
 
@@ -56,7 +53,8 @@ flutter test      # 冒烟 + 组件测试
   右下折角，见 `lib/widgets/sticky_note.dart`。
 - 任务日期：`DemoTask.dueAt` 为真实 `DateTime`，编辑器使用成熟 `table_calendar`
   与系统 `showTimePicker`，快速捕获同步计算实际日期并持久化。
-- 桌面贴相关路由（`/desktop-pins`、`/pin-controls`）已移除，后续体验与修改跳过。
+- 流程精简：首启引导 / 登录账户 / 便签库 / 便签编辑 / 桌面贴的路由已注释
+  （页面文件保留在 `lib/screens/`，需要时取消注释即可恢复）。
 - 桌面场景：壁纸四款（wp-a~d）+ 毛玻璃任务栏（BackdropFilter）。
 - 窗口：`window_manager` 隐藏系统标题栏，自绘拖拽区与窗口按钮；
   插件不可用（测试 / 预览）时静默降级。

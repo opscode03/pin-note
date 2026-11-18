@@ -7,13 +7,9 @@ import 'package:flutter/services.dart';
 import '../data/note_repository.dart';
 import '../data/task_repository.dart';
 import '../design/theme.dart';
-import '../screens/account_screen.dart';
 import '../screens/design_language_screen.dart';
 import '../screens/empty_states_screen.dart';
 import '../screens/home_screen.dart';
-import '../screens/note_editor_screen.dart';
-import '../screens/notes_screen.dart';
-import '../screens/onboarding_screen.dart';
 import '../screens/quick_capture_screen.dart';
 import '../screens/search_screen.dart';
 import '../screens/settings_screen.dart';
@@ -101,12 +97,6 @@ class _PinNoteAppState extends State<PinNoteApp> {
                 shift: true,
               ):
                   _newTask,
-              const SingleActivator(
-                LogicalKeyboardKey.keyN,
-                control: true,
-                alt: true,
-              ):
-                  () => _go('/notes'),
             },
             child: MaterialApp(
               title: '贴记 PinNote',
@@ -123,21 +113,23 @@ class _PinNoteAppState extends State<PinNoteApp> {
                     const TextStyle(),
                 child: child ?? const SizedBox.shrink(),
               ),
-              home: _controller.onboardingSeen
-                  ? const HomeScreen()
-                  : const OnboardingScreen(),
+              home: const HomeScreen(),
               routes: {
                 '/home': (_) => const HomeScreen(),
-                '/notes': (_) => const NotesScreen(),
-                '/note-editor': (_) => const NoteEditorScreen(),
+                // 首启、登录、便签库与便签编辑已精简出主流程；
+                // 页面文件保留，但路由不再注册：
+                // '/onboarding': (_) => const OnboardingScreen(),
+                // '/account': (_) => const AccountScreen(),
+                // '/notes': (_) => const NotesScreen(),
+                // '/note-editor': (_) => const NoteEditorScreen(),
                 '/quick-capture': (_) => const QuickCaptureScreen(),
                 '/search': (_) => const SearchScreen(),
                 '/task-edit': (_) => const TaskEditScreen(),
                 '/settings': (_) => const SettingsScreen(),
                 '/tray': (_) => const TrayScreen(),
                 '/empty-states': (_) => const EmptyStatesScreen(),
-                '/onboarding': (_) => const OnboardingScreen(),
-                '/account': (_) => const AccountScreen(),
+                // '/onboarding': (_) => const OnboardingScreen(),
+                // '/account': (_) => const AccountScreen(),
                 '/design-language': (_) => const DesignLanguageScreen(),
               },
             ),
